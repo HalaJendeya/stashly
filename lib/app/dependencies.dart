@@ -40,9 +40,12 @@ abstract final class AppEnvironment {
   );
 
   /// OAuth *Web* client ID that the backend verifies ID tokens against (its
-  /// `GOOGLE_CLIENT_ID`). Public, not a secret. Empty disables Google sign-in.
+  /// `GOOGLE_CLIENT_ID`), Google Cloud project `stashly-512415`. Public, not a
+  /// secret. Android finds its own client by package name + signing SHA-1.
   static const googleServerClientId = String.fromEnvironment(
     'GOOGLE_SERVER_CLIENT_ID',
+    defaultValue:
+        '346913053640-ph7s6jf6lte3nrat9m6lnqfhdsucgsgr.apps.googleusercontent.com',
   );
 }
 
