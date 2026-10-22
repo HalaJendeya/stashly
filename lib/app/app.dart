@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:stashly/app/dependencies.dart';
 import 'package:stashly/app/router.dart';
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/layout/app_viewport.dart';
 import 'package:stashly/core/routing/routes.dart';
 import 'package:stashly/core/theme/app_theme.dart';
@@ -37,6 +38,8 @@ class _StashlyAppState extends State<StashlyApp> {
     if (initial != null) session.pendingSharedText = initial;
     _shares = widget.deps.sharedText.shares.listen(_onShare);
     session.addListener(_resumeParkedShare);
+    // Theme and language load first so the splash already uses them.
+    await widget.deps.display.load();
     await session.bootstrap();
   }
 
@@ -76,14 +79,23 @@ class _StashlyAppState extends State<StashlyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Stashly',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark(),
-      darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.dark,
-      routerConfig: _router,
-      builder: (context, child) => AppViewport(child: child!),
+    final display = widget.deps.display;
+    return ListenableBuilder(
+      listenable: display,
+      builder: (context, _) => MaterialApp.router(
+        title: 'Stashly',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light(),
+        darkTheme: AppTheme.dark(),
+        themeMode: display.themeMode,
+        // English or Arabic (right-to-left), from the user's choice or the
+        // device; unsupported device languages fall back to English.
+        locale: display.locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        routerConfig: _router,
+        builder: (context, child) => AppViewport(child: child!),
+      ),
     );
   }
 }

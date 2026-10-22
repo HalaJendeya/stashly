@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/routing/navigation.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
@@ -26,8 +27,8 @@ class BrandTopBar extends StatelessWidget {
             const SizedBox(width: 9),
             Text(
               'Stashly',
-              style: AppTextStyles.button.copyWith(
-                color: AppColors.textPrimary,
+              style: context.text.button.copyWith(
+                color: context.colors.textPrimary,
                 letterSpacing: -0.32,
               ),
             ),
@@ -35,7 +36,7 @@ class BrandTopBar extends StatelessWidget {
             IconTapButton(
               icon: AppIcons.bookmark,
               iconSize: 19,
-              semanticLabel: 'All saved items',
+              semanticLabel: context.l10n.allSavedItems,
               onPressed: onLibrary,
             ),
           ],
@@ -70,12 +71,12 @@ class TitleBlock extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(eyebrow, style: AppTextStyles.eyebrow),
+          Text(eyebrow, style: context.text.eyebrow),
           const SizedBox(height: 7),
-          Text(title, style: titleStyle ?? AppTextStyles.heading),
+          Text(title, style: titleStyle ?? context.text.heading),
           if (subtitle != null) ...[
             const SizedBox(height: 7),
-            Text(subtitle!, style: subtitleStyle ?? AppTextStyles.body),
+            Text(subtitle!, style: subtitleStyle ?? context.text.body),
           ],
         ],
       ),
@@ -107,7 +108,7 @@ class SectionHeader extends StatelessWidget {
           child: TitleBlock(
             eyebrow: eyebrow,
             title: title,
-            titleStyle: AppTextStyles.sectionTitle,
+            titleStyle: context.text.sectionTitle,
           ),
         ),
         if (actionLabel != null)
@@ -140,7 +141,7 @@ class BackTitleHeader extends StatelessWidget {
         children: [
           IconTapButton(
             icon: AppIcons.arrowLeft,
-            semanticLabel: 'Back',
+            semanticLabel: context.l10n.actionBack,
             onPressed: onBack ?? context.popOrHome,
           ),
           const SizedBox(width: 8),
@@ -148,7 +149,7 @@ class BackTitleHeader extends StatelessWidget {
             child: TitleBlock(
               eyebrow: eyebrow,
               title: title,
-              titleStyle: AppTextStyles.headingCompact,
+              titleStyle: context.text.headingCompact,
             ),
           ),
           if (trailing != null) ...[const SizedBox(width: 8), trailing!],
@@ -183,7 +184,7 @@ class AuthHeader extends StatelessWidget {
             if (showBack)
               IconTapButton(
                 icon: AppIcons.arrowLeft,
-                semanticLabel: 'Back',
+                semanticLabel: context.l10n.actionBack,
                 onPressed: onBack ?? context.popOrHome,
               )
             else
@@ -195,10 +196,10 @@ class AuthHeader extends StatelessWidget {
         const SizedBox(height: 23),
         Semantics(
           header: true,
-          child: Text(title, style: AppTextStyles.heading),
+          child: Text(title, style: context.text.heading),
         ),
         const SizedBox(height: 7),
-        Text(subtitle, style: AppTextStyles.body.copyWith(height: 1.55)),
+        Text(subtitle, style: context.text.body.copyWith(height: 1.55)),
       ],
     );
   }
@@ -211,37 +212,37 @@ class CaptionTopBar extends StatelessWidget {
     super.key,
     required this.caption,
     this.leadingIcon = AppIcons.arrowLeft,
-    this.leadingLabel = 'Back',
+    this.leadingLabel,
     this.onLeading,
     this.trailing,
   });
 
   final String caption;
   final String leadingIcon;
-  final String leadingLabel;
+
+  /// Defaults to "Back".
+  final String? leadingLabel;
   final VoidCallback? onLeading;
   final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.topBar,
+      color: context.colors.topBar,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       child: Row(
         children: [
           IconTapButton(
             icon: leadingIcon,
             iconSize: 20,
-            semanticLabel: leadingLabel,
+            semanticLabel: leadingLabel ?? context.l10n.actionBack,
             onPressed: onLeading ?? context.popOrHome,
           ),
           Expanded(
             child: Text(
               caption,
               textAlign: TextAlign.center,
-              style: AppTextStyles.caption.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: context.text.caption.copyWith(fontWeight: FontWeight.w600),
             ),
           ),
           trailing ?? const SizedBox(width: 48),

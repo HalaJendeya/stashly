@@ -19,7 +19,8 @@ class HttpSearchRepository implements SearchRepository {
         for (final item in data.objList('content_types'))
           FilterOption(
             value: ContentType.fromApi(item.strOrNull('value')),
-            label: ContentType.fromApi(item.strOrNull('value')).label,
+            // Shown via the localized `contentType` message in the UI.
+            label: item.str('value'),
             count: item.intOrNull('count') ?? 0,
           ),
       ],

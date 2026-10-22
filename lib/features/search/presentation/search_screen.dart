@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/presentation/paged_controller.dart';
 import 'package:stashly/core/result/paging.dart';
@@ -167,7 +168,7 @@ class _SearchScreenState extends State<SearchScreen> {
         _seen = widget.changes.version(DataTopic.links) + 1;
         widget.changes.notify({DataTopic.links, DataTopic.account});
       case Err(:final failure):
-        showStashlySnack(context, failure.userMessage, error: true);
+        showStashlySnack(context, failure.describe(context.l10n), error: true);
     }
   }
 
@@ -226,13 +227,11 @@ class _SearchScreenState extends State<SearchScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         TitleBlock(
-          eyebrow: 'FIND IT AGAIN',
-          title: 'Search your stash',
-          subtitle: _active
-              ? null
-              : 'Search the words stored with your links—no AI or source app required.',
-          subtitleStyle: AppTextStyles.micro.copyWith(
-            color: AppColors.textSecondary,
+          eyebrow: context.l10n.searchEyebrow,
+          title: context.l10n.searchTitle,
+          subtitle: _active ? null : context.l10n.searchSubtitle,
+          subtitleStyle: context.text.micro.copyWith(
+            color: context.colors.textSecondary,
           ),
         ),
         const SizedBox(height: 17),
@@ -242,7 +241,7 @@ class _SearchScreenState extends State<SearchScreen> {
               child: StashlyTextField(
                 controller: _input,
                 focusNode: _focus,
-                hint: 'Title, note, description, or source…',
+                hint: context.l10n.searchHint,
                 icon: AppIcons.searchInput,
                 maxLength: 100,
                 textInputAction: TextInputAction.search,
@@ -254,8 +253,8 @@ class _SearchScreenState extends State<SearchScreen> {
                         icon: AppIcons.xInput,
                         iconSize: 15,
                         size: 36,
-                        color: AppColors.textMuted,
-                        semanticLabel: 'Clear search',
+                        color: context.colors.textMuted,
+                        semanticLabel: context.l10n.clearSearch,
                         onPressed: _clearText,
                       ),
               ),
@@ -268,23 +267,23 @@ class _SearchScreenState extends State<SearchScreen> {
                   icon: AppIcons.sliders18,
                   iconSize: 18,
                   size: 52,
-                  background: AppColors.surface,
+                  background: context.colors.surface,
                   bordered: true,
                   color: _query.hasFilters
-                      ? AppColors.gold
-                      : AppColors.textMuted,
-                  semanticLabel: 'Filters',
+                      ? context.colors.gold
+                      : context.colors.textMuted,
+                  semanticLabel: context.l10n.filters,
                   onPressed: _openFilters,
                 ),
                 if (_query.hasFilters)
-                  Positioned(
-                    right: 10,
+                  PositionedDirectional(
+                    end: 10,
                     top: 10,
                     child: Container(
                       width: 7,
                       height: 7,
-                      decoration: const BoxDecoration(
-                        color: AppColors.gold,
+                      decoration: BoxDecoration(
+                        color: context.colors.gold,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -306,7 +305,7 @@ class _SearchScreenState extends State<SearchScreen> {
         padding: const EdgeInsets.only(top: 16, bottom: 22),
         children: [
           PillChip(
-            label: 'Favorites',
+            label: context.l10n.favorites,
             selected: _query.favoritesOnly,
             onTap: () => _setQuery(
               _query.copyWith(favoritesOnly: !_query.favoritesOnly),
@@ -314,7 +313,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           const SizedBox(width: 8),
           PillChip(
-            label: 'Last 30 days',
+            label: context.l10n.lastDays(30),
             selected: _query.savedWithinDays == 30,
             onTap: () => _setQuery(
               _query.savedWithinDays == 30
@@ -325,7 +324,7 @@ class _SearchScreenState extends State<SearchScreen> {
           for (final type in ContentType.values) ...[
             const SizedBox(width: 8),
             PillChip(
-              label: type.label,
+              label: context.l10n.contentType(type.apiValue),
               selected: _query.contentTypes.contains(type),
               onTap: () => _setQuery(
                 _query.copyWith(
@@ -350,11 +349,16 @@ class _SearchScreenState extends State<SearchScreen> {
           if (_recent.isNotEmpty) ...[
             Row(
               children: [
-                Expanded(child: Text('Recent searches', style: _sectionStyle)),
+                Expanded(
+                  child: Text(
+                    context.l10n.recentSearches,
+                    style: _sectionStyle,
+                  ),
+                ),
                 TextActionButton(
-                  label: 'Clear',
+                  label: context.l10n.actionClear,
                   minHeight: 34,
-                  style: AppTextStyles.tiny.copyWith(color: AppColors.gold),
+                  style: context.text.tiny.copyWith(color: context.colors.gold),
                   onPressed: () async {
                     await widget.recentSearches.clear();
                     if (mounted) setState(() => _recent = const []);
@@ -368,7 +372,7 @@ class _SearchScreenState extends State<SearchScreen> {
             const SizedBox(height: 25),
           ],
           if (_suggestedTags.isNotEmpty) ...[
-            Text('Suggested searches', style: _sectionStyle),
+            Text(context.l10n.suggestedSearches, style: _sectionStyle),
             const SizedBox(height: 10),
             Wrap(
               spacing: 8,
@@ -381,7 +385,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     onTap: () => _setQuery(_query.copyWith(tags: {tag.name})),
                   ),
                 PillChip(
-                  label: 'Favorites',
+                  label: context.l10n.favorites,
                   size: PillSize.compact,
                   onTap: () => _setQuery(_query.copyWith(favoritesOnly: true)),
                 ),
@@ -395,8 +399,8 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  TextStyle get _sectionStyle => AppTextStyles.subtitle.copyWith(
-    color: AppColors.textPrimary,
+  TextStyle get _sectionStyle => context.text.subtitle.copyWith(
+    color: context.colors.textPrimary,
     letterSpacing: -0.39,
     height: 1.5,
   );
@@ -414,10 +418,10 @@ class _SearchScreenState extends State<SearchScreen> {
       );
     }
     if (_results.isEmpty) {
-      return const SliverToBoxAdapter(
+      return SliverToBoxAdapter(
         child: MessageCard(
-          title: 'No matches found',
-          message: 'Try a broader word or check your filters.',
+          title: context.l10n.noMatches,
+          message: context.l10n.noMatchesBody,
         ),
       );
     }
@@ -427,10 +431,8 @@ class _SearchScreenState extends State<SearchScreen> {
           child: Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: Text(
-              _results.total == 1
-                  ? '1 result'
-                  : '${_results.total ?? _results.items.length} results',
-              style: AppTextStyles.micro,
+              context.l10n.resultCount(_results.total ?? _results.items.length),
+              style: context.text.micro,
             ),
           ),
         ),
@@ -440,7 +442,7 @@ class _SearchScreenState extends State<SearchScreen> {
           itemBuilder: (context, index) {
             final link = _results.items[index];
             return SavedCard(
-              data: _cardData(link),
+              data: _cardData(link, context.l10n),
               onOpen: () => context.push(Routes.link(link.id)),
               onToggleFavorite: () => _toggleFavorite(link),
               onAction: (action) => _onAction(link, action),
@@ -453,19 +455,20 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 }
 
-SavedCardData _cardData(Link link) => SavedCardData.fromApiFields(
-  id: link.id,
-  title: link.displayTitle,
-  sourceDomain: link.sourceDomain,
-  originalUrl: link.originalUrl,
-  previewImageUrl: link.metadata.previewImageUrl,
-  isFavorite: link.isFavorite,
-  createdAt: link.createdAt,
-  contentType: link.contentType.apiValue,
-  contentTypeLabel: link.contentType.label,
-  metadataStatus: link.metadata.status.apiValue,
-  collectionLabel: link.collectionLabel,
-);
+SavedCardData _cardData(Link link, AppLocalizations l10n) =>
+    SavedCardData.fromApiFields(
+      id: link.id,
+      title: link.displayTitle,
+      sourceDomain: link.sourceDomain,
+      originalUrl: link.originalUrl,
+      previewImageUrl: link.metadata.previewImageUrl,
+      isFavorite: link.isFavorite,
+      createdAt: link.createdAt,
+      contentType: link.contentType.apiValue,
+      metadataStatus: link.metadata.status.apiValue,
+      l10n: l10n,
+      collectionLabel: link.collectionLabel,
+    );
 
 class _RecentRow extends StatelessWidget {
   const _RecentRow({required this.query, required this.onTap});
@@ -477,24 +480,24 @@ class _RecentRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: 'Search for $query',
+      label: context.l10n.searchFor(query),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
           constraints: const BoxConstraints(minHeight: 45),
           padding: const EdgeInsets.symmetric(horizontal: 5),
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: AppColors.divider, width: 1.36),
+              bottom: BorderSide(color: context.colors.divider, width: 1.36),
             ),
           ),
           child: Row(
             children: [
-              const AppIcon(
+              AppIcon(
                 AppIcons.clock,
                 size: 16,
-                color: AppColors.textMuted,
+                color: context.colors.textMuted,
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -502,13 +505,13 @@ class _RecentRow extends StatelessWidget {
                   query,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.caption,
+                  style: context.text.caption,
                 ),
               ),
-              const AppIcon(
+              AppIcon(
                 AppIcons.arrowRight15,
                 size: 15,
-                color: AppColors.textMuted,
+                color: context.colors.textMuted,
               ),
             ],
           ),
@@ -524,36 +527,33 @@ class _HintCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: DashedBorderPainter(radius: 22, color: AppColors.border),
+      painter: DashedBorderPainter(radius: 22, color: context.colors.border),
       child: Container(
         constraints: const BoxConstraints(minHeight: 155),
         padding: const EdgeInsets.all(22),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
-          gradient: const RadialGradient(
+          gradient: RadialGradient(
             center: Alignment(0.7, -0.7),
             radius: 1.2,
-            colors: [Color(0x17D4AF37), AppColors.card],
+            colors: [Color(0x17D4AF37), context.colors.card],
             stops: [0, 0.35],
           ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const AppIcon(AppIcons.search25, size: 25, color: AppColors.gold),
+            AppIcon(AppIcons.search25, size: 25, color: context.colors.gold),
             const SizedBox(height: 32),
             Text(
-              'You don’t need to remember where it came from',
-              style: AppTextStyles.subtitle.copyWith(
-                color: AppColors.textPrimary,
+              context.l10n.searchEmptyTitle,
+              style: context.text.subtitle.copyWith(
+                color: context.colors.textPrimary,
                 height: 1.5,
               ),
             ),
             const SizedBox(height: 7),
-            Text(
-              'Try an English or Arabic title, a note, or a website domain.',
-              style: AppTextStyles.micro,
-            ),
+            Text(context.l10n.searchEmptyBody, style: context.text.micro),
           ],
         ),
       ),

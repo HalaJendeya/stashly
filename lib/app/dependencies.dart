@@ -2,6 +2,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/network/api_client.dart';
+import 'package:stashly/core/preferences/display_preferences.dart';
 import 'package:stashly/core/storage/key_value_store.dart';
 import 'package:stashly/features/app_config/data/http_app_config_repository.dart';
 import 'package:stashly/features/app_config/domain/app_config.dart';
@@ -66,6 +67,7 @@ class AppDependencies {
     required this.sharedText,
     required this.session,
     required this.changes,
+    required this.display,
     required this.appVersion,
   });
 
@@ -120,6 +122,7 @@ class AppDependencies {
         appVersion: appVersion,
       ),
       changes: DataChanges(),
+      display: DisplayPreferences(prefs),
       appVersion: appVersion,
     );
   }
@@ -137,10 +140,12 @@ class AppDependencies {
   final SharedTextSource sharedText;
   final SessionController session;
   final DataChanges changes;
+  final DisplayPreferences display;
   final String appVersion;
 
   void dispose() {
     session.dispose();
+    display.dispose();
     changes.dispose();
     api.dispose();
   }

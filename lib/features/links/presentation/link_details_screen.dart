@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/routing/navigation.dart';
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/format/date_labels.dart';
@@ -84,7 +85,7 @@ class _LinkDetailsScreenState extends State<LinkDetailsScreen> {
         (uri.scheme == 'https' || uri.scheme == 'http') &&
         await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!opened && mounted) {
-      showStashlySnack(context, 'Couldn’t open this link.', error: true);
+      showStashlySnack(context, context.l10n.openFailed, error: true);
     }
   }
 
@@ -97,7 +98,7 @@ class _LinkDetailsScreenState extends State<LinkDetailsScreen> {
     if (picked == null || !mounted) return;
     final result = await _vm.setCollections([for (final c in picked) c.id]);
     if (mounted && !reportFailure(context, result)) {
-      showStashlySnack(context, 'Collections updated');
+      showStashlySnack(context, context.l10n.collectionsUpdated);
     }
   }
 
@@ -115,7 +116,7 @@ class _LinkDetailsScreenState extends State<LinkDetailsScreen> {
     final result = await _vm.delete();
     if (!mounted) return;
     if (!reportFailure(context, result)) {
-      showStashlySnack(context, 'Item deleted');
+      showStashlySnack(context, context.l10n.itemDeleted);
       context.popOrHome();
     }
   }
@@ -133,7 +134,7 @@ class _LinkDetailsScreenState extends State<LinkDetailsScreen> {
               return Column(
                 children: [
                   CaptionTopBar(
-                    caption: 'Saved item',
+                    caption: context.l10n.savedItemTitle,
                     trailing: link == null
                         ? null
                         : IconTapButton(
@@ -142,11 +143,11 @@ class _LinkDetailsScreenState extends State<LinkDetailsScreen> {
                                 : AppIcons.heart17Outline,
                             iconSize: 20,
                             color: link.isFavorite
-                                ? AppColors.gold
-                                : AppColors.textPrimary,
+                                ? context.colors.gold
+                                : context.colors.textPrimary,
                             semanticLabel: link.isFavorite
-                                ? 'Remove from favorites'
-                                : 'Add to favorites',
+                                ? context.l10n.removeFromFavorites
+                                : context.l10n.addToFavorites,
                             onPressed: () async {
                               final result = await _vm.toggleFavorite();
                               if (context.mounted) {
@@ -183,7 +184,7 @@ class _LinkDetailsScreenState extends State<LinkDetailsScreen> {
           SizedBox(
             height: 245,
             child: ColoredBox(
-              color: AppColors.card,
+              color: context.colors.card,
               child: PreviewImage(
                 imageUrl: link.metadata.previewImageUrl,
                 domain: link.sourceDomain,
@@ -203,14 +204,16 @@ class _LinkDetailsScreenState extends State<LinkDetailsScreen> {
               children: [
                 Row(
                   children: [
-                    GoldBadge(link.contentType.label),
+                    GoldBadge(
+                      context.l10n.contentType(link.contentType.apiValue),
+                    ),
                     const SizedBox(width: 9),
                     Expanded(
                       child: Text(
                         link.sourceDomain,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.micro,
+                        style: context.text.micro,
                       ),
                     ),
                   ],
@@ -220,12 +223,12 @@ class _LinkDetailsScreenState extends State<LinkDetailsScreen> {
                   header: true,
                   child: Text(
                     link.displayTitle,
-                    style: AppTextStyles.detailTitle,
+                    style: context.text.detailTitle,
                   ),
                 ),
                 const SizedBox(height: 20),
                 PrimaryButton(
-                  label: 'Open Original',
+                  label: context.l10n.openOriginal,
                   icon: AppIcons.externalDark,
                   onPressed: () => _open(link),
                 ),
@@ -234,19 +237,19 @@ class _LinkDetailsScreenState extends State<LinkDetailsScreen> {
                   children: [
                     _ActionTile(
                       icon: AppIcons.edit,
-                      label: 'Edit',
+                      label: context.l10n.actionEdit,
                       onTap: () => context.push(Routes.editLink(link.id)),
                     ),
                     const SizedBox(width: 8),
                     _ActionTile(
                       icon: AppIcons.copy17,
-                      label: 'Copy Link',
+                      label: context.l10n.copyLinkButton,
                       onTap: () => copySavedItemUrl(context, link.originalUrl),
                     ),
                     const SizedBox(width: 8),
                     _ActionTile(
                       icon: AppIcons.share,
-                      label: 'Share',
+                      label: context.l10n.actionShare,
                       onTap: () => SharePlus.instance.share(
                         ShareParams(
                           uri: Uri.tryParse(link.originalUrl),
@@ -260,7 +263,10 @@ class _LinkDetailsScreenState extends State<LinkDetailsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('DESCRIPTION', style: _sectionLabel),
+                      Text(
+                        context.l10n.descriptionEyebrow,
+                        style: _sectionLabel,
+                      ),
                       const SizedBox(height: 9),
                       _descriptionFor(link),
                     ],
@@ -271,20 +277,23 @@ class _LinkDetailsScreenState extends State<LinkDetailsScreen> {
                     children: [
                       _InfoRow(
                         icon: AppIcons.link,
-                        label: 'Original URL',
+                        label: context.l10n.originalUrl,
                         value: link.originalUrl,
+                        ltr: true,
                       ),
                       const SizedBox(height: 17),
                       _InfoRow(
                         icon: AppIcons.calendar,
-                        label: 'Saved',
-                        value: DateLabels.relativeDay(link.createdAt),
+                        label: context.l10n.savedLabel,
+                        value: DateLabels(
+                          context.l10n,
+                        ).relativeDay(link.createdAt),
                       ),
                       const SizedBox(height: 17),
                       _InfoRow(
                         icon: AppIcons.folder16,
-                        label: 'Collection',
-                        value: collectionsLabel(link.collections),
+                        label: context.l10n.collectionLabel,
+                        value: collectionsLabel(context.l10n, link.collections),
                       ),
                     ],
                   ),
@@ -295,19 +304,26 @@ class _LinkDetailsScreenState extends State<LinkDetailsScreen> {
                     children: [
                       Row(
                         children: [
-                          Expanded(child: Text('TAGS', style: _sectionLabel)),
+                          Expanded(
+                            child: Text(
+                              context.l10n.tagsEyebrow,
+                              style: _sectionLabel,
+                            ),
+                          ),
                           TextActionButton(
-                            label: link.tags.isEmpty ? 'Add tags' : 'Edit tags',
+                            label: link.tags.isEmpty
+                                ? context.l10n.addTags
+                                : context.l10n.editTags,
                             minHeight: 34,
-                            style: AppTextStyles.tiny.copyWith(
-                              color: AppColors.gold,
+                            style: context.text.tiny.copyWith(
+                              color: context.colors.gold,
                             ),
                             onPressed: () => _editTags(link),
                           ),
                         ],
                       ),
                       if (link.tags.isEmpty)
-                        Text('No tags yet.', style: AppTextStyles.micro)
+                        Text(context.l10n.noTagsYet, style: context.text.micro)
                       else
                         Wrap(
                           spacing: 7,
@@ -326,8 +342,8 @@ class _LinkDetailsScreenState extends State<LinkDetailsScreen> {
                 const SizedBox(height: 20),
                 SecondaryButton(
                   label: link.isFavorite
-                      ? 'Remove from Favorites'
-                      : 'Add to Favorites',
+                      ? context.l10n.removeFromFavoritesButton
+                      : context.l10n.addToFavoritesButton,
                   icon: link.isFavorite
                       ? AppIcons.heart17
                       : AppIcons.heart17Outline,
@@ -338,16 +354,16 @@ class _LinkDetailsScreenState extends State<LinkDetailsScreen> {
                 ),
                 const SizedBox(height: 8),
                 SecondaryButton(
-                  label: 'Organize into Collections',
+                  label: context.l10n.organizeIntoCollections,
                   icon: AppIcons.folderPlus,
                   loading: _vm.busy,
                   onPressed: () => _organize(link),
                 ),
                 const SizedBox(height: 8),
                 SecondaryButton(
-                  label: 'Delete saved item',
+                  label: context.l10n.deleteSavedItem,
                   icon: AppIcons.trash17,
-                  color: AppColors.danger,
+                  color: context.colors.danger,
                   background: Colors.transparent,
                   bordered: false,
                   onPressed: () => _delete(link),
@@ -360,34 +376,37 @@ class _LinkDetailsScreenState extends State<LinkDetailsScreen> {
     );
   }
 
-  TextStyle get _sectionLabel => AppTextStyles.micro.copyWith(
+  TextStyle get _sectionLabel => context.text.micro.copyWith(
     fontWeight: FontWeight.w700,
     letterSpacing: 0.63,
   );
 
   Widget _descriptionFor(Link link) {
-    final style = AppTextStyles.bodySmall;
+    final style = context.text.bodySmall;
     final description = link.metadata.description;
     if (description != null && description.trim().isNotEmpty) {
       return Text(description, style: style);
     }
     return switch (link.metadata.status) {
-      MetadataStatus.pending => Text('Fetching details…', style: style),
-      MetadataStatus.ready => Text('No description available.', style: style),
+      MetadataStatus.pending => Text(
+        context.l10n.fetchingDetails,
+        style: style,
+      ),
+      MetadataStatus.ready => Text(context.l10n.noDescription, style: style),
       MetadataStatus.failed || MetadataStatus.blocked => Row(
         children: [
           Expanded(
             child: Text(
               link.metadata.status == MetadataStatus.blocked
-                  ? 'This page can’t be previewed.'
-                  : 'We couldn’t load a preview.',
+                  ? context.l10n.previewBlocked
+                  : context.l10n.previewFailed,
               style: style,
             ),
           ),
           TextActionButton(
-            label: 'Refresh preview',
+            label: context.l10n.refreshPreview,
             minHeight: 34,
-            style: AppTextStyles.tiny.copyWith(color: AppColors.gold),
+            style: context.text.tiny.copyWith(color: context.colors.gold),
             onPressed: () async {
               final result = await _vm.refreshPreview();
               if (mounted) reportFailure(context, result);
@@ -417,10 +436,10 @@ class _ActionTile extends StatelessWidget {
         button: true,
         label: label,
         child: Material(
-          color: AppColors.surface,
+          color: context.colors.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
-            side: const BorderSide(color: AppColors.border, width: 1.36),
+            side: BorderSide(color: context.colors.border, width: 1.36),
           ),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
@@ -430,13 +449,13 @@ class _ActionTile extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  AppIcon(icon, size: 17, color: AppColors.textSecondary),
+                  AppIcon(icon, size: 17, color: context.colors.textSecondary),
                   const SizedBox(height: 6),
                   ExcludeSemantics(
                     child: Text(
                       label,
-                      style: AppTextStyles.tiny.copyWith(
-                        color: AppColors.textSecondary,
+                      style: context.text.tiny.copyWith(
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   ),
@@ -459,9 +478,9 @@ class _Section extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: AppColors.divider, width: 1.36),
+          bottom: BorderSide(color: context.colors.divider, width: 1.36),
         ),
       ),
       child: child,
@@ -474,27 +493,38 @@ class _InfoRow extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.value,
+    this.ltr = false,
   });
 
   final String icon;
   final String label;
   final String value;
 
+  /// Keeps URLs left-to-right inside Arabic layouts.
+  final bool ltr;
+
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        AppIcon(icon, size: 16, color: AppColors.textMuted),
+        AppIcon(icon, size: 16, color: context.colors.textMuted),
         const SizedBox(width: 7),
-        SizedBox(width: 105, child: Text(label, style: AppTextStyles.micro)),
+        SizedBox(width: 105, child: Text(label, style: context.text.micro)),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             value,
-            textAlign: TextAlign.right,
+            textDirection: ltr ? TextDirection.ltr : null,
+            textAlign: ltr
+                ? (Directionality.of(context) == TextDirection.rtl
+                      ? TextAlign.left
+                      : TextAlign.right)
+                : TextAlign.end,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.micro.copyWith(color: AppColors.textSecondary),
+            style: context.text.micro.copyWith(
+              color: context.colors.textSecondary,
+            ),
           ),
         ),
       ],
@@ -512,25 +542,25 @@ class _NoteCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.goldTint,
+        color: context.colors.goldTint,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.goldBorderFaint, width: 1.36),
+        border: Border.all(color: context.colors.goldBorderFaint, width: 1.36),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const AppIcon(AppIcons.note, size: 17, color: AppColors.gold),
+              AppIcon(AppIcons.note, size: 17, color: context.colors.gold),
               const SizedBox(width: 7),
               Text(
-                'Personal note',
-                style: AppTextStyles.micro.copyWith(color: AppColors.gold),
+                context.l10n.personalNote,
+                style: context.text.micro.copyWith(color: context.colors.gold),
               ),
             ],
           ),
           const SizedBox(height: 10),
-          Text(note, style: AppTextStyles.bodySmall),
+          Text(note, style: context.text.bodySmall),
         ],
       ),
     );

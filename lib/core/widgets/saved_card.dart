@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/format/date_labels.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
@@ -36,8 +37,8 @@ class SavedCardData {
     required bool isFavorite,
     required DateTime createdAt,
     required String contentType,
-    required String contentTypeLabel,
     required String metadataStatus,
+    required AppLocalizations l10n,
     String? collectionLabel,
   }) => SavedCardData(
     id: id,
@@ -46,8 +47,8 @@ class SavedCardData {
     domain: sourceDomain.isEmpty ? originalUrl : sourceDomain,
     imageUrl: previewImageUrl,
     isFavorite: isFavorite,
-    dateLabel: DateLabels.relativeDay(createdAt),
-    typeLabel: contentTypeLabel,
+    dateLabel: DateLabels(l10n).relativeDay(createdAt),
+    typeLabel: l10n.contentType(contentType),
     collectionLabel: collectionLabel,
     previewState: previewStateForMetadataStatus(metadataStatus),
     placeholderIcon: placeholderIconForContentType(contentType),
@@ -106,7 +107,7 @@ class SavedCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _CardShell(
       onTap: onOpen,
-      semanticLabel: '${data.title}, ${data.domain}',
+      semanticLabel: context.l10n.cardLabel(data.title, data.domain),
       child: IntrinsicHeight(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -124,7 +125,7 @@ class SavedCard extends StatelessWidget {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 15, 10, 16),
+                padding: const EdgeInsetsDirectional.fromSTEB(16, 15, 10, 16),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -136,14 +137,14 @@ class SavedCard extends StatelessWidget {
                             data.domain.toUpperCase(),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.cardDomain,
+                            style: context.text.cardDomain,
                           ),
                           const SizedBox(height: 5),
                           Text(
                             data.title,
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.cardTitle,
+                            style: context.text.cardTitle,
                           ),
                           const SizedBox(height: 10),
                           _MetaLine(data: data),
@@ -182,7 +183,7 @@ class SavedGridCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return _CardShell(
       onTap: onOpen,
-      semanticLabel: '${data.title}, ${data.domain}',
+      semanticLabel: context.l10n.cardLabel(data.title, data.domain),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -197,7 +198,7 @@ class SavedGridCard extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 8, 13),
+            padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 8, 13),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -209,14 +210,14 @@ class SavedGridCard extends StatelessWidget {
                         data.domain.toUpperCase(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.cardDomain,
+                        style: context.text.cardDomain,
                       ),
                       const SizedBox(height: 5),
                       Text(
                         data.title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.cardTitle.copyWith(
+                        style: context.text.cardTitle.copyWith(
                           fontSize: 13.5,
                           height: 1.45,
                           letterSpacing: -0.22,
@@ -260,10 +261,10 @@ class _CardShell extends StatelessWidget {
         ],
       ),
       child: Material(
-        color: AppColors.card,
+        color: context.colors.card,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(22),
-          side: const BorderSide(color: AppColors.border, width: 1.36),
+          side: BorderSide(color: context.colors.border, width: 1.36),
         ),
         clipBehavior: Clip.antiAlias,
         child: Semantics(
@@ -299,7 +300,7 @@ class _Thumbnail extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         ColoredBox(
-          color: AppColors.surface,
+          color: context.colors.surface,
           child: PreviewImage(
             imageUrl: data.imageUrl,
             domain: data.domain,
@@ -320,18 +321,18 @@ class _Thumbnail extends StatelessWidget {
             ),
           ),
         ),
-        Positioned(
+        PositionedDirectional(
           top: 8,
-          left: favoriteLeft,
-          right: favoriteRight,
+          start: favoriteLeft,
+          end: favoriteRight,
           child: FavoriteBubble(
             isFavorite: data.isFavorite,
             onPressed: onToggleFavorite,
           ),
         ),
         if (showTypeBadge)
-          Positioned(
-            left: 10,
+          PositionedDirectional(
+            start: 10,
             bottom: 9,
             child: _GlassBadge(label: data.typeLabel),
           ),
@@ -356,14 +357,16 @@ class FavoriteBubble extends StatelessWidget {
     return Semantics(
       button: true,
       toggled: isFavorite,
-      label: isFavorite ? 'Remove from favorites' : 'Add to favorites',
+      label: isFavorite
+          ? context.l10n.removeFromFavorites
+          : context.l10n.addToFavorites,
       child: ClipOval(
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Material(
-            color: AppColors.glass,
-            shape: const CircleBorder(
-              side: BorderSide(color: AppColors.borderStrong, width: 1.36),
+            color: context.colors.glass,
+            shape: CircleBorder(
+              side: BorderSide(color: context.colors.borderStrong, width: 1.36),
             ),
             child: InkWell(
               onTap: onPressed,
@@ -375,7 +378,9 @@ class FavoriteBubble extends StatelessWidget {
                         ? AppIcons.heartFilledCard
                         : AppIcons.heartOutlineCard,
                     size: 18,
-                    color: isFavorite ? AppColors.gold : AppColors.textPrimary,
+                    color: isFavorite
+                        ? context.colors.gold
+                        : context.colors.textPrimary,
                   ),
                 ),
               ),
@@ -402,14 +407,14 @@ class _GlassBadge extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
           decoration: ShapeDecoration(
             color: const Color(0xBD0A0A0D),
-            shape: const StadiumBorder(
-              side: BorderSide(color: AppColors.borderStrong, width: 1.36),
+            shape: StadiumBorder(
+              side: BorderSide(color: context.colors.borderStrong, width: 1.36),
             ),
           ),
           child: Text(
             label,
-            style: AppTextStyles.micro.copyWith(
-              color: AppColors.textPrimary,
+            style: context.text.micro.copyWith(
+              color: context.colors.textPrimary,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -429,10 +434,10 @@ class _MetaLine extends StatelessWidget {
     return Row(
       children: [
         if (data.collectionLabel != null) ...[
-          const AppIcon(
+          AppIcon(
             AppIcons.folderSmall,
             size: 14,
-            color: AppColors.textMuted,
+            color: context.colors.textMuted,
           ),
           const SizedBox(width: 5),
           Flexible(
@@ -440,15 +445,15 @@ class _MetaLine extends StatelessWidget {
               data.collectionLabel!,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTextStyles.cardMeta,
+              style: context.text.cardMeta,
             ),
           ),
           const SizedBox(width: 8),
           Container(
             width: 3,
             height: 3,
-            decoration: const BoxDecoration(
-              color: AppColors.textMuted,
+            decoration: BoxDecoration(
+              color: context.colors.textMuted,
               shape: BoxShape.circle,
             ),
           ),
@@ -459,7 +464,7 @@ class _MetaLine extends StatelessWidget {
             data.dateLabel,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.cardMeta,
+            style: context.text.cardMeta,
           ),
         ),
       ],
@@ -478,30 +483,41 @@ class _MoreButton extends StatelessWidget {
     return SizedBox.square(
       dimension: size,
       child: PopupMenuButton<SavedCardAction>(
-        tooltip: 'More actions',
+        tooltip: context.l10n.moreActions,
         padding: EdgeInsets.zero,
-        color: AppColors.menu,
+        color: context.colors.menu,
         elevation: 0,
         menuPadding: const EdgeInsets.all(6),
         position: PopupMenuPosition.under,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
-          side: const BorderSide(color: AppColors.border, width: 1.36),
+          side: BorderSide(color: context.colors.border, width: 1.36),
         ),
         constraints: const BoxConstraints(minWidth: 154, maxWidth: 154),
         onSelected: onAction,
-        icon: const AppIcon(
+        icon: AppIcon(
           AppIcons.more,
           size: 20,
-          color: AppColors.textSecondary,
+          color: context.colors.textSecondary,
         ),
         itemBuilder: (context) => [
-          _item(SavedCardAction.viewDetails, AppIcons.external, 'View details'),
-          _item(SavedCardAction.copyLink, AppIcons.copy, 'Copy link'),
           _item(
+            context,
+            SavedCardAction.viewDetails,
+            AppIcons.external,
+            context.l10n.viewDetails,
+          ),
+          _item(
+            context,
+            SavedCardAction.copyLink,
+            AppIcons.copy,
+            context.l10n.copyLink,
+          ),
+          _item(
+            context,
             SavedCardAction.delete,
             AppIcons.trashRed,
-            'Delete',
+            context.l10n.actionDelete,
             danger: true,
           ),
         ],
@@ -510,12 +526,13 @@ class _MoreButton extends StatelessWidget {
   }
 
   PopupMenuItem<SavedCardAction> _item(
+    BuildContext context,
     SavedCardAction value,
     String icon,
     String label, {
     bool danger = false,
   }) {
-    final color = danger ? AppColors.danger : AppColors.textPrimary;
+    final color = danger ? context.colors.danger : context.colors.textPrimary;
     return PopupMenuItem(
       value: value,
       height: 38,
@@ -525,10 +542,10 @@ class _MoreButton extends StatelessWidget {
           AppIcon(
             icon,
             size: 15,
-            color: danger ? AppColors.danger : AppColors.textPrimary,
+            color: danger ? context.colors.danger : context.colors.textPrimary,
           ),
           const SizedBox(width: 8),
-          Text(label, style: AppTextStyles.micro.copyWith(color: color)),
+          Text(label, style: context.text.micro.copyWith(color: color)),
         ],
       ),
     );

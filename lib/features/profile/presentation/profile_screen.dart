@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/format/date_labels.dart';
 import 'package:stashly/core/result/app_failure.dart';
@@ -108,17 +109,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: TitleBlock(
-                          eyebrow: 'YOUR STASHLY',
-                          title: 'Profile',
+                          eyebrow: context.l10n.profileEyebrow,
+                          title: context.l10n.navProfile,
                         ),
                       ),
                       IconTapButton(
                         icon: AppIcons.settings20,
                         iconSize: 20,
-                        color: AppColors.textSecondary,
-                        semanticLabel: 'Settings',
+                        color: context.colors.textSecondary,
+                        semanticLabel: context.l10n.settings,
                         onPressed: () => context.push(Routes.settings),
                       ),
                     ],
@@ -136,17 +137,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         _StatTile(
                           value: _stats?.linksCount,
-                          label: 'Total saves',
+                          label: context.l10n.totalSaves,
                         ),
                         const SizedBox(width: 9),
                         _StatTile(
                           value: _stats?.collectionsCount,
-                          label: 'Collections',
+                          label: context.l10n.navCollections,
                         ),
                         const SizedBox(width: 9),
                         _StatTile(
                           value: _stats?.favoritesCount,
-                          label: 'Favorites',
+                          label: context.l10n.favorites,
                         ),
                       ],
                     ),
@@ -154,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.goldTint,
+                      color: context.colors.goldTint,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: const Color(0x26D4AF37),
@@ -164,10 +165,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const AppIcon(
+                        AppIcon(
                           AppIcons.shield18,
                           size: 18,
-                          color: AppColors.gold,
+                          color: context.colors.gold,
                         ),
                         const SizedBox(width: 11),
                         Expanded(
@@ -175,17 +176,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Personal content wallet',
-                                style: AppTextStyles.micro.copyWith(
-                                  color: AppColors.textPrimary,
+                                context.l10n.walletTitle,
+                                style: context.text.micro.copyWith(
+                                  color: context.colors.textPrimary,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Stashly stores your links and metadata—not downloaded originals.',
-                                style: AppTextStyles.tiny.copyWith(
-                                  color: AppColors.textSecondary,
+                                context.l10n.walletBody,
+                                style: context.text.tiny.copyWith(
+                                  color: context.colors.textSecondary,
                                 ),
                               ),
                             ],
@@ -197,22 +198,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 17),
                   _NavRow(
                     icon: AppIcons.userGold,
-                    title: 'Edit profile',
-                    subtitle: 'Display name',
+                    title: context.l10n.editProfile,
+                    subtitle: context.l10n.displayNameLabel,
                     onTap: () => context.push(Routes.editProfile),
                   ),
                   const SizedBox(height: 8),
                   _NavRow(
                     icon: AppIcons.settings18,
-                    title: 'Settings',
-                    subtitle: 'Account, privacy, and about',
+                    title: context.l10n.settings,
+                    subtitle: context.l10n.settingsRowSubtitle,
                     onTap: () => context.push(Routes.settings),
                   ),
                   const SizedBox(height: 15),
                   SecondaryButton(
-                    label: 'Sign out',
+                    label: context.l10n.actionSignOut,
                     icon: AppIcons.logout,
-                    color: AppColors.danger,
+                    color: context.colors.danger,
                     loading: _signingOut,
                     onPressed: _signOut,
                   ),
@@ -239,11 +240,11 @@ class _AccountCard extends StatelessWidget {
       padding: const EdgeInsets.all(17),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border, width: 1.36),
-        gradient: const RadialGradient(
+        border: Border.all(color: context.colors.border, width: 1.36),
+        gradient: RadialGradient(
           center: Alignment(0.85, -1),
           radius: 1.4,
-          colors: [Color(0x1AD4AF37), AppColors.card],
+          colors: [Color(0x1AD4AF37), context.colors.card],
           stops: [0, 0.35],
         ),
       ),
@@ -265,22 +266,24 @@ class _AccountCard extends StatelessWidget {
                   user?.displayName ?? '—',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.rowTitle.copyWith(fontSize: 15),
+                  style: context.text.rowTitle.copyWith(fontSize: 15),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   user?.email ?? '',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.micro.copyWith(
-                    color: AppColors.textSecondary,
+                  style: context.text.micro.copyWith(
+                    color: context.colors.textSecondary,
                   ),
                 ),
                 if (user != null) ...[
                   const SizedBox(height: 4),
                   Text(
-                    'Member since ${DateLabels.monthYear(user.createdAt)}',
-                    style: AppTextStyles.tiny.copyWith(fontSize: 11),
+                    context.l10n.memberSince(
+                      DateLabels(context.l10n).monthYear(user.createdAt),
+                    ),
+                    style: context.text.tiny.copyWith(fontSize: 11),
                   ),
                 ],
               ],
@@ -289,12 +292,12 @@ class _AccountCard extends StatelessWidget {
           const SizedBox(width: 13),
           Semantics(
             button: true,
-            label: 'Edit profile',
+            label: context.l10n.editProfile,
             child: Material(
-              color: AppColors.surface,
+              color: context.colors.surface,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
-                side: const BorderSide(color: AppColors.border, width: 1.36),
+                side: BorderSide(color: context.colors.border, width: 1.36),
               ),
               child: InkWell(
                 customBorder: RoundedRectangleBorder(
@@ -308,16 +311,16 @@ class _AccountCard extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      const AppIcon(
+                      AppIcon(
                         AppIcons.edit16,
                         size: 16,
-                        color: AppColors.textSecondary,
+                        color: context.colors.textSecondary,
                       ),
                       ExcludeSemantics(
                         child: Text(
-                          'Edit',
-                          style: AppTextStyles.tiny.copyWith(
-                            color: AppColors.textSecondary,
+                          context.l10n.actionEdit,
+                          style: context.text.tiny.copyWith(
+                            color: context.colors.textSecondary,
                           ),
                         ),
                       ),
@@ -343,28 +346,28 @@ class _StatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Semantics(
-        label: '${value ?? 0} $label',
+        label: context.l10n.statLabel(value ?? 0, label),
         child: ExcludeSemantics(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
             decoration: BoxDecoration(
-              color: AppColors.cardRaised,
+              color: context.colors.cardRaised,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border, width: 1.36),
+              border: Border.all(color: context.colors.border, width: 1.36),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   value == null ? '—' : '$value',
-                  style: AppTextStyles.sectionTitle.copyWith(
+                  style: context.text.sectionTitle.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: AppColors.goldActive,
+                    color: context.colors.goldActive,
                     letterSpacing: 0,
                   ),
                 ),
                 const SizedBox(height: 6),
-                Text(label, style: AppTextStyles.micro),
+                Text(label, style: context.text.micro),
               ],
             ),
           ),
@@ -393,10 +396,10 @@ class _NavRow extends StatelessWidget {
       button: true,
       label: title,
       child: Material(
-        color: AppColors.surface,
+        color: context.colors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.border, width: 1.36),
+          side: BorderSide(color: context.colors.border, width: 1.36),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -407,24 +410,24 @@ class _NavRow extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
               child: Row(
                 children: [
-                  AppIcon(icon, size: 18, color: AppColors.gold),
+                  AppIcon(icon, size: 18, color: context.colors.gold),
                   const SizedBox(width: 19),
                   Expanded(
                     child: ExcludeSemantics(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(title, style: AppTextStyles.rowTitle),
+                          Text(title, style: context.text.rowTitle),
                           const SizedBox(height: 4),
-                          Text(subtitle, style: AppTextStyles.tiny),
+                          Text(subtitle, style: context.text.tiny),
                         ],
                       ),
                     ),
                   ),
-                  const AppIcon(
+                  AppIcon(
                     AppIcons.chevronRight,
                     size: 17,
-                    color: AppColors.gold,
+                    color: context.colors.gold,
                   ),
                 ],
               ),

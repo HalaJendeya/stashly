@@ -32,18 +32,20 @@ class PillChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final compact = size == PillSize.compact;
-    final foreground = selected ? AppColors.onGold : AppColors.textSecondary;
+    final foreground = selected
+        ? context.colors.onGold
+        : context.colors.textSecondary;
     final textStyle = compact
-        ? AppTextStyles.chip.copyWith(fontSize: 11.5, color: foreground)
-        : AppTextStyles.chip.copyWith(color: foreground);
+        ? context.text.chip.copyWith(fontSize: 11.5, color: foreground)
+        : context.text.chip.copyWith(color: foreground);
     return Semantics(
       button: true,
       selected: selected,
       child: Material(
-        color: selected ? AppColors.gold : AppColors.surface,
+        color: selected ? context.colors.goldFill : context.colors.surface,
         shape: StadiumBorder(
           side: BorderSide(
-            color: selected ? AppColors.gold : AppColors.border,
+            color: selected ? context.colors.goldFill : context.colors.border,
             width: 1.36,
           ),
         ),
@@ -90,14 +92,14 @@ class TagPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 7),
       decoration: ShapeDecoration(
-        color: AppColors.surface,
-        shape: const StadiumBorder(
-          side: BorderSide(color: AppColors.border, width: 1.36),
+        color: context.colors.surface,
+        shape: StadiumBorder(
+          side: BorderSide(color: context.colors.border, width: 1.36),
         ),
       ),
       child: Text(
         label,
-        style: AppTextStyles.tiny.copyWith(color: AppColors.textSecondary),
+        style: context.text.tiny.copyWith(color: context.colors.textSecondary),
       ),
     );
   }
@@ -123,15 +125,15 @@ class GoldBadge extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: ShapeDecoration(
-        color: muted ? AppColors.subtleFill : AppColors.goldTint,
+        color: muted ? context.colors.subtleFill : context.colors.goldTint,
         shape: const StadiumBorder(),
       ),
       child: Text(
         label,
-        style: AppTextStyles.tiny.copyWith(
+        style: context.text.tiny.copyWith(
           fontSize: fontSize,
           fontWeight: FontWeight.w700,
-          color: muted ? AppColors.textMuted : AppColors.gold,
+          color: muted ? context.colors.textMuted : context.colors.gold,
         ),
       ),
     );
@@ -152,19 +154,21 @@ class CheckSquare extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: checked ? AppColors.gold : AppColors.card,
+        color: checked ? context.colors.goldFill : context.colors.card,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: checked ? AppColors.gold : AppColors.checkboxBorder,
+          color: checked
+              ? context.colors.goldFill
+              : context.colors.checkboxBorder,
           width: 1.36,
         ),
       ),
       child: checked
-          ? const Center(
+          ? Center(
               child: AppIcon(
                 AppIcons.checkDark,
                 size: 14,
-                color: AppColors.onGold,
+                color: context.colors.onGold,
               ),
             )
           : null,
@@ -193,11 +197,11 @@ class SelectionRow extends StatelessWidget {
       checked: selected,
       button: true,
       child: Material(
-        color: selected ? AppColors.goldTint : AppColors.surface,
+        color: selected ? context.colors.goldTint : context.colors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(
-            color: selected ? AppColors.goldBorder : AppColors.border,
+            color: selected ? context.colors.goldBorder : context.colors.border,
             width: 1.36,
           ),
         ),
@@ -221,14 +225,14 @@ class SelectionRow extends StatelessWidget {
                           title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.rowTitle,
+                          style: context.text.rowTitle,
                         ),
                         const SizedBox(height: 3),
                         Text(
                           subtitle,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.tiny,
+                          style: context.text.tiny,
                         ),
                       ],
                     ),

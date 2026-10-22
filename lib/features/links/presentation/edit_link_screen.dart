@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/routing/navigation.dart';
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/result/app_failure.dart';
@@ -112,10 +113,10 @@ class _EditLinkScreenState extends State<EditLinkScreen> {
     setState(() {
       _errors.clear();
       if (tags.length > 20) {
-        _errors['tags'] = 'An item can have at most 20 tags.';
+        _errors['tags'] = context.l10n.tooManyTags(20);
       }
       if (tags.any((t) => t.length > 40)) {
-        _errors['tags'] = 'Tags can be at most 40 characters.';
+        _errors['tags'] = context.l10n.tagTooLong(40);
       }
     });
     if (_errors.values.any((e) => e != null)) return;
@@ -153,7 +154,7 @@ class _EditLinkScreenState extends State<EditLinkScreen> {
 
     if (failures.isEmpty) {
       widget.changes.notify({DataTopic.links, DataTopic.collections});
-      showStashlySnack(context, 'Changes saved');
+      showStashlySnack(context, context.l10n.changesSaved);
       context.popOrHome();
       return;
     }
@@ -164,11 +165,11 @@ class _EditLinkScreenState extends State<EditLinkScreen> {
       _errors['tags'] =
           failure.fieldError('tags') ??
           (failure.kind == FailureKind.limitExceeded
-              ? failure.userMessage
+              ? failure.describe(context.l10n)
               : null);
     });
     if (_errors.values.every((e) => e == null)) {
-      showStashlySnack(context, failure.userMessage, error: true);
+      showStashlySnack(context, failure.describe(context.l10n), error: true);
     }
   }
 
@@ -196,8 +197,8 @@ class _EditLinkScreenState extends State<EditLinkScreen> {
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               children: [
                 BackTitleHeader(
-                  eyebrow: 'SAVED ITEM',
-                  title: 'Edit details',
+                  eyebrow: context.l10n.savedItemEyebrow,
+                  title: context.l10n.editDetails,
                   onBack: () => UnsavedChangesGuard.leave(context, _hasEdits),
                 ),
                 const SizedBox(height: 15),
@@ -207,27 +208,28 @@ class _EditLinkScreenState extends State<EditLinkScreen> {
                   const LoadingView()
                 else ...[
                   StashlyTextField(
-                    label: 'Title',
+                    label: context.l10n.titleLabel,
                     controller: _title,
-                    hint: _link!.metadata.title ?? 'Add a memorable title',
+                    hint: _link!.metadata.title ?? context.l10n.titleHint,
                     maxLength: widget.titleMaxLength,
                     textCapitalization: TextCapitalization.sentences,
                     errorText: _errors['title'],
                   ),
                   const SizedBox(height: 15),
                   StashlyTextField(
-                    label: 'Original URL',
+                    label: context.l10n.originalUrl,
                     controller: _url,
                     icon: AppIcons.linkInput,
+                    keyboardType: TextInputType.url,
                     readOnly: true,
                   ),
                   const SizedBox(height: 15),
                   StashlyTextField(
-                    label: 'Personal note',
+                    label: context.l10n.personalNote,
                     optional: true,
                     controller: _note,
                     focusNode: _noteFocus,
-                    hint: 'Why is this worth keeping?',
+                    hint: context.l10n.noteHint,
                     multiline: true,
                     maxLength: widget.noteMaxLength,
                     textCapitalization: TextCapitalization.sentences,
@@ -235,22 +237,22 @@ class _EditLinkScreenState extends State<EditLinkScreen> {
                   ),
                   const SizedBox(height: 15),
                   StashlyTextField(
-                    label: 'Tags',
+                    label: context.l10n.tagsLabel,
                     optional: true,
                     controller: _tags,
-                    hint: 'travel, italy, film',
+                    hint: context.l10n.tagsHint,
                     icon: AppIcons.tagInput,
                     errorText: _errors['tags'],
                   ),
                   const SizedBox(height: 15),
                   PickerField(
-                    label: 'Collection',
-                    value: collectionsLabel(_collections),
+                    label: context.l10n.collectionLabel,
+                    value: collectionsLabel(context.l10n, _collections),
                     onTap: _pickCollections,
                   ),
                   const SizedBox(height: 26),
                   PrimaryButton(
-                    label: 'Save changes',
+                    label: context.l10n.actionSaveChanges,
                     icon: AppIcons.save,
                     loading: _saving,
                     onPressed: _save,

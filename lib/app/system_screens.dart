@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
 import 'package:stashly/core/widgets/brand.dart';
 import 'package:stashly/core/widgets/state_views.dart';
@@ -49,15 +50,15 @@ class UpdateRequiredScreen extends StatelessWidget {
               children: [
                 const BrandMark(size: 76, large: true),
                 const SizedBox(height: 28),
-                Text('UPDATE REQUIRED', style: AppTextStyles.eyebrow),
+                Text(context.l10n.updateEyebrow, style: context.text.eyebrow),
                 const SizedBox(height: 7),
-                Text('Please update Stashly', style: AppTextStyles.heading),
+                Text(context.l10n.updateTitle, style: context.text.heading),
                 const SizedBox(height: 10),
                 Text(
                   latestVersion == null
-                      ? 'This version is no longer supported. Install the latest version from the Play Store to continue.'
-                      : 'This version is no longer supported. Install version $latestVersion from the Play Store to continue.',
-                  style: AppTextStyles.body.copyWith(height: 1.7),
+                      ? context.l10n.updateBody
+                      : context.l10n.updateBodyVersion(latestVersion!),
+                  style: context.text.body.copyWith(height: 1.7),
                 ),
               ],
             ),

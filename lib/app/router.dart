@@ -86,8 +86,7 @@ GoRouter createRouter(
       ),
       GoRoute(
         path: Routes.checkInbox,
-        builder: (_, state) =>
-            CheckInboxScreen(email: state.extra as String? ?? 'your email'),
+        builder: (_, state) => CheckInboxScreen(email: state.extra as String?),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => AppShell(
@@ -212,6 +211,7 @@ GoRouter createRouter(
             onSignOut: session.signOut,
             onAccountDeleted: session.accountDeleted,
             confirmWithGoogle: session.confirmWithGoogle,
+            display: deps.display,
           ),
         ),
       ),

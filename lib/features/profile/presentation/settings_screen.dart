@@ -6,6 +6,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
+import 'package:stashly/core/preferences/display_preferences.dart';
 import 'package:stashly/core/result/result.dart';
 import 'package:stashly/core/routing/routes.dart';
 import 'package:stashly/core/theme/app_colors.dart';
@@ -35,6 +37,7 @@ class SettingsScreen extends StatefulWidget {
     required this.onSignOut,
     required this.onAccountDeleted,
     required this.confirmWithGoogle,
+    required this.display,
   });
 
   final User? user;
@@ -48,6 +51,9 @@ class SettingsScreen extends StatefulWidget {
 
   /// Fresh Google ID token for Google-only accounts (`Ok(null)` if dismissed).
   final Future<Result<String?>> Function() confirmWithGoogle;
+
+  /// Theme and language choices.
+  final DisplayPreferences display;
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -63,13 +69,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         (uri.scheme == 'https' || uri.scheme == 'http') &&
         await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!opened && mounted) {
-      showStashlySnack(context, 'This document isn’t available yet.');
+      showStashlySnack(context, context.l10n.documentUnavailable);
     }
   }
 
   /// `GET /me/export` → temporary JSON file → system share sheet, so the user
   /// chooses where to keep it. The temporary copy is removed afterwards.
   Future<void> _export() async {
+    final subject = context.l10n.exportSubject;
     setState(() => _exporting = true);
     final result = await widget.profile.exportData();
     if (!mounted) return;
@@ -82,14 +89,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           await SharePlus.instance.share(
             ShareParams(
               files: [XFile(file.path, mimeType: 'application/json')],
-              subject: 'My Stashly data export',
+              subject: subject,
             ),
           );
         } finally {
           if (await file.exists()) await file.delete();
         }
       case Err(:final failure):
-        showStashlySnack(context, failure.userMessage, error: true);
+        showStashlySnack(context, failure.describe(context.l10n), error: true);
     }
     if (mounted) setState(() => _exporting = false);
   }
@@ -117,30 +124,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Sign out?', style: AppTextStyles.sectionTitle),
+            Text(context.l10n.signOutTitle, style: context.text.sectionTitle),
             const SizedBox(height: 9),
             Text(
-              'You can sign out of this device only, or every device signed in to your account.',
-              style: AppTextStyles.caption.copyWith(height: 1.65),
+              context.l10n.signOutBody,
+              style: context.text.caption.copyWith(height: 1.65),
             ),
             const SizedBox(height: 20),
             SecondaryButton(
-              label: 'Sign out of this device',
-              color: AppColors.danger,
+              label: context.l10n.signOutThisDevice,
+              color: context.colors.danger,
               onPressed: () => Navigator.of(context).pop(false),
             ),
             const SizedBox(height: 8),
             SecondaryButton(
-              label: 'Sign out everywhere',
-              color: AppColors.danger,
-              background: AppColors.dangerTint,
+              label: context.l10n.signOutEverywhere,
+              color: context.colors.danger,
+              background: context.colors.dangerTint,
               bordered: false,
               onPressed: () => Navigator.of(context).pop(true),
             ),
             TextActionButton(
-              label: 'Cancel',
+              label: context.l10n.actionCancel,
               minHeight: 44,
-              style: AppTextStyles.body,
+              style: context.text.body,
               onPressed: () => Navigator.of(context).pop(),
             ),
           ],
@@ -160,18 +167,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             const BrandMark(size: 48, large: true),
             const SizedBox(height: 16),
-            Text('Stashly', style: AppTextStyles.sectionTitle),
+            Text('Stashly', style: context.text.sectionTitle),
             const SizedBox(height: 4),
-            Text('Everything Worth Keeping', style: AppTextStyles.caption),
+            Text(context.l10n.tagline, style: context.text.caption),
             const SizedBox(height: 12),
             Text(
-              'A personal wallet for links worth keeping. Stashly saves the link and '
-              'its details—never a copy of the content.',
-              style: AppTextStyles.caption.copyWith(height: 1.65),
+              context.l10n.aboutBody,
+              style: context.text.caption.copyWith(height: 1.65),
             ),
             const SizedBox(height: 16),
             SecondaryButton(
-              label: 'Close',
+              label: context.l10n.actionClose,
               onPressed: () => Navigator.of(context).pop(),
             ),
           ],
@@ -189,14 +195,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 6, 20, 28),
             children: [
-              const BackTitleHeader(eyebrow: 'YOUR STASHLY', title: 'Settings'),
+              BackTitleHeader(
+                eyebrow: context.l10n.profileEyebrow,
+                title: context.l10n.settings,
+              ),
               const SizedBox(height: 15),
               Container(
                 padding: const EdgeInsets.all(13),
                 decoration: BoxDecoration(
-                  color: AppColors.card,
+                  color: context.colors.card,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border, width: 1.36),
+                  border: Border.all(color: context.colors.border, width: 1.36),
                 ),
                 child: Row(
                   children: [
@@ -215,10 +224,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         children: [
                           Text(
                             user?.displayName ?? '—',
-                            style: AppTextStyles.rowTitle,
+                            style: context.text.rowTitle,
                           ),
                           const SizedBox(height: 4),
-                          Text(user?.email ?? '', style: AppTextStyles.tiny),
+                          Text(user?.email ?? '', style: context.text.tiny),
                         ],
                       ),
                     ),
@@ -226,110 +235,149 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
               _Group(
-                label: 'ACCOUNT',
+                label: context.l10n.accountEyebrow,
                 rows: [
                   _Row(
                     icon: AppIcons.userGold,
-                    title: 'Edit profile',
-                    subtitle: 'Display name',
+                    title: context.l10n.editProfile,
+                    subtitle: context.l10n.displayNameLabel,
                     onTap: () => context.push(Routes.editProfile),
                   ),
                   _Row(
                     icon: AppIcons.key,
-                    title: 'Change password',
+                    title: context.l10n.changePassword,
                     subtitle: user?.passwordSet ?? true
-                        ? 'Confirm your current password to set a new one'
-                        : 'Use “Forgot password” to set a password',
+                        ? context.l10n.changePasswordRowSubtitle
+                        : context.l10n.setPasswordViaForgot,
                     onTap: user?.passwordSet ?? true
                         ? () => context.push(Routes.changePassword)
                         : null,
                   ),
                 ],
               ),
-              const _Group(
-                label: 'APPEARANCE',
-                rows: [
-                  _Row(
-                    icon: AppIcons.moon,
-                    title: 'Dark theme',
-                    subtitle: 'Stashly’s current brand experience',
-                    badge: GoldBadge('Active', fontSize: 11),
-                  ),
-                ],
-              ),
-              const _Group(
-                label: 'LANGUAGE',
-                rows: [
-                  _Row(
-                    icon: AppIcons.languages,
-                    title: 'English',
-                    subtitle: 'Current interface language',
-                    badge: GoldBadge('Current', fontSize: 11),
-                  ),
-                  _Row(
-                    icon: AppIcons.languages,
-                    title: 'Arabic',
-                    subtitle:
-                        'Arabic content works today; the Arabic interface is coming later',
-                    badge: GoldBadge('Future', fontSize: 11, muted: true),
-                  ),
-                ],
+              ListenableBuilder(
+                listenable: widget.display,
+                builder: (context, _) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _Group(
+                      label: context.l10n.appearanceGroup,
+                      rows: [
+                        for (final (mode, icon, title, subtitle) in [
+                          (
+                            ThemeMode.dark,
+                            AppIcons.moon,
+                            context.l10n.themeDark,
+                            context.l10n.themeDarkSubtitle,
+                          ),
+                          (
+                            ThemeMode.light,
+                            AppIcons.sun,
+                            context.l10n.themeLight,
+                            context.l10n.themeLightSubtitle,
+                          ),
+                          (
+                            ThemeMode.system,
+                            AppIcons.settings18,
+                            context.l10n.themeSystem,
+                            context.l10n.themeSystemSubtitle,
+                          ),
+                        ])
+                          _Row(
+                            icon: icon,
+                            title: title,
+                            subtitle: subtitle,
+                            selected: widget.display.themeMode == mode,
+                            onTap: () => widget.display.setThemeMode(mode),
+                          ),
+                      ],
+                    ),
+                    _Group(
+                      label: context.l10n.languageGroup,
+                      rows: [
+                        for (final (language, title, subtitle) in [
+                          (
+                            null,
+                            context.l10n.languageDevice,
+                            context.l10n.languageDeviceSubtitle,
+                          ),
+                          (
+                            AppLanguage.english,
+                            context.l10n.languageEnglish,
+                            context.l10n.languageEnglishSubtitle,
+                          ),
+                          (
+                            AppLanguage.arabic,
+                            context.l10n.languageArabic,
+                            context.l10n.languageArabicSubtitle,
+                          ),
+                        ])
+                          _Row(
+                            icon: AppIcons.languages,
+                            title: title,
+                            subtitle: subtitle,
+                            selected: widget.display.language == language,
+                            onTap: () => widget.display.setLanguage(language),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
               _Group(
-                label: 'DATA & PRIVACY',
+                label: context.l10n.dataGroup,
                 rows: [
                   _Row(
                     icon: AppIcons.shieldGold,
-                    title: 'Privacy policy',
-                    subtitle: 'How Stashly handles your data',
+                    title: context.l10n.privacyPolicy,
+                    subtitle: context.l10n.privacySubtitle,
                     onTap: () => _openUrl(widget.privacyUrl),
                   ),
                   _Row(
                     icon: AppIcons.fileText,
-                    title: 'Terms of use',
-                    subtitle: 'The agreement for using Stashly',
+                    title: context.l10n.termsOfUse,
+                    subtitle: context.l10n.termsSubtitle,
                     onTap: () => _openUrl(widget.termsUrl),
                   ),
                   _Row(
                     icon: AppIcons.download,
-                    title: 'Export my data',
+                    title: context.l10n.exportData,
                     subtitle: _exporting
-                        ? 'Preparing your file…'
-                        : 'Download everything as a JSON file',
+                        ? context.l10n.exportPreparing
+                        : context.l10n.exportSubtitle,
                     onTap: _exporting ? null : _export,
                   ),
                   _Row(
                     icon: AppIcons.trash18Red,
-                    title: 'Delete account',
-                    subtitle:
-                        'Permanently removes your account and saved items',
+                    title: context.l10n.deleteAccount,
+                    subtitle: context.l10n.deleteAccountSubtitle,
                     danger: true,
                     onTap: _deleteAccount,
                   ),
                 ],
               ),
               _Group(
-                label: 'ABOUT',
+                label: context.l10n.aboutGroup,
                 rows: [
                   _Row(
                     icon: AppIcons.info,
-                    title: 'About Stashly',
-                    subtitle: 'Everything Worth Keeping',
+                    title: context.l10n.aboutStashly,
+                    subtitle: context.l10n.tagline,
                     onTap: _about,
                   ),
                   _Row(
                     icon: AppIcons.info,
-                    title: 'App version',
-                    subtitle: 'Version ${widget.appVersion}',
-                    badge: const GoldBadge('Build', fontSize: 11),
+                    title: context.l10n.appVersion,
+                    subtitle: context.l10n.versionValue(widget.appVersion),
+                    badge: GoldBadge(context.l10n.buildBadge, fontSize: 11),
                   ),
                 ],
               ),
               const SizedBox(height: 24),
               SecondaryButton(
-                label: 'Sign out',
+                label: context.l10n.actionSignOut,
                 icon: AppIcons.logout,
-                color: AppColors.danger,
+                color: context.colors.danger,
                 onPressed: _signOut,
               ),
             ],
@@ -357,7 +405,7 @@ class _Group extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Text(
               label,
-              style: AppTextStyles.tiny.copyWith(
+              style: context.text.tiny.copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.8,
               ),
@@ -371,12 +419,12 @@ class _Group extends StatelessWidget {
                 for (var i = 0; i < rows.length; i++)
                   DecoratedBox(
                     decoration: BoxDecoration(
-                      color: AppColors.card,
+                      color: context.colors.card,
                       border: i == rows.length - 1
                           ? null
-                          : const Border(
+                          : Border(
                               bottom: BorderSide(
-                                color: AppColors.divider,
+                                color: context.colors.divider,
                                 width: 1.36,
                               ),
                             ),
@@ -400,6 +448,7 @@ class _Row extends StatelessWidget {
     this.onTap,
     this.badge,
     this.danger = false,
+    this.selected,
   });
 
   final String icon;
@@ -409,12 +458,19 @@ class _Row extends StatelessWidget {
   final Widget? badge;
   final bool danger;
 
+  /// Set for options in a one-of-many group (theme, language): the chosen
+  /// row shows a badge instead of a chevron.
+  final bool? selected;
+
   @override
   Widget build(BuildContext context) {
-    final accent = danger ? AppColors.danger : AppColors.gold;
+    final accent = danger ? context.colors.danger : context.colors.gold;
+    final selected = this.selected;
     return Semantics(
       button: onTap != null,
       label: title,
+      selected: selected,
+      inMutuallyExclusiveGroup: selected != null,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
@@ -429,7 +485,9 @@ class _Row extends StatelessWidget {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: danger ? AppColors.dangerTint : AppColors.goldTint,
+                      color: danger
+                          ? context.colors.dangerTint
+                          : context.colors.goldTint,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     alignment: Alignment.center,
@@ -443,17 +501,17 @@ class _Row extends StatelessWidget {
                         children: [
                           Text(
                             title,
-                            style: AppTextStyles.micro.copyWith(
+                            style: context.text.micro.copyWith(
                               fontWeight: FontWeight.w700,
                               color: danger
-                                  ? AppColors.danger
-                                  : AppColors.textPrimary,
+                                  ? context.colors.danger
+                                  : context.colors.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             subtitle,
-                            style: AppTextStyles.tiny.copyWith(
+                            style: context.text.tiny.copyWith(
                               fontSize: 11,
                               height: 1.4,
                             ),
@@ -464,12 +522,16 @@ class _Row extends StatelessWidget {
                   ),
                   const SizedBox(width: 10),
                   badge ??
-                      (onTap == null
+                      (selected != null
+                          ? (selected
+                                ? GoldBadge(context.l10n.selected, fontSize: 11)
+                                : const SizedBox.shrink())
+                          : onTap == null
                           ? const SizedBox.shrink()
-                          : const AppIcon(
+                          : AppIcon(
                               AppIcons.chevronRightMuted,
                               size: 17,
-                              color: AppColors.textMuted,
+                              color: context.colors.textMuted,
                             )),
                 ],
               ),
@@ -507,7 +569,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
   Future<void> _delete() async {
     final confirmWithGoogle = widget.confirmWithGoogle;
     if (confirmWithGoogle == null && _password.text.isEmpty) {
-      setState(() => _error = 'Enter your password to confirm.');
+      setState(() => _error = context.l10n.passwordConfirmRequired);
       return;
     }
     setState(() {
@@ -538,7 +600,7 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
           () => _error =
               failure.fieldError('password') ??
               failure.fieldError('id_token') ??
-              failure.userMessage,
+              failure.describe(context.l10n),
         );
     }
   }
@@ -552,49 +614,51 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Align(
-              alignment: Alignment.centerLeft,
+              alignment: AlignmentDirectional.centerStart,
               child: Container(
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: const Color(0x17FF7575),
+                  color: context.colors.dangerTint,
                   borderRadius: BorderRadius.circular(15),
                 ),
                 alignment: Alignment.center,
-                child: const AppIcon(
+                child: AppIcon(
                   AppIcons.trash22,
                   size: 22,
-                  color: AppColors.danger,
+                  color: context.colors.danger,
                 ),
               ),
             ),
             const SizedBox(height: 17),
-            Text('Delete your account?', style: AppTextStyles.sectionTitle),
+            Text(
+              context.l10n.deleteAccountTitle,
+              style: context.text.sectionTitle,
+            ),
             const SizedBox(height: 9),
             Text(
-              'This permanently deletes your account, saved links, collections and tags. '
-              'It can’t be undone. Export your data first if you want a copy.',
-              style: AppTextStyles.caption.copyWith(height: 1.65),
+              context.l10n.deleteAccountBody,
+              style: context.text.caption.copyWith(height: 1.65),
             ),
             const SizedBox(height: 16),
             if (widget.confirmWithGoogle != null) ...[
               Text(
-                'You’ll confirm with your Google account.',
-                style: AppTextStyles.caption,
+                context.l10n.confirmWithGoogleNotice,
+                style: context.text.caption,
               ),
               if (_error != null) ...[
                 const SizedBox(height: 8),
                 Text(
                   _error!,
-                  style: AppTextStyles.caption.copyWith(
-                    color: AppColors.danger,
+                  style: context.text.caption.copyWith(
+                    color: context.colors.danger,
                   ),
                 ),
               ],
             ] else
               StashlyTextField(
                 controller: _password,
-                hint: 'Your password',
+                hint: context.l10n.yourPasswordHint,
                 icon: AppIcons.lock,
                 password: true,
                 errorText: _error,
@@ -603,13 +667,13 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
             const SizedBox(height: 20),
             DialogActions(
               cancel: SecondaryButton(
-                label: 'Keep account',
+                label: context.l10n.keepAccount,
                 onPressed: () => Navigator.of(context).pop(false),
               ),
               confirm: SecondaryButton(
-                label: 'Delete',
-                color: AppColors.danger,
-                background: AppColors.dangerTint,
+                label: context.l10n.actionDelete,
+                color: context.colors.danger,
+                background: context.colors.dangerTint,
                 bordered: false,
                 loading: _busy,
                 onPressed: _delete,

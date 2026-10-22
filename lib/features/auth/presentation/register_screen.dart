@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/result/result.dart';
 import 'package:stashly/core/routing/routes.dart';
 import 'package:stashly/core/theme/app_colors.dart';
@@ -59,7 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (uri == null ||
         !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (mounted) {
-        showStashlySnack(context, 'This document isn’t available yet.');
+        showStashlySnack(context, context.l10n.documentUnavailable);
       }
     }
   }
@@ -70,15 +71,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _formError = null;
       _errors
         ..clear()
-        ..['display_name'] = AuthValidators.displayName(_name.text)
-        ..['email'] = AuthValidators.email(_email.text)
-        ..['password'] = AuthValidators.newPassword(_password.text)
+        ..['display_name'] = AuthValidators.displayName(
+          context.l10n,
+          _name.text,
+        )
+        ..['email'] = AuthValidators.email(context.l10n, _email.text)
+        ..['password'] = AuthValidators.newPassword(
+          context.l10n,
+          _password.text,
+        )
         ..['password_confirmation'] = _confirm.text != _password.text
-            ? 'Passwords don’t match.'
+            ? context.l10n.passwordsDontMatch
             : null
         ..['terms_accepted'] = _accepted
             ? null
-            : 'Please accept the Terms to continue.';
+            : context.l10n.acceptTermsRequired;
     });
     if (_errors.values.any((e) => e != null)) return;
 
@@ -105,7 +112,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           _errors[field] = failure.fieldError(field);
         }
         if (_errors.values.every((e) => e == null)) {
-          _formError = failure.userMessage;
+          _formError = failure.describe(context.l10n);
         }
       }
     });
@@ -113,8 +120,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final linkStyle = AppTextStyles.micro.copyWith(
-      color: AppColors.textSecondary,
+    final linkStyle = context.text.micro.copyWith(
+      color: context.colors.textSecondary,
       fontWeight: FontWeight.w500,
       height: 1.65,
     );
@@ -123,15 +130,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const AuthHeader(
-              title: 'Create your account',
-              subtitle: 'Start building a stash that’s easy to return to.',
+            AuthHeader(
+              title: context.l10n.registerTitle,
+              subtitle: context.l10n.registerSubtitle,
             ),
             const SizedBox(height: 24),
             StashlyTextField(
-              label: 'Display name',
+              label: context.l10n.displayNameLabel,
               controller: _name,
-              hint: 'How should we address you?',
+              hint: context.l10n.displayNameHint,
               icon: AppIcons.user,
               maxLength: 100,
               textCapitalization: TextCapitalization.words,
@@ -141,9 +148,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 15),
             StashlyTextField(
-              label: 'Email',
+              label: context.l10n.emailLabel,
               controller: _email,
-              hint: 'you@example.com',
+              hint: context.l10n.emailHint,
               icon: AppIcons.mail,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
@@ -152,9 +159,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 15),
             StashlyTextField(
-              label: 'Password',
+              label: context.l10n.passwordLabel,
               controller: _password,
-              hint: 'At least 8 characters',
+              hint: context.l10n.newPasswordHint,
               icon: AppIcons.lock,
               password: true,
               maxLength: 128,
@@ -164,9 +171,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 15),
             StashlyTextField(
-              label: 'Confirm password',
+              label: context.l10n.confirmPasswordLabel,
               controller: _confirm,
-              hint: 'Enter it once more',
+              hint: context.l10n.confirmPasswordHint,
               icon: AppIcons.lock,
               password: true,
               maxLength: 128,
@@ -189,17 +196,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Expanded(
                       child: Text.rich(
                         TextSpan(
-                          style: AppTextStyles.micro.copyWith(height: 1.65),
+                          style: context.text.micro.copyWith(height: 1.65),
                           children: [
-                            const TextSpan(text: 'I agree to the Stashly '),
+                            TextSpan(text: context.l10n.termsPrefix),
                             TextSpan(
-                              text: 'Terms',
+                              text: context.l10n.termsLink,
                               style: linkStyle,
                               recognizer: _termsTap,
                             ),
-                            const TextSpan(text: ' and '),
+                            TextSpan(text: context.l10n.termsAnd),
                             TextSpan(
-                              text: 'Privacy Policy',
+                              text: context.l10n.privacyLink,
                               style: linkStyle,
                               recognizer: _privacyTap,
                             ),
@@ -216,19 +223,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 6),
               Text(
                 _errors['terms_accepted']!,
-                style: AppTextStyles.micro.copyWith(color: AppColors.danger),
+                style: context.text.micro.copyWith(
+                  color: context.colors.danger,
+                ),
               ),
             ],
             if (_formError != null) ...[
               const SizedBox(height: 10),
               Text(
                 _formError!,
-                style: AppTextStyles.caption.copyWith(color: AppColors.danger),
+                style: context.text.caption.copyWith(
+                  color: context.colors.danger,
+                ),
               ),
             ],
             const SizedBox(height: 20),
             PrimaryButton(
-              label: 'Create Account',
+              label: context.l10n.actionCreateAccount,
               authStyle: true,
               loading: _busy,
               onPressed: _submit,
@@ -238,13 +249,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               termsAccepted: _accepted,
               onTermsMissing: () => setState(
                 () => _errors['terms_accepted'] =
-                    'Please accept the Terms to continue.',
+                    context.l10n.acceptTermsRequired,
               ),
             ),
             const SizedBox(height: 18),
             AuthFooterPrompt(
-              prompt: 'Already have an account?',
-              action: 'Sign In',
+              prompt: context.l10n.haveAccount,
+              action: context.l10n.actionSignIn,
               onTap: () => context.pushReplacement(Routes.signIn),
             ),
           ],

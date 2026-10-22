@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/routing/navigation.dart';
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/presentation/paged_controller.dart';
@@ -120,17 +121,16 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
   Future<void> _delete(Collection collection) async {
     final confirmed = await confirmDestructive(
       context,
-      title: 'Delete this collection?',
-      message:
-          '“${collection.name}” will be removed. The links inside stay in your library.',
-      confirmLabel: 'Delete',
-      cancelLabel: 'Keep it',
+      title: context.l10n.deleteCollectionTitle,
+      message: context.l10n.deleteCollectionMessage(collection.name),
+      confirmLabel: context.l10n.actionDelete,
+      cancelLabel: context.l10n.keepIt,
     );
     if (!confirmed || !mounted) return;
     final result = await widget.collections.delete(collection.id);
     if (!mounted) return;
     if (result case Err(:final failure)) {
-      showStashlySnack(context, failure.userMessage, error: true);
+      showStashlySnack(context, failure.describe(context.l10n), error: true);
       return;
     }
     widget.changes.notify({
@@ -138,7 +138,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
       DataTopic.links,
       DataTopic.account,
     });
-    showStashlySnack(context, 'Collection deleted');
+    showStashlySnack(context, context.l10n.collectionDeleted);
     context.popOrHome();
   }
 
@@ -149,14 +149,13 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     final selection = await showStashlySheet<Set<String>>(
       context,
       builder: (context) => MultiSelectSheet(
-        eyebrow: 'COLLECTION MEMBERSHIP',
-        title: 'Add existing items',
-        helper:
-            'Select links for ${collection.name}. Removing one here keeps it in your library.',
+        eyebrow: context.l10n.membershipEyebrow,
+        title: context.l10n.addExistingItems,
+        helper: context.l10n.membershipHelper(collection.name),
         initialSelection: const {},
-        saveLabel: 'Save membership',
+        saveLabel: context.l10n.saveMembership,
         showClear: false,
-        emptyMessage: 'Your library is empty.',
+        emptyMessage: context.l10n.libraryEmpty,
         loadPage: (cursor) async {
           final result = await widget.links.list(
             const LinkQuery(limit: 50),
@@ -205,9 +204,9 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         _seen = widget.changes.version(DataTopic.links) + 1;
         widget.changes.notify({DataTopic.links, DataTopic.collections});
         _links.refresh();
-        showStashlySnack(context, 'Collection updated');
+        showStashlySnack(context, context.l10n.collectionUpdated);
       case Err(:final failure):
-        showStashlySnack(context, failure.userMessage, error: true);
+        showStashlySnack(context, failure.describe(context.l10n), error: true);
     }
   }
 
@@ -226,7 +225,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         _seen = widget.changes.version(DataTopic.links) + 1;
         widget.changes.notify({DataTopic.links, DataTopic.account});
       case Err(:final failure):
-        showStashlySnack(context, failure.userMessage, error: true);
+        showStashlySnack(context, failure.describe(context.l10n), error: true);
     }
   }
 
@@ -310,22 +309,22 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         BackTitleHeader(
-          eyebrow: 'COLLECTION',
+          eyebrow: context.l10n.collectionEyebrow,
           title: collection.name,
           trailing: IconTapButton(
             icon: AppIcons.edit18,
             iconSize: 18,
-            semanticLabel: 'Edit collection',
+            semanticLabel: context.l10n.editCollection,
             onPressed: () => _edit(collection),
           ),
         ),
         if ((collection.description ?? '').isNotEmpty)
           Padding(
-            padding: const EdgeInsets.only(left: 56, top: 3),
+            padding: const EdgeInsetsDirectional.only(start: 56, top: 3),
             child: Text(
               collection.description!,
-              style: AppTextStyles.micro.copyWith(
-                color: AppColors.textSecondary,
+              style: context.text.micro.copyWith(
+                color: context.colors.textSecondary,
               ),
             ),
           ),
@@ -335,10 +334,10 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
             Expanded(
               flex: 200,
               child: PrimaryButton(
-                label: 'Add existing',
+                label: context.l10n.addExisting,
                 icon: AppIcons.addExisting,
                 height: 44,
-                labelStyle: AppTextStyles.micro.copyWith(
+                labelStyle: context.text.micro.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
                 onPressed: () => _manageMembership(collection),
@@ -348,11 +347,11 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
             Expanded(
               flex: 170,
               child: SecondaryButton(
-                label: 'Delete',
+                label: context.l10n.actionDelete,
                 icon: AppIcons.trash17Red,
-                color: AppColors.danger,
+                color: context.colors.danger,
                 height: 44,
-                textStyle: AppTextStyles.micro,
+                textStyle: context.text.micro,
                 onPressed: () => _delete(collection),
               ),
             ),
@@ -360,24 +359,28 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         ),
         const SizedBox(height: 14),
         StashlyTextField(
-          hint: 'Search within this collection',
+          hint: context.l10n.searchInCollection,
           icon: AppIcons.searchInput,
           textInputAction: TextInputAction.search,
           onChanged: _onSearch,
         ),
-        SizedBox(
-          height: 51,
+        ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 51),
           child: Row(
             children: [
-              Text(
-                _links.total == null
-                    ? ''
-                    : (_links.total == 1 ? '1 item' : '${_links.total} items'),
-                style: AppTextStyles.micro,
+              Expanded(
+                child: Text(
+                  _links.total == null
+                      ? ''
+                      : context.l10n.itemCount(_links.total!),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: context.text.micro,
+                ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               _SortControl(
-                label: _sort.label,
+                label: context.l10n.linkSort(_sort.name),
                 onTap: () {
                   setState(() => _sort = _sort.toggled);
                   _links.refresh();
@@ -404,11 +407,11 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         child: MessageCard(
           icon: AppIcons.folder26,
           title: _search.isEmpty
-              ? 'This collection is empty'
-              : 'No matches in this collection',
+              ? context.l10n.collectionEmpty
+              : context.l10n.collectionNoMatches,
           message: _search.isEmpty
-              ? 'Use “Add existing” to bring links in, or organize from any item.'
-              : 'Try a broader word.',
+              ? context.l10n.collectionEmptyHint
+              : context.l10n.tryBroaderWord,
         ),
       );
     }
@@ -420,7 +423,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
           itemBuilder: (context, index) {
             final link = _links.items[index];
             return SavedCard(
-              data: _cardData(link),
+              data: _cardData(link, context.l10n),
               onOpen: () => context.push(Routes.link(link.id)),
               onToggleFavorite: () => _toggleFavorite(link),
               onAction: (action) => _onAction(link, action),
@@ -433,19 +436,20 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
   }
 }
 
-SavedCardData _cardData(Link link) => SavedCardData.fromApiFields(
-  id: link.id,
-  title: link.displayTitle,
-  sourceDomain: link.sourceDomain,
-  originalUrl: link.originalUrl,
-  previewImageUrl: link.metadata.previewImageUrl,
-  isFavorite: link.isFavorite,
-  createdAt: link.createdAt,
-  contentType: link.contentType.apiValue,
-  contentTypeLabel: link.contentType.label,
-  metadataStatus: link.metadata.status.apiValue,
-  collectionLabel: link.collectionLabel,
-);
+SavedCardData _cardData(Link link, AppLocalizations l10n) =>
+    SavedCardData.fromApiFields(
+      id: link.id,
+      title: link.displayTitle,
+      sourceDomain: link.sourceDomain,
+      originalUrl: link.originalUrl,
+      previewImageUrl: link.metadata.previewImageUrl,
+      isFavorite: link.isFavorite,
+      createdAt: link.createdAt,
+      contentType: link.contentType.apiValue,
+      metadataStatus: link.metadata.status.apiValue,
+      l10n: l10n,
+      collectionLabel: link.collectionLabel,
+    );
 
 /// Small "⇅ Newest" control next to the item count.
 class _SortControl extends StatelessWidget {
@@ -458,7 +462,7 @@ class _SortControl extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: 'Sort: $label',
+      label: context.l10n.sortLabel(label),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: onTap,
@@ -467,16 +471,16 @@ class _SortControl extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const AppIcon(
+              AppIcon(
                 AppIcons.sort15,
                 size: 15,
-                color: AppColors.textSecondary,
+                color: context.colors.textSecondary,
               ),
               const SizedBox(width: 6),
               Text(
                 label,
-                style: AppTextStyles.micro.copyWith(
-                  color: AppColors.textSecondary,
+                style: context.text.micro.copyWith(
+                  color: context.colors.textSecondary,
                 ),
               ),
             ],

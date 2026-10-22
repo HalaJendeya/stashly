@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/routing/navigation.dart';
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/routing/routes.dart';
@@ -57,7 +58,7 @@ class _DuplicateLinkScreenState extends State<DuplicateLinkScreen> {
     if (!reportFailure(context, result)) {
       setState(() => _link = result.valueOrNull);
       widget.changes.notify({DataTopic.links, DataTopic.collections});
-      showStashlySnack(context, 'Collections updated');
+      showStashlySnack(context, context.l10n.collectionsUpdated);
     }
   }
 
@@ -70,9 +71,9 @@ class _DuplicateLinkScreenState extends State<DuplicateLinkScreen> {
           child: Column(
             children: [
               CaptionTopBar(
-                caption: 'Incoming link',
+                caption: context.l10n.incomingLink,
                 leadingIcon: AppIcons.close20,
-                leadingLabel: 'Close',
+                leadingLabel: context.l10n.actionClose,
                 onLeading: () => _close(context),
               ),
               Expanded(
@@ -80,43 +81,46 @@ class _DuplicateLinkScreenState extends State<DuplicateLinkScreen> {
                   padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
                   children: [
                     Align(
-                      alignment: Alignment.centerLeft,
+                      alignment: AlignmentDirectional.centerStart,
                       child: Container(
                         width: 62,
                         height: 62,
                         decoration: BoxDecoration(
-                          color: AppColors.goldTint,
+                          color: context.colors.goldTint,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         alignment: Alignment.center,
-                        child: const AppIcon(
+                        child: AppIcon(
                           AppIcons.checkCircle28,
                           size: 28,
-                          color: AppColors.gold,
+                          color: context.colors.gold,
                         ),
                       ),
                     ),
                     const SizedBox(height: 25),
-                    Text('ALREADY IN STASHLY', style: AppTextStyles.eyebrow),
+                    Text(
+                      context.l10n.alreadyEyebrow,
+                      style: context.text.eyebrow,
+                    ),
                     const SizedBox(height: 7),
                     Text(
-                      'You’ve saved this link before',
-                      style: AppTextStyles.heading,
+                      context.l10n.alreadyTitle,
+                      style: context.text.heading,
                     ),
                     const SizedBox(height: 10),
                     Text(
-                      'No duplicate was created. You can open the existing item or add more organization.',
-                      style: AppTextStyles.caption.copyWith(height: 1.65),
+                      context.l10n.alreadyBody,
+                      style: context.text.caption.copyWith(height: 1.65),
                     ),
                     const SizedBox(height: 12),
                     if (link != null)
                       Container(
                         padding: const EdgeInsets.all(14),
                         decoration: BoxDecoration(
-                          color: AppColors.card,
+                          color: context.colors.card,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: AppColors.border,
+                            color: context.colors.border,
                             width: 1.36,
                           ),
                         ),
@@ -127,7 +131,7 @@ class _DuplicateLinkScreenState extends State<DuplicateLinkScreen> {
                               link.displayTitle,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.rowTitle.copyWith(
+                              style: context.text.rowTitle.copyWith(
                                 fontSize: 13.5,
                               ),
                             ),
@@ -137,7 +141,7 @@ class _DuplicateLinkScreenState extends State<DuplicateLinkScreen> {
                                 link.sourceDomain,
                                 ?link.collectionLabel,
                               ].join(' · '),
-                              style: AppTextStyles.tiny,
+                              style: context.text.tiny,
                             ),
                           ],
                         ),
@@ -145,20 +149,20 @@ class _DuplicateLinkScreenState extends State<DuplicateLinkScreen> {
                     const SizedBox(height: 16),
                     if (link != null) ...[
                       PrimaryButton(
-                        label: 'Open saved item',
+                        label: context.l10n.openSavedItem,
                         onPressed: () =>
                             context.pushReplacement(Routes.link(link.id)),
                       ),
                       const SizedBox(height: 8),
                       SecondaryButton(
-                        label: 'Add to a collection',
+                        label: context.l10n.addToCollection,
                         icon: AppIcons.folder17,
                         loading: _busy,
                         onPressed: () => _addToCollection(link),
                       ),
                       const SizedBox(height: 8),
                       SecondaryButton(
-                        label: 'Edit personal note',
+                        label: context.l10n.editPersonalNote,
                         icon: AppIcons.file17,
                         onPressed: () => context.pushReplacement(
                           '${Routes.editLink(link.id)}?focus=note',
@@ -166,16 +170,16 @@ class _DuplicateLinkScreenState extends State<DuplicateLinkScreen> {
                       ),
                     ] else
                       PrimaryButton(
-                        label: 'Open my library',
+                        label: context.l10n.openMyLibrary,
                         onPressed: () =>
                             context.pushReplacement(Routes.library),
                       ),
                     const SizedBox(height: 8),
                     TextActionButton(
-                      label: 'Cancel',
+                      label: context.l10n.actionCancel,
                       minHeight: 48,
-                      style: AppTextStyles.buttonSecondary.copyWith(
-                        color: AppColors.textPrimary,
+                      style: context.text.buttonSecondary.copyWith(
+                        color: context.colors.textPrimary,
                       ),
                       onPressed: () => _close(context),
                     ),

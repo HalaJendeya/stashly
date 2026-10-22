@@ -24,7 +24,6 @@ class Collection {
   final DateTime updatedAt;
 
   /// "1 item" / "12 items".
-  String get countLabel => linksCount == 1 ? '1 item' : '$linksCount items';
 }
 
 /// A tag with its usage count (`GET /tags`). Tags are identified by name.

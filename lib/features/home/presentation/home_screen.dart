@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/layout/app_viewport.dart';
 import 'package:stashly/core/format/date_labels.dart';
 import 'package:stashly/core/result/result.dart';
@@ -61,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final result = await _vm.toggleFavorite(link);
     if (!mounted) return;
     if (result case Err(:final failure)) {
-      showStashlySnack(context, failure.userMessage, error: true);
+      showStashlySnack(context, failure.describe(context.l10n), error: true);
     }
   }
 
@@ -139,9 +140,9 @@ class _HomeScreenState extends State<HomeScreen> {
       if (summary.quickAccess.isNotEmpty) ...[
         const SizedBox(height: 27),
         SectionHeader(
-          eyebrow: 'QUICK ACCESS',
-          title: 'Collections',
-          actionLabel: 'Browse all',
+          eyebrow: context.l10n.quickAccess,
+          title: context.l10n.navCollections,
+          actionLabel: context.l10n.browseAll,
           onAction: () => context.go(Routes.collections),
         ),
         const SizedBox(height: 14),
@@ -167,9 +168,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
       const SizedBox(height: 27),
       SectionHeader(
-        eyebrow: 'YOUR SPACE',
-        title: 'Recently saved',
-        actionLabel: 'View all',
+        eyebrow: context.l10n.yourSpace,
+        title: context.l10n.recentlySaved,
+        actionLabel: context.l10n.viewAll,
         onAction: () => context.push(Routes.library),
       ),
       SizedBox(
@@ -179,14 +180,14 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.only(top: 16, bottom: 15),
           children: [
             PillChip(
-              label: 'All',
+              label: context.l10n.filterAll,
               selected: _vm.type == null,
               onTap: () => _vm.selectType(null),
             ),
             for (final type in ContentType.values) ...[
               const SizedBox(width: 8),
               PillChip(
-                label: type.label,
+                label: context.l10n.contentType(type.apiValue),
                 selected: _vm.type == type,
                 onTap: () => _vm.selectType(type),
               ),
@@ -194,23 +195,23 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(width: 8),
             Semantics(
               button: true,
-              label: 'More filters',
+              label: context.l10n.moreFilters,
               child: Material(
-                color: AppColors.surface,
-                shape: const StadiumBorder(
-                  side: BorderSide(color: AppColors.border, width: 1.36),
+                color: context.colors.surface,
+                shape: StadiumBorder(
+                  side: BorderSide(color: context.colors.border, width: 1.36),
                 ),
                 child: InkWell(
                   customBorder: const StadiumBorder(),
                   onTap: () => context.go('${Routes.search}?filters=1'),
-                  child: const SizedBox(
+                  child: SizedBox(
                     width: 40,
                     height: 38,
                     child: Center(
                       child: AppIcon(
                         AppIcons.chipSliders,
                         size: 16,
-                        color: AppColors.textSecondary,
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   ),
@@ -242,18 +243,18 @@ class _HomeScreenState extends State<HomeScreen> {
         MessageCard(
           icon: AppIcons.bookmark,
           title: totalLinks == 0
-              ? 'Nothing saved yet'
-              : 'No ${_vm.type?.label.toLowerCase()} yet',
+              ? context.l10n.nothingSavedYet
+              : context.l10n.noItemsOfType(_vm.type!.apiValue),
           message: totalLinks == 0
-              ? 'Share a link from any app, or tap Save Link to add one.'
-              : 'Items of this type will show up here.',
+              ? context.l10n.homeEmptyBody
+              : context.l10n.homeEmptyTypeBody,
         ),
       ];
     }
     return [
       for (final link in links) ...[
         SavedCard(
-          data: _cardData(link),
+          data: _cardData(link, context.l10n),
           onOpen: () => context.push(Routes.link(link.id)),
           onToggleFavorite: () => _toggleFavorite(link),
           onAction: (action) => _onAction(link, action),
@@ -264,19 +265,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-SavedCardData _cardData(Link link) => SavedCardData.fromApiFields(
-  id: link.id,
-  title: link.displayTitle,
-  sourceDomain: link.sourceDomain,
-  originalUrl: link.originalUrl,
-  previewImageUrl: link.metadata.previewImageUrl,
-  isFavorite: link.isFavorite,
-  createdAt: link.createdAt,
-  contentType: link.contentType.apiValue,
-  contentTypeLabel: link.contentType.label,
-  metadataStatus: link.metadata.status.apiValue,
-  collectionLabel: link.collectionLabel,
-);
+SavedCardData _cardData(Link link, AppLocalizations l10n) =>
+    SavedCardData.fromApiFields(
+      id: link.id,
+      title: link.displayTitle,
+      sourceDomain: link.sourceDomain,
+      originalUrl: link.originalUrl,
+      previewImageUrl: link.metadata.previewImageUrl,
+      isFavorite: link.isFavorite,
+      createdAt: link.createdAt,
+      contentType: link.contentType.apiValue,
+      metadataStatus: link.metadata.status.apiValue,
+      l10n: l10n,
+      collectionLabel: link.collectionLabel,
+    );
 
 class _Greeting extends StatelessWidget {
   const _Greeting({required this.name, required this.onProfile});
@@ -295,12 +297,10 @@ class _Greeting extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(top: 8),
             child: TitleBlock(
-              eyebrow: DateLabels.eyebrowDate(now),
-              title: first.isEmpty
-                  ? DateLabels.greeting(now)
-                  : '${DateLabels.greeting(now)}, $first',
-              subtitle: 'Everything worth keeping, right where you left it.',
-              subtitleStyle: AppTextStyles.subtitle,
+              eyebrow: DateLabels(context.l10n).eyebrowDate(now),
+              title: DateLabels(context.l10n).greeting(now, name: first),
+              subtitle: context.l10n.homeSubtitle,
+              subtitleStyle: context.text.subtitle,
             ),
           ),
         ),
@@ -320,10 +320,10 @@ class _SearchEntry extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.surface,
+      color: context.colors.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppColors.border, width: 1.36),
+        side: BorderSide(color: context.colors.border, width: 1.36),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -333,20 +333,20 @@ class _SearchEntry extends StatelessWidget {
           child: Row(
             children: [
               const SizedBox(width: 14),
-              const AppIcon(
+              AppIcon(
                 AppIcons.search,
                 size: 19,
-                color: AppColors.textMuted,
+                color: context.colors.textMuted,
               ),
               const SizedBox(width: 5),
               Expanded(
                 child: Semantics(
                   button: true,
-                  label: 'Search',
+                  label: context.l10n.navSearch,
                   child: Text(
-                    'Search titles, sources, collections…',
-                    style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.textMuted,
+                    context.l10n.homeSearchHint,
+                    style: context.text.bodySmall.copyWith(
+                      color: context.colors.textMuted,
                       height: 1.5,
                     ),
                   ),
@@ -356,8 +356,8 @@ class _SearchEntry extends StatelessWidget {
                 icon: AppIcons.sliders,
                 iconSize: 17,
                 size: 44,
-                color: AppColors.textMuted,
-                semanticLabel: 'Search filters',
+                color: context.colors.textMuted,
+                semanticLabel: context.l10n.searchFilters,
                 onPressed: onFilters,
               ),
               const SizedBox(width: 2),
@@ -379,7 +379,7 @@ class _SaveLinkButton extends StatelessWidget {
     return Semantics(
       button: true,
       child: Material(
-        color: AppColors.gold,
+        color: context.colors.goldFill,
         borderRadius: BorderRadius.circular(16),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -389,13 +389,13 @@ class _SaveLinkButton extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const AppIcon(AppIcons.plus, size: 20, color: AppColors.onGold),
+                AppIcon(AppIcons.plus, size: 20, color: context.colors.onGold),
                 const SizedBox(width: 7),
                 Flexible(
                   child: Text(
-                    'Save Link',
+                    context.l10n.saveLink,
                     textAlign: TextAlign.center,
-                    style: AppTextStyles.button,
+                    style: context.text.button,
                   ),
                 ),
               ],
@@ -417,12 +417,14 @@ class _FavoritesTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: 'Favorites, ${count ?? 0} saved',
+      label: context.l10n.favoritesTileLabel(
+        context.l10n.savedCount(count ?? 0),
+      ),
       child: Material(
-        color: AppColors.surface,
+        color: context.colors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.border, width: 1.36),
+          side: BorderSide(color: context.colors.border, width: 1.36),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -433,10 +435,10 @@ class _FavoritesTile extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Row(
                 children: [
-                  const AppIcon(
+                  AppIcon(
                     AppIcons.heartGold,
                     size: 19,
-                    color: AppColors.gold,
+                    color: context.colors.gold,
                   ),
                   const SizedBox(width: 9),
                   Expanded(
@@ -446,17 +448,19 @@ class _FavoritesTile extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Favorites',
+                            context.l10n.favorites,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.rowTitle,
+                            style: context.text.rowTitle,
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            count == null ? '—' : '$count saved',
+                            count == null
+                                ? '—'
+                                : context.l10n.savedCount(count!),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.tiny,
+                            style: context.text.tiny,
                           ),
                         ],
                       ),
@@ -496,12 +500,15 @@ class _QuickAccessTile extends StatelessWidget {
     final icon = _icons[index % _icons.length];
     return Semantics(
       button: true,
-      label: '${collection.name}, ${collection.countLabel}',
+      label: context.l10n.cardLabel(
+        collection.name,
+        context.l10n.itemCount(collection.linksCount),
+      ),
       child: Material(
-        color: AppColors.surface,
+        color: context.colors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.border, width: 1.36),
+          side: BorderSide(color: context.colors.border, width: 1.36),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -514,11 +521,11 @@ class _QuickAccessTile extends StatelessWidget {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: AppColors.goldTint,
+                    color: context.colors.goldTint,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   alignment: Alignment.center,
-                  child: AppIcon(icon, size: 17, color: AppColors.gold),
+                  child: AppIcon(icon, size: 17, color: context.colors.gold),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -531,14 +538,14 @@ class _QuickAccessTile extends StatelessWidget {
                           collection.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.rowTitle.copyWith(fontSize: 12),
+                          style: context.text.rowTitle.copyWith(fontSize: 12),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          collection.countLabel,
+                          context.l10n.itemCount(collection.linksCount),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.tiny.copyWith(fontSize: 11),
+                          style: context.text.tiny.copyWith(fontSize: 11),
                         ),
                       ],
                     ),

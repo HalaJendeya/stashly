@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
 import 'package:stashly/core/widgets/app_icon.dart';
@@ -22,12 +23,15 @@ class CollectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: '${collection.name}, ${collection.countLabel}',
+      label: context.l10n.cardLabel(
+        collection.name,
+        context.l10n.itemCount(collection.linksCount),
+      ),
       child: Material(
-        color: AppColors.surface,
+        color: context.colors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.border, width: 1.36),
+          side: BorderSide(color: context.colors.border, width: 1.36),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -37,7 +41,7 @@ class CollectionCard extends StatelessWidget {
             children: [
               SizedBox(height: 105, child: _Cover(collection: collection)),
               Padding(
-                padding: const EdgeInsets.fromLTRB(13, 12, 10, 12),
+                padding: const EdgeInsetsDirectional.fromSTEB(13, 12, 10, 12),
                 child: Row(
                   children: [
                     Expanded(
@@ -48,22 +52,24 @@ class CollectionCard extends StatelessWidget {
                             collection.name,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.rowTitle.copyWith(
+                            style: context.text.rowTitle.copyWith(
                               fontSize: 13.5,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            collection.countLabel,
-                            style: AppTextStyles.tiny,
+                            context.l10n.itemCount(collection.linksCount),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: context.text.tiny,
                           ),
                         ],
                       ),
                     ),
-                    const AppIcon(
+                    AppIcon(
                       AppIcons.cardArrow,
                       size: 17,
-                      color: AppColors.textMuted,
+                      color: context.colors.textMuted,
                     ),
                   ],
                 ),
@@ -89,7 +95,7 @@ class _Cover extends StatelessWidget {
       imageUrl: url,
       fit: BoxFit.cover,
       memCacheWidth: 400,
-      placeholder: (_, _) => const ColoredBox(color: AppColors.surface),
+      placeholder: (_, _) => ColoredBox(color: context.colors.surface),
       errorWidget: (_, _, _) =>
           CollectionPlaceholder(seed: collection.id, iconSize: 18),
     );
@@ -136,15 +142,15 @@ class CollectionPlaceholder extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: warm
-              ? const [Color(0xFF25231C), Color(0xFF18181C)]
-              : const [Color(0xFF202631), Color(0xFF17191D)],
+              ? [context.colors.coverWarmStart, context.colors.coverWarmEnd]
+              : [context.colors.coverCoolStart, context.colors.coverCoolEnd],
         ),
       ),
       child: Center(
         child: AppIcon(
           warm ? AppIcons.folder26 : AppIcons.folder26Alt,
           size: iconSize,
-          color: warm ? AppColors.gold : AppColors.textMuted,
+          color: warm ? context.colors.gold : context.colors.textMuted,
         ),
       ),
     );

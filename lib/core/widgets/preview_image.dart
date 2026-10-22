@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
 import 'package:stashly/core/widgets/app_icon.dart';
@@ -55,7 +56,7 @@ class PreviewImage extends StatelessWidget {
       fadeInDuration: const Duration(milliseconds: 180),
       // Decode at display size to keep memory bounded on long lists.
       memCacheWidth: 600,
-      placeholder: (context, _) => const ColoredBox(color: AppColors.surface),
+      placeholder: (context, _) => ColoredBox(color: context.colors.surface),
       errorWidget: (context, _, _) => _FallbackPreview(
         domain: domain,
         icon: placeholderIcon,
@@ -80,11 +81,11 @@ class _FallbackPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final label = domain.split('.').first;
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF242015), AppColors.card],
+          colors: [context.colors.previewPlaceholder, context.colors.card],
         ),
       ),
       child: Stack(
@@ -124,7 +125,7 @@ class _FallbackPreview extends StatelessWidget {
                     child: AppIcon(
                       icon,
                       size: compact ? 20 : 26,
-                      color: AppColors.gold,
+                      color: context.colors.gold,
                     ),
                   ),
                 ),
@@ -134,7 +135,7 @@ class _FallbackPreview extends StatelessWidget {
                     label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.bodySmall.copyWith(height: 1.5),
+                    style: context.text.bodySmall.copyWith(height: 1.5),
                   ),
                 ],
               ],
@@ -152,11 +153,15 @@ class _PendingPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment(-1, -0.4),
           end: Alignment(1, 0.4),
-          colors: [AppColors.surface, Color(0xFF252529), AppColors.surface],
+          colors: [
+            context.colors.surface,
+            context.colors.shimmer,
+            context.colors.surface,
+          ],
           stops: [0.37, 0.5, 0.63],
         ),
       ),
@@ -164,13 +169,9 @@ class _PendingPreview extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const AppIcon(
-              AppIcons.loader,
-              size: 23,
-              color: AppColors.textMuted,
-            ),
+            AppIcon(AppIcons.loader, size: 23, color: context.colors.textMuted),
             const SizedBox(height: 10),
-            Text('Preview pending', style: AppTextStyles.micro),
+            Text(context.l10n.previewPending, style: context.text.micro),
           ],
         ),
       ),

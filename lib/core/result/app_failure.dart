@@ -67,40 +67,6 @@ final class AppFailure {
     return null;
   }
 
-  /// A short sentence suitable for a snackbar or inline error.
-  String get userMessage => switch (kind) {
-    FailureKind.validation =>
-      fieldErrors.values.expand((m) => m).firstOrNull ??
-          'Please check the highlighted fields.',
-    FailureKind.invalidUrl => 'Enter a valid http or https link.',
-    FailureKind.invalidCursor => 'The list changed. Pull to refresh.',
-    FailureKind.limitExceeded =>
-      message ?? 'You have reached the limit for this item.',
-    FailureKind.tokenInvalidOrExpired =>
-      'This reset link is invalid or has expired.',
-    FailureKind.invalidCredentials => 'The email or password is incorrect.',
-    FailureKind.invalidGoogleToken =>
-      'Google sign-in failed. Please try again.',
-    FailureKind.googleUnavailable =>
-      'Google sign-in isn’t available on this device right now.',
-    FailureKind.googleNotConfigured =>
-      'Google sign-in isn’t set up in this version of the app yet.',
-    FailureKind.unauthenticated => 'Your session has ended. Please sign in.',
-    FailureKind.forbidden => 'You don’t have access to this item.',
-    FailureKind.notFound => 'This item no longer exists.',
-    FailureKind.duplicateLink => 'This link is already in your Stashly.',
-    FailureKind.rateLimited =>
-      retryAfter == null
-          ? 'Too many requests. Please wait a moment.'
-          : 'Too many requests. Try again in ${retryAfter!.inSeconds}s.',
-    FailureKind.server => 'Something went wrong on our side. Please try again.',
-    FailureKind.serviceUnavailable =>
-      'Stashly is temporarily unavailable. Please try again soon.',
-    FailureKind.offline => 'You’re offline. Check your connection.',
-    FailureKind.timeout => 'The request timed out. Please try again.',
-    FailureKind.unknown => 'Something went wrong. Please try again.',
-  };
-
   bool get isRetryable => switch (kind) {
     FailureKind.offline ||
     FailureKind.timeout ||

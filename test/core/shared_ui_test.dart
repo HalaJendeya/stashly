@@ -1,5 +1,7 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/presentation/paged_controller.dart';
 import 'package:stashly/core/result/app_failure.dart';
 import 'package:stashly/core/result/paging.dart';
@@ -69,7 +71,7 @@ void main() {
       isFavorite: false,
       createdAt: DateTime.now().toUtc(),
       contentType: contentType,
-      contentTypeLabel: 'Articles',
+      l10n: lookupAppLocalizations(const Locale('en')),
       metadataStatus: metadataStatus,
     );
 

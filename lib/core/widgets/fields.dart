@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
 import 'package:stashly/core/widgets/app_icon.dart';
@@ -16,8 +17,9 @@ class FieldLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: Text(label, style: AppTextStyles.fieldLabel)),
-        if (optional) Text('Optional', style: AppTextStyles.micro),
+        Expanded(child: Text(label, style: context.text.fieldLabel)),
+        if (optional)
+          Text(context.l10n.labelOptional, style: context.text.micro),
       ],
     );
   }
@@ -44,7 +46,7 @@ class StashlyTextField extends StatefulWidget {
     this.onChanged,
     this.onSubmitted,
     this.focusNode,
-    this.fill = AppColors.surface,
+    this.fill,
     this.trailing,
     this.autofocus = false,
     this.textCapitalization = TextCapitalization.none,
@@ -67,7 +69,9 @@ class StashlyTextField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
   final FocusNode? focusNode;
-  final Color fill;
+
+  /// Field background; defaults to the surface colour.
+  final Color? fill;
   final Widget? trailing;
   final bool autofocus;
   final TextCapitalization textCapitalization;
@@ -79,22 +83,27 @@ class StashlyTextField extends StatefulWidget {
 class _StashlyTextFieldState extends State<StashlyTextField> {
   bool _obscured = true;
 
+  bool get _latinOnly =>
+      widget.password ||
+      widget.keyboardType == TextInputType.url ||
+      widget.keyboardType == TextInputType.emailAddress;
+
   @override
   Widget build(BuildContext context) {
     final hasError = widget.errorText != null;
     final field = Container(
       constraints: BoxConstraints(minHeight: widget.multiline ? 113 : 52),
-      padding: EdgeInsets.only(
-        left: widget.multiline ? 14 : 15,
-        right: widget.password ? 4 : 15,
+      padding: EdgeInsetsDirectional.only(
+        start: widget.multiline ? 14 : 15,
+        end: widget.password ? 4 : 15,
       ),
       decoration: BoxDecoration(
         color: widget.enabled
-            ? widget.fill
-            : widget.fill.withValues(alpha: 0.6),
+            ? widget.fill ?? context.colors.surface
+            : (widget.fill ?? context.colors.surface).withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: hasError ? AppColors.danger : AppColors.border,
+          color: hasError ? context.colors.danger : context.colors.border,
           width: 1.36,
         ),
       ),
@@ -104,11 +113,13 @@ class _StashlyTextFieldState extends State<StashlyTextField> {
             : CrossAxisAlignment.center,
         children: [
           if (widget.icon != null) ...[
-            AppIcon(widget.icon!, size: 19, color: AppColors.textMuted),
+            AppIcon(widget.icon!, size: 19, color: context.colors.textMuted),
             const SizedBox(width: 10),
           ],
           Expanded(
             child: TextField(
+              // Links, emails and passwords read left-to-right even in Arabic.
+              textDirection: _latinOnly ? TextDirection.ltr : null,
               controller: widget.controller,
               focusNode: widget.focusNode,
               enabled: widget.enabled,
@@ -129,11 +140,11 @@ class _StashlyTextFieldState extends State<StashlyTextField> {
               onChanged: widget.onChanged,
               onSubmitted: widget.onSubmitted,
               style: widget.multiline
-                  ? AppTextStyles.input.copyWith(fontSize: 14, height: 1.6)
-                  : AppTextStyles.input.copyWith(
+                  ? context.text.input.copyWith(fontSize: 14, height: 1.6)
+                  : context.text.input.copyWith(
                       color: widget.readOnly || !widget.enabled
-                          ? AppColors.textSecondary
-                          : AppColors.textPrimary,
+                          ? context.colors.textSecondary
+                          : context.colors.textPrimary,
                     ),
               decoration: InputDecoration(
                 isCollapsed: true,
@@ -142,8 +153,9 @@ class _StashlyTextFieldState extends State<StashlyTextField> {
                   vertical: widget.multiline ? 12 : 16,
                 ),
                 hintText: widget.hint,
-                hintStyle: AppTextStyles.input.copyWith(
-                  color: AppColors.placeholder,
+                hintTextDirection: _latinOnly ? TextDirection.ltr : null,
+                hintStyle: context.text.input.copyWith(
+                  color: context.colors.placeholder,
                   fontSize: widget.multiline ? 14 : 15,
                 ),
               ),
@@ -152,7 +164,9 @@ class _StashlyTextFieldState extends State<StashlyTextField> {
           if (widget.password)
             Semantics(
               button: true,
-              label: _obscured ? 'Show password' : 'Hide password',
+              label: _obscured
+                  ? context.l10n.showPassword
+                  : context.l10n.hidePassword,
               child: InkWell(
                 borderRadius: BorderRadius.circular(16),
                 onTap: () => setState(() => _obscured = !_obscured),
@@ -163,7 +177,9 @@ class _StashlyTextFieldState extends State<StashlyTextField> {
                     child: AppIcon(
                       AppIcons.eye,
                       size: 18,
-                      color: _obscured ? AppColors.textMuted : AppColors.gold,
+                      color: _obscured
+                          ? context.colors.textMuted
+                          : context.colors.gold,
                     ),
                   ),
                 ),
@@ -188,7 +204,7 @@ class _StashlyTextFieldState extends State<StashlyTextField> {
           const SizedBox(height: 6),
           Text(
             widget.errorText!,
-            style: AppTextStyles.micro.copyWith(color: AppColors.danger),
+            style: context.text.micro.copyWith(color: context.colors.danger),
           ),
         ],
       ],
@@ -205,7 +221,7 @@ class PickerField extends StatelessWidget {
     required this.onTap,
     this.optional = false,
     this.icon = AppIcons.folderInput,
-    this.fill = AppColors.surface,
+    this.fill,
   });
 
   final String label;
@@ -213,7 +229,9 @@ class PickerField extends StatelessWidget {
   final VoidCallback onTap;
   final bool optional;
   final String icon;
-  final Color fill;
+
+  /// Field background; defaults to the surface colour.
+  final Color? fill;
 
   @override
   Widget build(BuildContext context) {
@@ -225,12 +243,12 @@ class PickerField extends StatelessWidget {
         const SizedBox(height: 7),
         Semantics(
           button: true,
-          label: '$label: $value',
+          label: context.l10n.fieldValue(label, value),
           child: Material(
-            color: fill,
+            color: fill ?? context.colors.surface,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
-              side: const BorderSide(color: AppColors.border, width: 1.36),
+              side: BorderSide(color: context.colors.border, width: 1.36),
             ),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
@@ -241,21 +259,21 @@ class PickerField extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   child: Row(
                     children: [
-                      AppIcon(icon, size: 18, color: AppColors.textMuted),
+                      AppIcon(icon, size: 18, color: context.colors.textMuted),
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
                           value,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.input,
+                          style: context.text.input,
                         ),
                       ),
                       const SizedBox(width: 10),
-                      const AppIcon(
+                      AppIcon(
                         AppIcons.chevronDown,
                         size: 18,
-                        color: AppColors.textMuted,
+                        color: context.colors.textMuted,
                       ),
                     ],
                   ),
@@ -276,28 +294,32 @@ class InfoBanner extends StatelessWidget {
     required this.message,
     this.icon = AppIcons.shield,
     this.title,
-    this.iconColor = AppColors.gold,
-    this.background = AppColors.goldTint,
+    this.iconColor,
+    this.background,
   });
 
   final String message;
   final String? title;
   final String icon;
-  final Color iconColor;
-  final Color background;
+
+  /// Defaults to gold.
+  final Color? iconColor;
+
+  /// Defaults to the gold tint.
+  final Color? background;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(12.5),
       decoration: BoxDecoration(
-        color: background,
+        color: background ?? context.colors.goldTint,
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AppIcon(icon, size: 18, color: iconColor),
+          AppIcon(icon, size: 18, color: iconColor ?? context.colors.gold),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -306,20 +328,20 @@ class InfoBanner extends StatelessWidget {
                 if (title != null)
                   Text(
                     title!,
-                    style: AppTextStyles.micro.copyWith(
-                      color: AppColors.textPrimary,
+                    style: context.text.micro.copyWith(
+                      color: context.colors.textPrimary,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                 Text(
                   message,
                   style: title == null
-                      ? AppTextStyles.micro.copyWith(
-                          color: AppColors.textSecondary,
+                      ? context.text.micro.copyWith(
+                          color: context.colors.textSecondary,
                           height: 1.55,
                         )
-                      : AppTextStyles.tiny.copyWith(
-                          color: AppColors.textSecondary,
+                      : context.text.tiny.copyWith(
+                          color: context.colors.textSecondary,
                         ),
                 ),
               ],

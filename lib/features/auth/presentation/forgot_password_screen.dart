@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/result/result.dart';
 import 'package:stashly/core/routing/routes.dart';
 import 'package:stashly/core/theme/app_colors.dart';
@@ -42,7 +43,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
-    final validation = AuthValidators.email(_email.text);
+    final validation = AuthValidators.email(context.l10n, _email.text);
     setState(() => _error = validation);
     if (validation != null) return;
 
@@ -56,7 +57,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         context.pushReplacement(Routes.checkInbox, extra: _email.text.trim());
       case Err(:final failure):
         setState(
-          () => _error = failure.fieldError('email') ?? failure.userMessage,
+          () => _error =
+              failure.fieldError('email') ?? failure.describe(context.l10n),
         );
     }
   }
@@ -67,15 +69,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const AuthHeader(
-            title: 'Reset your password',
-            subtitle: 'Enter the email associated with your account.',
+          AuthHeader(
+            title: context.l10n.resetTitle,
+            subtitle: context.l10n.resetSubtitle,
           ),
           const SizedBox(height: 24),
           StashlyTextField(
-            label: 'Email',
+            label: context.l10n.emailLabel,
             controller: _email,
-            hint: 'you@example.com',
+            hint: context.l10n.emailHint,
             icon: AppIcons.mail,
             keyboardType: TextInputType.emailAddress,
             textInputAction: TextInputAction.done,
@@ -85,16 +87,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
           const SizedBox(height: 20),
           PrimaryButton(
-            label: 'Continue',
+            label: context.l10n.actionContinue,
             authStyle: true,
             loading: _busy,
             onPressed: _submit,
           ),
           const SizedBox(height: 18),
-          const InfoBanner(
-            message:
-                'We’ll email a secure reset link if an account exists. It expires in 60 minutes.',
-          ),
+          InfoBanner(message: context.l10n.resetNotice),
         ],
       ),
     );
@@ -105,7 +104,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 class CheckInboxScreen extends StatelessWidget {
   const CheckInboxScreen({super.key, required this.email});
 
-  final String email;
+  /// The address the link was sent to; "your email" when unknown.
+  final String? email;
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +116,7 @@ class CheckInboxScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: SizedBox.square(
               dimension: 74,
               child: Stack(
@@ -125,18 +125,18 @@ class CheckInboxScreen extends StatelessWidget {
                     width: 68,
                     height: 68,
                     decoration: BoxDecoration(
-                      color: AppColors.goldTint,
+                      color: context.colors.goldTint,
                       borderRadius: BorderRadius.circular(22),
                       border: Border.all(
                         color: const Color(0x3DD4AF37),
                         width: 1.36,
                       ),
                     ),
-                    child: const Center(
+                    child: Center(
                       child: AppIcon(
                         AppIcons.mailLarge,
                         size: 28,
-                        color: AppColors.gold,
+                        color: context.colors.gold,
                       ),
                     ),
                   ),
@@ -147,18 +147,18 @@ class CheckInboxScreen extends StatelessWidget {
                       width: 27,
                       height: 27,
                       decoration: BoxDecoration(
-                        color: AppColors.success,
+                        color: context.colors.success,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: AppColors.background,
+                          color: context.colors.background,
                           width: 2.7,
                         ),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: AppIcon(
                           AppIcons.checkBadge,
                           size: 15,
-                          color: AppColors.background,
+                          color: context.colors.background,
                         ),
                       ),
                     ),
@@ -168,23 +168,23 @@ class CheckInboxScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 28),
-          Text('RESET LINK SENT', style: AppTextStyles.eyebrow),
+          Text(context.l10n.resetSentEyebrow, style: context.text.eyebrow),
           const SizedBox(height: 7),
-          Text('Next, check your inbox', style: AppTextStyles.heading),
+          Text(context.l10n.checkInboxTitle, style: context.text.heading),
           const SizedBox(height: 8),
           Text.rich(
             TextSpan(
-              style: AppTextStyles.body.copyWith(height: 1.7),
+              style: context.text.body.copyWith(height: 1.7),
               children: [
-                const TextSpan(text: 'If an account exists for '),
+                TextSpan(text: context.l10n.checkInboxBefore),
                 TextSpan(
-                  text: email,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
+                  text: email ?? context.l10n.yourEmailFallback,
+                  style: TextStyle(
+                    color: context.colors.textPrimary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const TextSpan(text: ', a password reset link is on its way.'),
+                TextSpan(text: context.l10n.checkInboxAfter),
               ],
             ),
           ),
@@ -192,24 +192,21 @@ class CheckInboxScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.card,
+              color: context.colors.card,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border, width: 1.36),
+              border: Border.all(color: context.colors.border, width: 1.36),
             ),
             child: Column(
               children: [
-                _Step(number: '1', text: 'Open the secure link in the email.'),
+                _Step(number: '1', text: context.l10n.checkInboxStepOpen),
                 const SizedBox(height: 13),
-                _Step(
-                  number: '2',
-                  text: 'Choose a new password, then return to sign in.',
-                ),
+                _Step(number: '2', text: context.l10n.checkInboxStepChoose),
               ],
             ),
           ),
           const SizedBox(height: 35),
           PrimaryButton(
-            label: 'Return to Sign In',
+            label: context.l10n.returnToSignIn,
             authStyle: true,
             // Back to the Sign In page underneath, keeping Welcome below it.
             onPressed: () =>
@@ -235,20 +232,20 @@ class _Step extends StatelessWidget {
           width: 25,
           height: 25,
           decoration: BoxDecoration(
-            color: AppColors.goldTint,
+            color: context.colors.goldTint,
             borderRadius: BorderRadius.circular(9),
           ),
           alignment: Alignment.center,
           child: Text(
             number,
-            style: AppTextStyles.micro.copyWith(
-              color: AppColors.gold,
+            style: context.text.micro.copyWith(
+              color: context.colors.gold,
               fontWeight: FontWeight.w700,
             ),
           ),
         ),
         const SizedBox(width: 10),
-        Expanded(child: Text(text, style: AppTextStyles.caption)),
+        Expanded(child: Text(text, style: context.text.caption)),
       ],
     );
   }

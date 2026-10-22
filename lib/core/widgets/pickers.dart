@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/result/result.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
@@ -49,10 +50,10 @@ class MultiSelectSheet extends StatefulWidget {
     required this.saveLabel,
     this.selectedSubtitle,
     this.onCreate,
-    this.createLabel = 'Create collection',
-    this.createHint = 'Collection name',
+    this.createLabel,
+    this.createHint,
     this.showClear = true,
-    this.emptyMessage = 'Nothing here yet.',
+    this.emptyMessage,
   });
 
   final String eyebrow;
@@ -67,10 +68,16 @@ class MultiSelectSheet extends StatefulWidget {
 
   /// Creates a new option inline; null hides the create affordance.
   final Future<Result<PickerOption>> Function(String name)? onCreate;
-  final String createLabel;
-  final String createHint;
+
+  /// Defaults to "Create collection".
+  final String? createLabel;
+
+  /// Defaults to "Collection name".
+  final String? createHint;
   final bool showClear;
-  final String emptyMessage;
+
+  /// Defaults to "Nothing here yet.".
+  final String? emptyMessage;
 
   @override
   State<MultiSelectSheet> createState() => _MultiSelectSheetState();
@@ -127,7 +134,7 @@ class _MultiSelectSheetState extends State<MultiSelectSheet> {
           }
           _cursor = value.nextCursor;
         case Err(:final failure):
-          _loadError = failure.userMessage;
+          _loadError = failure.describe(context.l10n);
       }
     });
   }
@@ -135,7 +142,7 @@ class _MultiSelectSheetState extends State<MultiSelectSheet> {
   Future<void> _create() async {
     final name = _createController.text.trim();
     if (name.isEmpty) {
-      setState(() => _createError = 'Enter a name.');
+      setState(() => _createError = context.l10n.enterAName);
       return;
     }
     setState(() {
@@ -153,7 +160,8 @@ class _MultiSelectSheetState extends State<MultiSelectSheet> {
           _createController.clear();
           _showCreate = false;
         case Err(:final failure):
-          _createError = failure.fieldError('name') ?? failure.userMessage;
+          _createError =
+              failure.fieldError('name') ?? failure.describe(context.l10n);
       }
     });
   }
@@ -176,9 +184,9 @@ class _MultiSelectSheetState extends State<MultiSelectSheet> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 24),
               child: Text(
-                widget.emptyMessage,
+                widget.emptyMessage ?? context.l10n.nothingHereYet,
                 textAlign: TextAlign.center,
-                style: AppTextStyles.caption,
+                style: context.text.caption,
               ),
             )
           else
@@ -202,10 +210,10 @@ class _MultiSelectSheetState extends State<MultiSelectSheet> {
             ],
           if (_cursor != null && !_loading)
             SecondaryButton(
-              label: 'Load more',
+              label: context.l10n.actionLoadMore,
               loading: _loadingMore,
               onPressed: () => _load(more: true),
-              textStyle: AppTextStyles.bodySmall,
+              textStyle: context.text.bodySmall,
             ),
           if (widget.onCreate != null) ...[
             const SizedBox(height: 5),
@@ -218,7 +226,7 @@ class _MultiSelectSheetState extends State<MultiSelectSheet> {
 
   Widget _createLink() {
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: AlignmentDirectional.centerStart,
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: () => setState(() => _showCreate = true),
@@ -227,12 +235,14 @@ class _MultiSelectSheetState extends State<MultiSelectSheet> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const AppIcon(AppIcons.plus17, size: 17, color: AppColors.gold),
+              AppIcon(AppIcons.plus17, size: 17, color: context.colors.gold),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
-                  widget.createLabel,
-                  style: AppTextStyles.micro.copyWith(color: AppColors.gold),
+                  widget.createLabel ?? context.l10n.createCollection,
+                  style: context.text.micro.copyWith(
+                    color: context.colors.gold,
+                  ),
                 ),
               ),
             ],
@@ -246,16 +256,16 @@ class _MultiSelectSheetState extends State<MultiSelectSheet> {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border, width: 1.36),
+        border: Border.all(color: context.colors.border, width: 1.36),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           StashlyTextField(
             controller: _createController,
-            hint: widget.createHint,
+            hint: widget.createHint ?? context.l10n.collectionName,
             autofocus: true,
             maxLength: 60,
             errorText: _createError,
@@ -271,11 +281,11 @@ class _MultiSelectSheetState extends State<MultiSelectSheet> {
             runSpacing: 7,
             children: [
               TextActionButton(
-                label: 'Cancel',
+                label: context.l10n.actionCancel,
                 minHeight: 37,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
-                style: AppTextStyles.tiny.copyWith(
-                  color: AppColors.textPrimary,
+                style: context.text.tiny.copyWith(
+                  color: context.colors.textPrimary,
                 ),
                 onPressed: () => setState(() {
                   _showCreate = false;
@@ -283,10 +293,10 @@ class _MultiSelectSheetState extends State<MultiSelectSheet> {
                 }),
               ),
               SecondaryButton(
-                label: 'Create',
+                label: context.l10n.actionCreate,
                 height: 37,
                 loading: _creating,
-                textStyle: AppTextStyles.tiny,
+                textStyle: context.text.tiny,
                 onPressed: _create,
               ),
             ],
@@ -304,17 +314,21 @@ class _MultiSelectSheetState extends State<MultiSelectSheet> {
     if (!widget.showClear) return save;
     return Container(
       padding: const EdgeInsets.only(top: 10),
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: AppColors.divider, width: 1.36)),
+      decoration: BoxDecoration(
+        border: Border(
+          top: BorderSide(color: context.colors.divider, width: 1.36),
+        ),
       ),
       child: Row(
         children: [
           Expanded(
             flex: 3,
             child: TextActionButton(
-              label: 'Clear selection',
+              label: context.l10n.clearSelection,
               minHeight: 48,
-              style: AppTextStyles.micro.copyWith(color: AppColors.textPrimary),
+              style: context.text.micro.copyWith(
+                color: context.colors.textPrimary,
+              ),
               onPressed: () => setState(() {
                 _selected.clear();
                 _cleared = true;
@@ -349,9 +363,12 @@ class FailureCardCompact extends StatelessWidget {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: AppTextStyles.caption.copyWith(color: AppColors.danger),
+            style: context.text.caption.copyWith(color: context.colors.danger),
           ),
-          TextActionButton(label: 'Try again', onPressed: onRetry),
+          TextActionButton(
+            label: context.l10n.actionTryAgain,
+            onPressed: onRetry,
+          ),
         ],
       ),
     );
@@ -415,9 +432,9 @@ class _TagEditorSheetState extends State<TagEditorSheet> {
     if (tag.isEmpty) return;
     setState(() {
       if (tag.length > widget.maxLength) {
-        _error = 'Tags can be at most ${widget.maxLength} characters.';
+        _error = context.l10n.tagTooLong(widget.maxLength);
       } else if (_tags.length >= widget.maxTags && !_tags.contains(tag)) {
-        _error = 'An item can have at most ${widget.maxTags} tags.';
+        _error = context.l10n.tooManyTags(widget.maxTags);
       } else {
         _error = null;
         if (!_tags.contains(tag)) _tags.add(tag);
@@ -436,10 +453,10 @@ class _TagEditorSheetState extends State<TagEditorSheet> {
         .take(18)
         .toList();
     return SheetFrame(
-      eyebrow: 'ITEM TAGS',
-      title: 'Edit tags',
+      eyebrow: context.l10n.itemTagsEyebrow,
+      title: context.l10n.editTags,
       footer: PrimaryButton(
-        label: 'Save tags',
+        label: context.l10n.saveTags,
         onPressed: () => Navigator.of(context).pop(List<String>.of(_tags)),
       ),
       child: Column(
@@ -464,7 +481,7 @@ class _TagEditorSheetState extends State<TagEditorSheet> {
               Expanded(
                 child: StashlyTextField(
                   controller: _controller,
-                  hint: 'Find or create a tag',
+                  hint: context.l10n.findOrCreateTag,
                   icon: AppIcons.tagFind,
                   maxLength: widget.maxLength + 1,
                   textInputAction: TextInputAction.done,
@@ -475,10 +492,10 @@ class _TagEditorSheetState extends State<TagEditorSheet> {
               SizedBox(
                 width: 56,
                 child: PrimaryButton(
-                  label: 'Add',
+                  label: context.l10n.actionAdd,
                   height: 52,
                   horizontalPadding: 4,
-                  labelStyle: AppTextStyles.micro.copyWith(
+                  labelStyle: context.text.micro.copyWith(
                     fontWeight: FontWeight.w400,
                   ),
                   onPressed: query.isEmpty
@@ -492,12 +509,12 @@ class _TagEditorSheetState extends State<TagEditorSheet> {
             const SizedBox(height: 6),
             Text(
               _error!,
-              style: AppTextStyles.micro.copyWith(color: AppColors.danger),
+              style: context.text.micro.copyWith(color: context.colors.danger),
             ),
           ],
           if (suggestions.isNotEmpty) ...[
             const SizedBox(height: 18),
-            Text('Suggestions', style: AppTextStyles.tiny),
+            Text(context.l10n.suggestions, style: context.text.tiny),
             const SizedBox(height: 8),
             Wrap(
               spacing: 6,
@@ -527,11 +544,11 @@ class _RemovableTag extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(9, 5, 5, 5),
+      padding: const EdgeInsetsDirectional.fromSTEB(9, 5, 5, 5),
       decoration: ShapeDecoration(
-        color: AppColors.goldTint,
-        shape: const StadiumBorder(
-          side: BorderSide(color: AppColors.goldBorderSoft, width: 1.36),
+        color: context.colors.goldTint,
+        shape: StadiumBorder(
+          side: BorderSide(color: context.colors.goldBorderSoft, width: 1.36),
         ),
       ),
       child: Row(
@@ -539,15 +556,15 @@ class _RemovableTag extends StatelessWidget {
         children: [
           Text(
             label,
-            style: AppTextStyles.tiny.copyWith(color: AppColors.gold),
+            style: context.text.tiny.copyWith(color: context.colors.gold),
           ),
           const SizedBox(width: 3),
           IconTapButton(
             icon: AppIcons.x12,
             iconSize: 12,
             size: 24,
-            color: AppColors.gold,
-            semanticLabel: 'Remove $label',
+            color: context.colors.gold,
+            semanticLabel: context.l10n.removeItem(label),
             onPressed: onRemove,
           ),
         ],

@@ -1,6 +1,9 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'package:stashly/core/format/date_labels.dart';
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/network/api_client.dart';
 import 'package:stashly/core/network/idempotency.dart';
 import 'package:stashly/core/presentation/paged_controller.dart';
@@ -13,6 +16,9 @@ import 'package:stashly/features/app_config/domain/app_config.dart';
 import 'package:stashly/features/links/presentation/link_presentation.dart';
 
 void main() {
+  final en = lookupAppLocalizations(const Locale('en'));
+  final ar = lookupAppLocalizations(const Locale('ar'));
+
   group('UrlUtils', () {
     test('accepts http(s) and adds https to bare hosts', () {
       expect(
@@ -41,14 +47,15 @@ void main() {
         '',
       ]) {
         expect(UrlUtils.prepareForSave(bad), isNull, reason: bad);
-        expect(UrlUtils.validationMessage(bad), isNotNull, reason: bad);
+        expect(UrlUtils.validate(bad), isNotNull, reason: bad);
       }
     });
 
     test('enforces the 2048 character limit', () {
       final long = 'https://example.com/${'a' * 2040}';
       expect(UrlUtils.prepareForSave(long), isNull);
-      expect(UrlUtils.validationMessage(long), contains('2048'));
+      expect(UrlUtils.validate(long), UrlProblem.tooLong);
+      expect(UrlProblem.tooLong.describe(en), contains('2048'));
     });
 
     test('extracts the first link from shared text and trims punctuation', () {
@@ -112,7 +119,8 @@ void main() {
       });
       expect(failure.kind, FailureKind.rateLimited);
       expect(failure.retryAfter, const Duration(seconds: 37));
-      expect(failure.userMessage, contains('37'));
+      expect(failure.describe(en), contains('37'));
+      expect(failure.describe(ar), contains('37'));
     });
   });
 
@@ -158,28 +166,37 @@ void main() {
   });
 
   group('DateLabels', () {
+    // The app loads locale data through its localization delegates.
+    setUpAll(initializeDateFormatting);
     final now = DateTime(2026, 10, 16, 21);
+    final dates = DateLabels(en);
     test('relative days', () {
+      expect(dates.relativeDay(DateTime(2026, 10, 16, 8), now: now), 'Today');
       expect(
-        DateLabels.relativeDay(DateTime(2026, 10, 16, 8), now: now),
-        'Today',
-      );
-      expect(
-        DateLabels.relativeDay(DateTime(2026, 10, 15, 23), now: now),
+        dates.relativeDay(DateTime(2026, 10, 15, 23), now: now),
         'Yesterday',
       );
-      expect(DateLabels.relativeDay(DateTime(2026, 9, 18), now: now), 'Sep 18');
+      expect(dates.relativeDay(DateTime(2026, 9, 18), now: now), 'Sep 18');
       expect(
-        DateLabels.relativeDay(DateTime(2025, 9, 18), now: now),
+        dates.relativeDay(DateTime(2025, 9, 18), now: now),
         'Sep 18, 2025',
       );
     });
 
     test('home eyebrow and greeting', () {
-      expect(DateLabels.eyebrowDate(now), 'FRIDAY, OCTOBER 16');
-      expect(DateLabels.greeting(now), 'Good evening');
-      expect(DateLabels.greeting(DateTime(2026, 1, 1, 9)), 'Good morning');
-      expect(DateLabels.monthYear(DateTime(2025, 10, 2)), 'October 2025');
+      expect(dates.eyebrowDate(now), 'FRIDAY, OCTOBER 16');
+      expect(dates.greeting(now), 'Good evening');
+      expect(dates.greeting(now, name: 'Maya'), 'Good evening, Maya');
+      expect(dates.greeting(DateTime(2026, 1, 1, 9)), 'Good morning');
+      expect(dates.monthYear(DateTime(2025, 10, 2)), 'October 2025');
+    });
+
+    test('Arabic labels use Arabic words and month names', () {
+      final arabic = DateLabels(ar);
+      expect(arabic.relativeDay(DateTime(2026, 10, 16, 8), now: now), 'اليوم');
+      expect(arabic.relativeDay(DateTime(2026, 10, 15, 23), now: now), 'أمس');
+      expect(arabic.monthYear(DateTime(2025, 10, 2)), contains('أكتوبر'));
+      expect(arabic.greeting(now, name: 'مايا'), 'مساء الخير، مايا');
     });
   });
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/result/result.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
@@ -63,7 +64,9 @@ class _GoogleSignInSectionState extends State<GoogleSignInSection> {
     if (!mounted) return;
     setState(() {
       _busy = false;
-      if (result case Err(:final failure)) _error = failure.userMessage;
+      if (result case Err(:final failure)) {
+        _error = failure.describe(context.l10n);
+      }
     });
     // On success the router redirects to Home.
   }
@@ -78,20 +81,19 @@ class _GoogleSignInSectionState extends State<GoogleSignInSection> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Create your Stashly account',
-              style: AppTextStyles.sectionTitle,
+              context.l10n.googleTermsTitle,
+              style: context.text.sectionTitle,
             ),
             const SizedBox(height: 9),
             Text(
-              'This Google account is new to Stashly. Accept the Terms to '
-              'create your account.',
-              style: AppTextStyles.caption.copyWith(height: 1.65),
+              context.l10n.googleTermsBody,
+              style: context.text.caption.copyWith(height: 1.65),
             ),
             if (termsUrl != null)
               TextActionButton(
-                label: 'Read the Terms',
+                label: context.l10n.readTerms,
                 minHeight: 38,
-                style: AppTextStyles.linkButton.copyWith(fontSize: 13.5),
+                style: context.text.linkButton.copyWith(fontSize: 13.5),
                 onPressed: () => launchUrl(
                   Uri.parse(termsUrl),
                   mode: LaunchMode.externalApplication,
@@ -100,11 +102,11 @@ class _GoogleSignInSectionState extends State<GoogleSignInSection> {
             const SizedBox(height: 14),
             DialogActions(
               cancel: SecondaryButton(
-                label: 'Cancel',
+                label: context.l10n.actionCancel,
                 onPressed: () => Navigator.of(context).pop(false),
               ),
               confirm: PrimaryButton(
-                label: 'Accept',
+                label: context.l10n.actionAccept,
                 onPressed: () => Navigator.of(context).pop(true),
               ),
             ),
@@ -128,18 +130,18 @@ class _GoogleSignInSectionState extends State<GoogleSignInSection> {
             const SizedBox(height: 16),
             Row(
               children: [
-                const Expanded(child: Divider(color: AppColors.divider)),
+                Expanded(child: Divider(color: context.colors.divider)),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Text('or', style: AppTextStyles.micro),
+                  child: Text('or', style: context.text.micro),
                 ),
-                const Expanded(child: Divider(color: AppColors.divider)),
+                Expanded(child: Divider(color: context.colors.divider)),
               ],
             ),
             const SizedBox(height: 16),
             SecondaryButton(
-              label: 'Continue with Google',
-              color: AppColors.textPrimary,
+              label: context.l10n.continueWithGoogle,
+              color: context.colors.textPrimary,
               loading: _busy,
               leading: SvgPicture.asset(
                 'assets/icons/google_g.svg',
@@ -152,7 +154,9 @@ class _GoogleSignInSectionState extends State<GoogleSignInSection> {
               const SizedBox(height: 8),
               Text(
                 _error!,
-                style: AppTextStyles.caption.copyWith(color: AppColors.danger),
+                style: context.text.caption.copyWith(
+                  color: context.colors.danger,
+                ),
               ),
             ],
           ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/widgets/brand.dart';
 
 /// Shared frame for auth screens: glow backdrop, safe area, scrollable body
@@ -48,25 +49,25 @@ class AuthScaffold extends StatelessWidget {
 abstract final class AuthValidators {
   static final _email = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
-  static String? email(String value) {
+  static String? email(AppLocalizations l10n, String value) {
     final text = value.trim();
-    if (text.isEmpty) return 'Enter your email.';
+    if (text.isEmpty) return l10n.emailRequired;
     if (text.length > 255 || !_email.hasMatch(text)) {
-      return 'Enter a valid email address.';
+      return l10n.emailInvalid;
     }
     return null;
   }
 
-  static String? newPassword(String value) {
-    if (value.length < 8) return 'Use at least 8 characters.';
-    if (value.length > 128) return 'Use at most 128 characters.';
+  static String? newPassword(AppLocalizations l10n, String value) {
+    if (value.length < 8) return l10n.passwordTooShort;
+    if (value.length > 128) return l10n.passwordTooLong;
     return null;
   }
 
-  static String? displayName(String value) {
+  static String? displayName(AppLocalizations l10n, String value) {
     final text = value.trim();
-    if (text.isEmpty) return 'Tell us what to call you.';
-    if (text.length > 100) return 'Use at most 100 characters.';
+    if (text.isEmpty) return l10n.nameRequired;
+    if (text.length > 100) return l10n.nameTooLong;
     return null;
   }
 }

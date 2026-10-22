@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/presentation/paged_controller.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
@@ -22,16 +23,18 @@ class LoadMoreFooter extends StatelessWidget {
         children: [
           if (failure != null) ...[
             Text(
-              failure.userMessage,
+              failure.describe(context.l10n),
               textAlign: TextAlign.center,
-              style: AppTextStyles.micro.copyWith(color: AppColors.danger),
+              style: context.text.micro.copyWith(color: context.colors.danger),
             ),
             const SizedBox(height: 8),
           ],
           SecondaryButton(
-            label: failure == null ? 'Load more' : 'Try again',
+            label: failure == null
+                ? context.l10n.actionLoadMore
+                : context.l10n.actionTryAgain,
             loading: controller.loadingMore,
-            textStyle: AppTextStyles.bodySmall,
+            textStyle: context.text.bodySmall,
             onPressed: controller.loadMore,
           ),
         ],

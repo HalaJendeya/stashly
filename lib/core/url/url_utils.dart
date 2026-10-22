@@ -29,16 +29,17 @@ abstract final class UrlUtils {
     return text.length > maxLength ? null : text;
   }
 
-  /// Explains why [input] can't be saved, or null when it is acceptable.
-  static String? validationMessage(String input) {
+  /// Why [input] can't be saved, or null when it is acceptable. The UI
+  /// turns it into a message in the user's language.
+  static UrlProblem? validate(String input) {
     final text = input.trim();
-    if (text.isEmpty) return 'Paste a link to save.';
-    if (text.length > maxLength) return 'Links can be at most 2048 characters.';
+    if (text.isEmpty) return UrlProblem.empty;
+    if (text.length > maxLength) return UrlProblem.tooLong;
     final scheme = _scheme.firstMatch(text)?.group(0)?.toLowerCase();
     if (scheme != null && scheme != 'http:' && scheme != 'https:') {
-      return 'Only http and https links can be saved.';
+      return UrlProblem.unsupportedScheme;
     }
-    return prepareForSave(text) == null ? 'Enter a valid web link.' : null;
+    return prepareForSave(text) == null ? UrlProblem.invalid : null;
   }
 
   /// Finds the first web link inside text shared from another app
@@ -59,3 +60,6 @@ abstract final class UrlUtils {
     return host.startsWith('www.') ? host.substring(4) : host;
   }
 }
+
+/// Why a link can't be saved (see [UrlUtils.validate]).
+enum UrlProblem { empty, tooLong, unsupportedScheme, invalid }

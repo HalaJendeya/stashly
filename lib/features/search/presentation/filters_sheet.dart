@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
 import 'package:stashly/core/widgets/app_icon.dart';
@@ -55,7 +56,7 @@ class _FiltersSheetState extends State<_FiltersSheet> {
         case Ok(:final value):
           _options = value;
         case Err(:final failure):
-          _error = failure.userMessage;
+          _error = failure.describe(context.l10n);
       }
     });
   }
@@ -67,13 +68,13 @@ class _FiltersSheetState extends State<_FiltersSheet> {
   Widget build(BuildContext context) {
     final options = _options;
     return SheetFrame(
-      eyebrow: 'REFINE RESULTS',
-      title: 'Search filters',
+      eyebrow: context.l10n.refineEyebrow,
+      title: context.l10n.searchFilters,
       footer: Container(
         padding: const EdgeInsets.only(top: 12),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(color: AppColors.divider, width: 1.36),
+            top: BorderSide(color: context.colors.divider, width: 1.36),
           ),
         ),
         child: Row(
@@ -81,9 +82,9 @@ class _FiltersSheetState extends State<_FiltersSheet> {
             Expanded(
               flex: 2,
               child: TextActionButton(
-                label: 'Reset All',
+                label: context.l10n.resetAll,
                 minHeight: 48,
-                style: AppTextStyles.buttonSecondary,
+                style: context.text.buttonSecondary,
                 onPressed: () => setState(
                   () => _query = LinkQuery(
                     text: _query.text,
@@ -96,7 +97,7 @@ class _FiltersSheetState extends State<_FiltersSheet> {
             Expanded(
               flex: 3,
               child: PrimaryButton(
-                label: 'Apply filters',
+                label: context.l10n.applyFilters,
                 onPressed: () => Navigator.of(context).pop(_query),
               ),
             ),
@@ -112,11 +113,11 @@ class _FiltersSheetState extends State<_FiltersSheet> {
             const LoadingView()
           else ...[
             _Group(
-              label: 'Content type',
+              label: context.l10n.contentTypeLabel,
               children: [
                 for (final option in options.contentTypes)
                   _chip(
-                    option.label,
+                    context.l10n.contentType(option.value.apiValue),
                     _query.contentTypes.contains(option.value),
                     () => _query = _query.copyWith(
                       contentTypes: _toggle(_query.contentTypes, option.value),
@@ -126,7 +127,7 @@ class _FiltersSheetState extends State<_FiltersSheet> {
             ),
             if (options.sources.isNotEmpty)
               _Group(
-                label: 'Platform or source',
+                label: context.l10n.sourceLabel,
                 children: [
                   for (final option in options.sources)
                     _chip(
@@ -140,7 +141,7 @@ class _FiltersSheetState extends State<_FiltersSheet> {
               ),
             if (options.collections.isNotEmpty)
               _Group(
-                label: 'Collection',
+                label: context.l10n.collectionLabel,
                 children: [
                   for (final option in options.collections)
                     _chip(
@@ -157,7 +158,7 @@ class _FiltersSheetState extends State<_FiltersSheet> {
               ),
             if (options.tags.isNotEmpty)
               _Group(
-                label: 'Tags',
+                label: context.l10n.tagsLabel,
                 children: [
                   for (final option in options.tags)
                     _chip(
@@ -170,10 +171,10 @@ class _FiltersSheetState extends State<_FiltersSheet> {
                 ],
               ),
             _Group(
-              label: 'Date saved',
+              label: context.l10n.dateSaved,
               children: [
                 _chip(
-                  'Any time',
+                  context.l10n.anyTime,
                   _query.savedWithinDays == null,
                   () => _query = _query.copyWith(clearSavedWithin: true),
                 ),
@@ -182,7 +183,7 @@ class _FiltersSheetState extends State<_FiltersSheet> {
                         ? const [7, 30]
                         : [for (final p in options.datePresets) p.value])
                   _chip(
-                    'Last $days days',
+                    context.l10n.lastDays(days),
                     _query.savedWithinDays == days,
                     () => _query = _query.copyWith(savedWithinDays: days),
                   ),
@@ -191,7 +192,7 @@ class _FiltersSheetState extends State<_FiltersSheet> {
             const SizedBox(height: 14),
             _ToggleRow(
               icon: AppIcons.heart17Outline,
-              label: 'Favorites only',
+              label: context.l10n.favoritesOnly,
               trailing: CheckSquare(checked: _query.favoritesOnly, size: 22),
               onTap: () => setState(
                 () => _query = _query.copyWith(
@@ -202,10 +203,10 @@ class _FiltersSheetState extends State<_FiltersSheet> {
             const SizedBox(height: 8),
             _ToggleRow(
               icon: AppIcons.sort17,
-              label: 'Sort order',
+              label: context.l10n.sortOrder,
               trailing: Text(
-                _query.sort.label,
-                style: AppTextStyles.tiny.copyWith(color: AppColors.gold),
+                context.l10n.linkSort(_query.sort.name),
+                style: context.text.tiny.copyWith(color: context.colors.gold),
               ),
               onTap: () => setState(
                 () => _query = _query.copyWith(sort: _query.sort.toggled),
@@ -236,9 +237,9 @@ class _Group extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 13),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: AppColors.divider, width: 1.36),
+          bottom: BorderSide(color: context.colors.divider, width: 1.36),
         ),
       ),
       child: Column(
@@ -246,8 +247,8 @@ class _Group extends StatelessWidget {
         children: [
           Text(
             label,
-            style: AppTextStyles.micro.copyWith(
-              color: AppColors.textSecondary,
+            style: context.text.micro.copyWith(
+              color: context.colors.textSecondary,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -275,10 +276,10 @@ class _ToggleRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.surface,
+      color: context.colors.surface,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: AppColors.border, width: 1.36),
+        side: BorderSide(color: context.colors.border, width: 1.36),
       ),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -289,13 +290,13 @@ class _ToggleRow extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Row(
               children: [
-                AppIcon(icon, size: 17, color: AppColors.textSecondary),
+                AppIcon(icon, size: 17, color: context.colors.textSecondary),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     label,
-                    style: AppTextStyles.micro.copyWith(
-                      color: AppColors.textSecondary,
+                    style: context.text.micro.copyWith(
+                      color: context.colors.textSecondary,
                     ),
                   ),
                 ),

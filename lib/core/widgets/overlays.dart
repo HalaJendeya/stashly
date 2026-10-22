@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
 import 'package:stashly/core/widgets/app_icon.dart';
@@ -20,7 +21,7 @@ Future<T?> showStashlySheet<T>(
     isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: Colors.transparent,
-    barrierColor: AppColors.scrim,
+    barrierColor: context.colors.scrim,
     builder: (context) => Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       child: builder(context),
@@ -52,13 +53,13 @@ class SheetFrame extends StatelessWidget {
     final maxHeight = MediaQuery.sizeOf(context).height * 0.88;
     return Container(
       constraints: BoxConstraints(maxHeight: maxHeight),
-      decoration: const BoxDecoration(
-        color: AppColors.sheet,
+      decoration: BoxDecoration(
+        color: context.colors.sheet,
         borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         border: Border(
-          top: BorderSide(color: AppColors.border, width: 1.36),
-          left: BorderSide(color: AppColors.border, width: 1.36),
-          right: BorderSide(color: AppColors.border, width: 1.36),
+          top: BorderSide(color: context.colors.border, width: 1.36),
+          left: BorderSide(color: context.colors.border, width: 1.36),
+          right: BorderSide(color: context.colors.border, width: 1.36),
         ),
       ),
       padding: const EdgeInsets.fromLTRB(20, 9, 20, 20),
@@ -71,44 +72,53 @@ class SheetFrame extends StatelessWidget {
               width: 38,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.handle,
+                color: context.colors.handle,
                 borderRadius: BorderRadius.circular(999),
               ),
             ),
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: Semantics(
-                  header: true,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          // Header and helper scroll with the content, so large text never
+          // pushes the footer actions off-screen.
+          Flexible(
+            child: SingleChildScrollView(
+              physics: scrollable ? null : const NeverScrollableScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
                     children: [
-                      Text(eyebrow, style: AppTextStyles.eyebrow),
-                      const SizedBox(height: 7),
-                      Text(title, style: AppTextStyles.sheetTitle),
+                      Expanded(
+                        child: Semantics(
+                          header: true,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(eyebrow, style: context.text.eyebrow),
+                              const SizedBox(height: 7),
+                              Text(title, style: context.text.sheetTitle),
+                            ],
+                          ),
+                        ),
+                      ),
+                      IconTapButton(
+                        icon: AppIcons.close,
+                        iconSize: 20,
+                        semanticLabel: context.l10n.actionClose,
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
                     ],
                   ),
-                ),
+                  if (helper != null) ...[
+                    const SizedBox(height: 8),
+                    Text(helper!, style: context.text.caption),
+                  ],
+                  const SizedBox(height: 14),
+                  child,
+                ],
               ),
-              IconTapButton(
-                icon: AppIcons.close,
-                iconSize: 20,
-                semanticLabel: 'Close',
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
+            ),
           ),
-          if (helper != null) ...[
-            const SizedBox(height: 8),
-            Text(helper!, style: AppTextStyles.caption),
-          ],
-          const SizedBox(height: 14),
-          if (scrollable)
-            Flexible(child: SingleChildScrollView(child: child))
-          else
-            Flexible(child: child),
           if (footer != null) ...[const SizedBox(height: 12), footer!],
         ],
       ),
@@ -124,8 +134,8 @@ Future<T?> showStashlyDialog<T>(
   return showGeneralDialog<T>(
     context: context,
     barrierDismissible: true,
-    barrierLabel: 'Dismiss',
-    barrierColor: AppColors.scrim,
+    barrierLabel: context.l10n.actionDismiss,
+    barrierColor: context.colors.scrim,
     transitionDuration: const Duration(milliseconds: 180),
     pageBuilder: (context, animation, secondaryAnimation) => BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
@@ -197,12 +207,12 @@ class DialogCard extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 440),
       padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
-        color: AppColors.dialog,
+        color: context.colors.dialog,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: AppColors.border, width: 1.36),
-        boxShadow: const [
+        border: Border.all(color: context.colors.border, width: 1.36),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x99000000),
+            color: context.colors.shadow,
             blurRadius: 35,
             offset: Offset(0, 24),
           ),
@@ -219,7 +229,7 @@ Future<bool> confirmDestructive(
   required String title,
   required String message,
   required String confirmLabel,
-  String cancelLabel = 'Cancel',
+  String? cancelLabel,
 }) async {
   final confirmed = await showStashlyDialog<bool>(
     context,
@@ -232,31 +242,31 @@ Future<bool> confirmDestructive(
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: const Color(0x17FF7575),
+              color: context.colors.dangerTint,
               borderRadius: BorderRadius.circular(15),
             ),
-            child: const Center(
+            child: Center(
               child: AppIcon(
                 AppIcons.trash22,
                 size: 22,
-                color: AppColors.danger,
+                color: context.colors.danger,
               ),
             ),
           ),
           const SizedBox(height: 17),
-          Text(title, style: AppTextStyles.sectionTitle),
+          Text(title, style: context.text.sectionTitle),
           const SizedBox(height: 9),
-          Text(message, style: AppTextStyles.caption.copyWith(height: 1.65)),
+          Text(message, style: context.text.caption.copyWith(height: 1.65)),
           const SizedBox(height: 20),
           DialogActions(
             cancel: SecondaryButton(
-              label: cancelLabel,
+              label: cancelLabel ?? context.l10n.actionCancel,
               onPressed: () => Navigator.of(context).pop(false),
             ),
             confirm: SecondaryButton(
               label: confirmLabel,
-              color: AppColors.danger,
-              background: AppColors.dangerTint,
+              color: context.colors.danger,
+              background: context.colors.dangerTint,
               bordered: false,
               onPressed: () => Navigator.of(context).pop(true),
             ),

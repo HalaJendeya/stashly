@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/result/app_failure.dart';
 import 'package:stashly/core/result/result.dart';
 import 'package:stashly/core/routing/routes.dart';
@@ -42,8 +43,10 @@ class _SignInScreenState extends State<SignInScreen> {
   Future<void> _submit() async {
     FocusScope.of(context).unfocus();
     setState(() {
-      _emailError = AuthValidators.email(_email.text);
-      _passwordError = _password.text.isEmpty ? 'Enter your password.' : null;
+      _emailError = AuthValidators.email(context.l10n, _email.text);
+      _passwordError = _password.text.isEmpty
+          ? context.l10n.passwordRequired
+          : null;
       _formError = null;
     });
     if (_emailError != null || _passwordError != null) return;
@@ -60,7 +63,7 @@ class _SignInScreenState extends State<SignInScreen> {
         _emailError = failure.fieldError('email');
         _passwordError = failure.fieldError('password');
         _formError = _emailError == null && _passwordError == null
-            ? failure.userMessage
+            ? failure.describe(context.l10n)
             : null;
         if (failure.kind == FailureKind.invalidCredentials) _password.clear();
       }
@@ -75,15 +78,15 @@ class _SignInScreenState extends State<SignInScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const AuthHeader(
-              title: 'Welcome back',
-              subtitle: 'Sign in to return to everything you’ve kept.',
+            AuthHeader(
+              title: context.l10n.signInTitle,
+              subtitle: context.l10n.signInSubtitle,
             ),
             const SizedBox(height: 24),
             StashlyTextField(
-              label: 'Email',
+              label: context.l10n.emailLabel,
               controller: _email,
-              hint: 'you@example.com',
+              hint: context.l10n.emailHint,
               icon: AppIcons.mail,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
@@ -92,9 +95,9 @@ class _SignInScreenState extends State<SignInScreen> {
             ),
             const SizedBox(height: 15),
             StashlyTextField(
-              label: 'Password',
+              label: context.l10n.passwordLabel,
               controller: _password,
-              hint: 'Enter your password',
+              hint: context.l10n.passwordHint,
               icon: AppIcons.lock,
               password: true,
               textInputAction: TextInputAction.done,
@@ -103,11 +106,11 @@ class _SignInScreenState extends State<SignInScreen> {
               onSubmitted: (_) => _submit(),
             ),
             Align(
-              alignment: Alignment.centerRight,
+              alignment: AlignmentDirectional.centerEnd,
               child: TextActionButton(
-                label: 'Forgot password?',
+                label: context.l10n.forgotPassword,
                 minHeight: 34,
-                style: AppTextStyles.linkButton.copyWith(fontSize: 13),
+                style: context.text.linkButton.copyWith(fontSize: 13),
                 onPressed: () => context.push(Routes.forgotPassword),
               ),
             ),
@@ -115,12 +118,14 @@ class _SignInScreenState extends State<SignInScreen> {
               const SizedBox(height: 6),
               Text(
                 _formError!,
-                style: AppTextStyles.caption.copyWith(color: AppColors.danger),
+                style: context.text.caption.copyWith(
+                  color: context.colors.danger,
+                ),
               ),
             ],
             const SizedBox(height: 14),
             PrimaryButton(
-              label: 'Sign In',
+              label: context.l10n.actionSignIn,
               authStyle: true,
               loading: _busy,
               onPressed: _submit,
@@ -128,8 +133,8 @@ class _SignInScreenState extends State<SignInScreen> {
             GoogleSignInSection(session: widget.session),
             const SizedBox(height: 18),
             AuthFooterPrompt(
-              prompt: 'New to Stashly?',
-              action: 'Create account',
+              prompt: context.l10n.newToStashly,
+              action: context.l10n.createAccountLink,
               onTap: () => context.pushReplacement(Routes.register),
             ),
           ],
@@ -160,11 +165,11 @@ class AuthFooterPrompt extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       spacing: 4,
       children: [
-        Text(prompt, style: AppTextStyles.cardMeta),
+        Text(prompt, style: context.text.cardMeta),
         TextActionButton(
           label: action,
           minHeight: 38,
-          style: AppTextStyles.linkButton.copyWith(fontSize: 13),
+          style: context.text.linkButton.copyWith(fontSize: 13),
           onPressed: onTap,
         ),
       ],

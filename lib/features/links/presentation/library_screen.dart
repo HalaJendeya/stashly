@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/layout/app_viewport.dart';
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/presentation/paged_controller.dart';
@@ -159,24 +160,26 @@ class _LibraryScreenState extends State<LibraryScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         BackTitleHeader(
-          eyebrow: 'YOUR CONTENT LIBRARY',
-          title: _query.favoritesOnly ? 'Favorites' : 'All saved items',
+          eyebrow: context.l10n.libraryEyebrow,
+          title: _query.favoritesOnly
+              ? context.l10n.favorites
+              : context.l10n.allSavedItems,
           trailing: _list.total == null
               ? null
               : Semantics(
-                  label: '${_list.total} items',
+                  label: context.l10n.itemCount(_list.total!),
                   child: Container(
                     width: 34,
                     height: 34,
                     decoration: BoxDecoration(
-                      color: AppColors.goldTint,
+                      color: context.colors.goldTint,
                       borderRadius: BorderRadius.circular(11),
                     ),
                     alignment: Alignment.center,
                     child: Text(
                       '${_list.total}',
-                      style: AppTextStyles.caption.copyWith(
-                        color: AppColors.gold,
+                      style: context.text.caption.copyWith(
+                        color: context.colors.gold,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -205,7 +208,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
             padding: const EdgeInsets.only(top: 15, bottom: 17),
             children: [
               PillChip(
-                label: 'Favorites',
+                label: context.l10n.favorites,
                 icon: AppIcons.heartChip,
                 selected: _query.favoritesOnly,
                 onTap: () => _setQuery(
@@ -214,14 +217,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
               ),
               const SizedBox(width: 8),
               PillChip(
-                label: 'All',
+                label: context.l10n.filterAll,
                 selected: _query.contentTypes.isEmpty,
                 onTap: () => _setQuery(_query.copyWith(contentTypes: const {})),
               ),
               for (final type in ContentType.values) ...[
                 const SizedBox(width: 8),
                 PillChip(
-                  label: type.label,
+                  label: context.l10n.contentType(type.apiValue),
                   selected: _query.contentTypes.contains(type),
                   onTap: () => _setQuery(_query.copyWith(contentTypes: {type})),
                 ),
@@ -247,11 +250,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
         child: MessageCard(
           icon: AppIcons.bookmark,
           title: _query.hasFilters
-              ? 'Nothing matches these filters'
-              : 'Nothing saved yet',
+              ? context.l10n.noFilterMatches
+              : context.l10n.nothingSavedYet,
           message: _query.hasFilters
-              ? 'Try another type or turn off Favorites.'
-              : 'Share a link to Stashly or tap + to save your first one.',
+              ? context.l10n.noFilterMatchesBody
+              : context.l10n.libraryEmptyBody,
         ),
       );
     }
@@ -271,7 +274,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
             itemBuilder: (context, index) {
               final link = _list.items[index];
               return SavedGridCard(
-                data: linkCardData(link),
+                data: linkCardData(link, context.l10n),
                 onOpen: () => context.push(Routes.link(link.id)),
                 onToggleFavorite: () => _toggleFavorite(link),
                 onAction: (action) => _onAction(link, action),
@@ -290,7 +293,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
           itemBuilder: (context, index) {
             final link = _list.items[index];
             return SavedCard(
-              data: linkCardData(link),
+              data: linkCardData(link, context.l10n),
               onOpen: () => context.push(Routes.link(link.id)),
               onToggleFavorite: () => _toggleFavorite(link),
               onAction: (action) => _onAction(link, action),
@@ -313,12 +316,12 @@ class _SortButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: 'Sort: ${sort.label}',
+      label: context.l10n.sortLabel(context.l10n.linkSort(sort.name)),
       child: Material(
-        color: AppColors.surface,
+        color: context.colors.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: AppColors.border, width: 1.36),
+          side: BorderSide(color: context.colors.border, width: 1.36),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -330,13 +333,16 @@ class _SortButton extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const AppIcon(
+                  AppIcon(
                     AppIcons.sort,
                     size: 16,
-                    color: AppColors.textSecondary,
+                    color: context.colors.textSecondary,
                   ),
                   const SizedBox(width: 7),
-                  Text(sort.label, style: AppTextStyles.caption),
+                  Text(
+                    context.l10n.linkSort(sort.name),
+                    style: context.text.caption,
+                  ),
                 ],
               ),
             ),
@@ -367,14 +373,14 @@ class _LayoutToggle extends StatelessWidget {
             width: 36,
             height: 34,
             decoration: BoxDecoration(
-              color: selected ? AppColors.surface : Colors.transparent,
+              color: selected ? context.colors.surface : Colors.transparent,
               borderRadius: BorderRadius.circular(9),
             ),
             alignment: Alignment.center,
             child: AppIcon(
               icon,
               size: 18,
-              color: selected ? AppColors.gold : AppColors.textMuted,
+              color: selected ? context.colors.gold : context.colors.textMuted,
             ),
           ),
         ),
@@ -384,14 +390,14 @@ class _LayoutToggle extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: AppColors.card,
+        color: context.colors.card,
         borderRadius: BorderRadius.circular(13),
-        border: Border.all(color: AppColors.border, width: 1.36),
+        border: Border.all(color: context.colors.border, width: 1.36),
       ),
       child: Row(
         children: [
-          segment(false, AppIcons.layoutList, 'List layout'),
-          segment(true, AppIcons.layoutGrid, 'Grid layout'),
+          segment(false, AppIcons.layoutList, context.l10n.listLayout),
+          segment(true, AppIcons.layoutGrid, context.l10n.gridLayout),
         ],
       ),
     );

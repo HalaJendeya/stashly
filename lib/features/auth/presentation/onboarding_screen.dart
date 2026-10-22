@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
 import 'package:stashly/core/widgets/app_icon.dart';
@@ -24,27 +25,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final _pages = PageController();
   int _index = 0;
 
-  static const _steps = [
+  /// Three steps; the count drives the dots and the last-step button.
+  static const _stepCount = 3;
+
+  List<({String eyebrow, String title, String body})> _steps(
+    AppLocalizations l10n,
+  ) => [
     (
-      eyebrow: 'SAVE IN A MOMENT',
-      title: 'Save what matters',
-      body:
-          'Share useful links from the apps you already use. Stashly keeps the '
-          'source, not a downloaded copy.',
+      eyebrow: l10n.onboardingSaveEyebrow,
+      title: l10n.onboardingSaveTitle,
+      body: l10n.onboardingSaveBody,
     ),
     (
-      eyebrow: 'MAKE IT YOURS',
-      title: 'Organize your world',
-      body:
-          'Collections and tags add structure when you want it—and stay out of '
-          'the way when you don’t.',
+      eyebrow: l10n.onboardingOrganizeEyebrow,
+      title: l10n.onboardingOrganizeTitle,
+      body: l10n.onboardingOrganizeBody,
     ),
     (
-      eyebrow: 'READY WHEN YOU ARE',
-      title: 'Find it when you need it',
-      body:
-          'Search across titles, sources, collections, and favorites to '
-          'rediscover the right link fast.',
+      eyebrow: l10n.onboardingFindEyebrow,
+      title: l10n.onboardingFindTitle,
+      body: l10n.onboardingFindBody,
     ),
   ];
 
@@ -62,7 +62,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final last = _index == _steps.length - 1;
+    final last = _index == _stepCount - 1;
     return Scaffold(
       body: StashlyBackground(
         secondGlow: true,
@@ -81,16 +81,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       else
                         IconTapButton(
                           icon: AppIcons.arrowLeft,
-                          semanticLabel: 'Previous',
+                          semanticLabel: context.l10n.actionPrevious,
                           onPressed: () => _go(_index - 1),
                         ),
                       const Spacer(),
                       TextActionButton(
-                        label: 'Skip',
+                        label: context.l10n.actionSkip,
                         minHeight: 44,
-                        padding: const EdgeInsets.only(left: 16, right: 4),
-                        style: AppTextStyles.linkButton.copyWith(
-                          color: AppColors.textSecondary,
+                        padding: const EdgeInsetsDirectional.only(
+                          start: 16,
+                          end: 4,
+                        ),
+                        style: context.text.linkButton.copyWith(
+                          color: context.colors.textSecondary,
                           fontWeight: FontWeight.w600,
                         ),
                         onPressed: widget.onFinished,
@@ -101,10 +104,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Expanded(
                   child: PageView.builder(
                     controller: _pages,
-                    itemCount: _steps.length,
+                    itemCount: _stepCount,
                     onPageChanged: (index) => setState(() => _index = index),
                     itemBuilder: (context, index) {
-                      final step = _steps[index];
+                      final step = _steps(context.l10n)[index];
                       return SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,13 +115,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             const SizedBox(height: 9),
                             _VisualFrame(child: _visualFor(index)),
                             const SizedBox(height: 25),
-                            Text(step.eyebrow, style: AppTextStyles.eyebrow),
+                            Text(step.eyebrow, style: context.text.eyebrow),
                             const SizedBox(height: 7),
-                            Text(step.title, style: AppTextStyles.heading),
+                            Text(step.title, style: context.text.heading),
                             const SizedBox(height: 10),
                             Text(
                               step.body,
-                              style: AppTextStyles.body.copyWith(height: 1.65),
+                              style: context.text.body.copyWith(height: 1.65),
                             ),
                           ],
                         ),
@@ -130,22 +133,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Row(
                   children: [
                     Semantics(
-                      label: 'Step ${_index + 1} of ${_steps.length}',
+                      label: context.l10n.onboardingStep(
+                        _index + 1,
+                        _stepCount,
+                      ),
                       child: Row(
                         children: [
-                          for (var i = 0; i < _steps.length; i++) ...[
+                          for (var i = 0; i < _stepCount; i++) ...[
                             AnimatedContainer(
                               duration: const Duration(milliseconds: 220),
                               width: i == _index ? 24 : 6,
                               height: 6,
                               decoration: BoxDecoration(
                                 color: i == _index
-                                    ? AppColors.gold
-                                    : AppColors.dotInactive,
+                                    ? context.colors.gold
+                                    : context.colors.dotInactive,
                                 borderRadius: BorderRadius.circular(999),
                               ),
                             ),
-                            if (i < _steps.length - 1) const SizedBox(width: 6),
+                            if (i < _stepCount - 1) const SizedBox(width: 6),
                           ],
                         ],
                       ),
@@ -155,13 +161,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     // wider than the space left by the step dots.
                     Expanded(
                       child: Align(
-                        alignment: Alignment.centerRight,
+                        alignment: AlignmentDirectional.centerEnd,
                         child: ConstrainedBox(
                           constraints: BoxConstraints(minWidth: last ? 0 : 144),
                           // Sized to its label, as in the design.
                           child: IntrinsicWidth(
                             child: PrimaryButton(
-                              label: last ? 'Get Started' : 'Next',
+                              label: last
+                                  ? context.l10n.actionGetStarted
+                                  : context.l10n.actionNext,
                               authStyle: true,
                               trailingIcon: AppIcons.arrowRight,
                               horizontalPadding: 20,
@@ -201,43 +209,46 @@ class _VisualFrame extends StatelessWidget {
     // The illustration is artwork drawn at a fixed design size and scaled
     // as a whole, so its mock-UI text ignores the font-size setting.
     return ExcludeSemantics(
-      child: MediaQuery.withNoTextScaling(
-        child: AspectRatio(
-          aspectRatio: 379.4 / 330,
-          child: FittedBox(
-            child: Container(
-              width: 379.4,
-              height: 330,
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: AppColors.border, width: 1.36),
-                gradient: const RadialGradient(
-                  center: Alignment(0, -0.3),
-                  radius: 0.75,
-                  colors: [Color(0x1FD4AF37), AppColors.card],
-                  stops: [0, 0.45],
+      child: Directionality(
+        textDirection: TextDirection.ltr,
+        child: MediaQuery.withNoTextScaling(
+          child: AspectRatio(
+            aspectRatio: 379.4 / 330,
+            child: FittedBox(
+              child: Container(
+                width: 379.4,
+                height: 330,
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: context.colors.border, width: 1.36),
+                  gradient: RadialGradient(
+                    center: Alignment(0, -0.3),
+                    radius: 0.75,
+                    colors: [Color(0x1FD4AF37), context.colors.card],
+                    stops: [0, 0.45],
+                  ),
                 ),
-              ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    left: 20,
-                    top: 20,
-                    child: Container(
-                      width: 336.7,
-                      height: 287.3,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(155.5),
-                        border: Border.all(
-                          color: const Color(0x0AFFFFFF),
-                          width: 1.36,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      left: 20,
+                      top: 20,
+                      child: Container(
+                        width: 336.7,
+                        height: 287.3,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(155.5),
+                          border: Border.all(
+                            color: context.colors.divider,
+                            width: 1.36,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  child,
-                ],
+                    child,
+                  ],
+                ),
               ),
             ),
           ),
@@ -267,12 +278,12 @@ class _FloatingTile extends StatelessWidget {
         width: 42,
         height: 42,
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.colors.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: AppColors.border, width: 1.36),
-          boxShadow: const [
+          border: Border.all(color: context.colors.border, width: 1.36),
+          boxShadow: [
             BoxShadow(
-              color: Color(0x3D000000),
+              color: context.colors.shadow,
               blurRadius: 16,
               offset: Offset(0, 12),
             ),
@@ -285,13 +296,20 @@ class _FloatingTile extends StatelessWidget {
   }
 }
 
-Widget _tileLabel(String text) => Text(
-  text,
-  style: AppTextStyles.caption.copyWith(
-    fontSize: 10,
-    fontWeight: FontWeight.w700,
-  ),
-);
+class _TileLabel extends StatelessWidget {
+  const _TileLabel(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Text(
+    text,
+    style: context.text.caption.copyWith(
+      fontSize: 10,
+      fontWeight: FontWeight.w700,
+    ),
+  );
+}
 
 class _SaveVisual extends StatelessWidget {
   const _SaveVisual();
@@ -319,12 +337,12 @@ class _SaveVisual extends StatelessWidget {
             height: 83,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.floatingCard,
+              color: context.colors.floatingCard,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: const Color(0x40D4AF37), width: 1.36),
-              boxShadow: const [
+              boxShadow: [
                 BoxShadow(
-                  color: Color(0x6B000000),
+                  color: context.colors.shadow,
                   blurRadius: 25,
                   offset: Offset(0, 18),
                 ),
@@ -345,10 +363,10 @@ class _SaveVisual extends StatelessWidget {
                     ),
                   ),
                   alignment: Alignment.center,
-                  child: const AppIcon(
+                  child: AppIcon(
                     AppIcons.sparkles24,
                     size: 24,
-                    color: AppColors.gold,
+                    color: context.colors.gold,
                   ),
                 ),
                 const SizedBox(width: 11),
@@ -360,14 +378,14 @@ class _SaveVisual extends StatelessWidget {
                       Text(
                         'design-milk.com',
                         maxLines: 1,
-                        style: AppTextStyles.tiny.copyWith(fontSize: 8),
+                        style: context.text.tiny.copyWith(fontSize: 8),
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        'Spaces worth remembering',
+                        context.l10n.artSavedTitle,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.rowTitle.copyWith(
+                        style: context.text.rowTitle.copyWith(
                           fontSize: 11,
                           height: 1.35,
                         ),
@@ -379,30 +397,30 @@ class _SaveVisual extends StatelessWidget {
                 Container(
                   width: 28,
                   height: 28,
-                  decoration: const BoxDecoration(
-                    color: AppColors.gold,
+                  decoration: BoxDecoration(
+                    color: context.colors.goldFill,
                     shape: BoxShape.circle,
                   ),
                   alignment: Alignment.center,
-                  child: const AppIcon(
+                  child: AppIcon(
                     AppIcons.check15,
                     size: 15,
-                    color: AppColors.onGoldAuth,
+                    color: context.colors.onGoldAuth,
                   ),
                 ),
               ],
             ),
           ),
         ),
-        _FloatingTile(left: 48, top: 38, child: _tileLabel('YT')),
-        _FloatingTile(left: 295.7, top: 56, child: _tileLabel('IG')),
-        const _FloatingTile(
+        _FloatingTile(left: 48, top: 38, child: const _TileLabel('YT')),
+        _FloatingTile(left: 295.7, top: 56, child: const _TileLabel('IG')),
+        _FloatingTile(
           left: 273.7,
           top: 237.3,
           child: AppIcon(
             AppIcons.book17,
             size: 17,
-            color: AppColors.textSecondary,
+            color: context.colors.textSecondary,
           ),
         ),
       ],
@@ -430,12 +448,12 @@ class _MiniCollectionCard extends StatelessWidget {
       height: 200,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.floatingCard,
+        color: context.colors.floatingCard,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border, width: 1.36),
-        boxShadow: const [
+        border: Border.all(color: context.colors.border, width: 1.36),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x3D000000),
+            color: context.colors.shadow,
             blurRadius: 16,
             offset: Offset(0, 12),
           ),
@@ -448,24 +466,24 @@ class _MiniCollectionCard extends StatelessWidget {
             width: 45,
             height: 45,
             decoration: BoxDecoration(
-              color: AppColors.goldTint,
+              color: context.colors.goldTint,
               borderRadius: BorderRadius.circular(14),
             ),
             alignment: Alignment.center,
-            child: AppIcon(icon, size: 20, color: AppColors.gold),
+            child: AppIcon(icon, size: 20, color: context.colors.gold),
           ),
           const Spacer(),
           Text(
             name,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.rowTitle.copyWith(fontSize: 13, height: 1.5),
+            style: context.text.rowTitle.copyWith(fontSize: 13, height: 1.5),
           ),
           const SizedBox(height: 5),
           Text(
             count,
             maxLines: 1,
-            style: AppTextStyles.tiny.copyWith(fontSize: 8),
+            style: context.text.tiny.copyWith(fontSize: 8),
           ),
           if (tags.isNotEmpty) ...[
             const SizedBox(height: 13),
@@ -481,14 +499,14 @@ class _MiniCollectionCard extends StatelessWidget {
                       vertical: 5,
                     ),
                     decoration: ShapeDecoration(
-                      color: AppColors.subtleFill,
+                      color: context.colors.subtleFill,
                       shape: const StadiumBorder(),
                     ),
                     child: Text(
                       tag,
-                      style: AppTextStyles.tiny.copyWith(
+                      style: context.text.tiny.copyWith(
                         fontSize: 7,
-                        color: AppColors.textSecondary,
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   ),
@@ -513,12 +531,12 @@ class _OrganizeVisual extends StatelessWidget {
           top: 48,
           child: Transform.rotate(
             angle: -8 * math.pi / 180,
-            child: const Opacity(
+            child: Opacity(
               opacity: 0.66,
               child: _MiniCollectionCard(
                 icon: AppIcons.book20,
-                name: 'Learning',
-                count: '16 saves',
+                name: context.l10n.artLearning,
+                count: context.l10n.artSaves(16),
               ),
             ),
           ),
@@ -528,11 +546,11 @@ class _OrganizeVisual extends StatelessWidget {
           top: 67,
           child: Transform.rotate(
             angle: 5 * math.pi / 180,
-            child: const _MiniCollectionCard(
+            child: _MiniCollectionCard(
               icon: AppIcons.sparkles20,
-              name: 'Inspiration',
-              count: '28 saves',
-              tags: ['#interiors', '#ideas'],
+              name: context.l10n.artInspiration,
+              count: context.l10n.artSaves(28),
+              tags: [context.l10n.artTagInteriors, context.l10n.artTagIdeas],
             ),
           ),
         ),
@@ -541,12 +559,12 @@ class _OrganizeVisual extends StatelessWidget {
           top: 260.3,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-            decoration: const ShapeDecoration(
-              color: AppColors.gold,
+            decoration: ShapeDecoration(
+              color: context.colors.goldFill,
               shape: StadiumBorder(),
               shadows: [
                 BoxShadow(
-                  color: Color(0x3D000000),
+                  color: context.colors.shadow,
                   blurRadius: 16,
                   offset: Offset(0, 12),
                 ),
@@ -554,17 +572,17 @@ class _OrganizeVisual extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const AppIcon(
+                AppIcon(
                   AppIcons.tag15,
                   size: 15,
-                  color: AppColors.onGoldAuth,
+                  color: context.colors.onGoldAuth,
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  'Curated',
-                  style: AppTextStyles.micro.copyWith(
+                  context.l10n.artCurated,
+                  style: context.text.micro.copyWith(
                     fontSize: 9,
-                    color: AppColors.onGoldAuth,
+                    color: context.colors.onGoldAuth,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -590,24 +608,24 @@ class _FindVisual extends StatelessWidget {
             height: 48,
             padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.colors.surface,
               borderRadius: BorderRadius.circular(15),
               border: Border.all(color: const Color(0x52D4AF37), width: 1.36),
             ),
             child: Row(
               children: [
-                const AppIcon(
+                AppIcon(
                   AppIcons.search18,
                   size: 18,
-                  color: AppColors.gold,
+                  color: context.colors.gold,
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  'design inspiration',
+                  context.l10n.artQuery,
                   maxLines: 1,
-                  style: AppTextStyles.bodySmall.copyWith(
+                  style: context.text.bodySmall.copyWith(
                     fontSize: 11,
-                    color: AppColors.textPrimary,
+                    color: context.colors.textPrimary,
                     height: 1.5,
                   ),
                 ),
@@ -615,9 +633,9 @@ class _FindVisual extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 11),
-          const _ResultRow(
+          _ResultRow(
             domain: 'design-milk.com',
-            title: 'Quiet modern spaces',
+            title: context.l10n.artResultTitle,
             icon: AppIcons.heart15Filled,
             thumbnail: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(11)),
@@ -630,11 +648,11 @@ class _FindVisual extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 11),
-          const Opacity(
+          Opacity(
             opacity: 0.7,
             child: _ResultRow(
               domain: 'behance.net',
-              title: 'Brand systems to revisit',
+              title: context.l10n.artResultTitle2,
               icon: AppIcons.bookmark15,
               thumbnail: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(11)),
@@ -649,8 +667,8 @@ class _FindVisual extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           Text(
-            '12 ideas found',
-            style: AppTextStyles.micro.copyWith(fontSize: 9),
+            context.l10n.artIdeasFound(12),
+            style: context.text.micro.copyWith(fontSize: 9),
           ),
         ],
       ),
@@ -677,9 +695,9 @@ class _ResultRow extends StatelessWidget {
       height: 65.7,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: const Color(0xEB1F1F23),
+        color: context.colors.floatingCard.withValues(alpha: 0.92),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: AppColors.border, width: 1.36),
+        border: Border.all(color: context.colors.border, width: 1.36),
       ),
       child: Row(
         children: [
@@ -694,14 +712,14 @@ class _ResultRow extends StatelessWidget {
                   domain,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.tiny.copyWith(fontSize: 8),
+                  style: context.text.tiny.copyWith(fontSize: 8),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.rowTitle.copyWith(
+                  style: context.text.rowTitle.copyWith(
                     fontSize: 11,
                     height: 1.35,
                   ),
@@ -709,7 +727,7 @@ class _ResultRow extends StatelessWidget {
               ],
             ),
           ),
-          AppIcon(icon, size: 15, color: AppColors.gold),
+          AppIcon(icon, size: 15, color: context.colors.gold),
           const SizedBox(width: 5),
         ],
       ),

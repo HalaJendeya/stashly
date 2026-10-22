@@ -75,6 +75,7 @@ abstract final class AppIcons {
   static const String mail = 'assets/icons/mail.svg';
   static const String mailLarge = 'assets/icons/mail_large.svg';
   static const String moon = 'assets/icons/moon.svg';
+  static const String sun = 'assets/icons/sun.svg';
   static const String more = 'assets/icons/more.svg';
   static const String navCollections = 'assets/icons/nav_collections.svg';
   static const String navCollectionsActive =
@@ -143,6 +144,18 @@ class AppIcon extends StatelessWidget {
   /// Set for icon-only controls so screen readers announce them (CLAUDE.md §4).
   final String? semanticLabel;
 
+  /// Arrows and chevrons that point "forward" or "back"; they flip in
+  /// right-to-left languages such as Arabic.
+  static const _directional = {
+    AppIcons.arrowLeft,
+    AppIcons.arrowRight,
+    AppIcons.arrowRight15,
+    AppIcons.cardArrow,
+    AppIcons.chevronRight,
+    AppIcons.chevronRightMuted,
+    AppIcons.logout,
+  };
+
   @override
   Widget build(BuildContext context) {
     return SvgPicture.asset(
@@ -154,6 +167,7 @@ class AppIcon extends StatelessWidget {
           : ColorFilter.mode(color!, BlendMode.srcIn),
       semanticsLabel: semanticLabel,
       excludeFromSemantics: semanticLabel == null,
+      matchTextDirection: _directional.contains(asset),
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/network/idempotency.dart';
 import 'package:stashly/core/result/app_failure.dart';
@@ -96,7 +97,7 @@ class _SaveLinkSheetState extends State<SaveLinkSheet> {
   Future<void> _save() async {
     final url = UrlUtils.prepareForSave(_url.text);
     setState(() {
-      _urlError = UrlUtils.validationMessage(_url.text);
+      _urlError = UrlUtils.validate(_url.text)?.describe(context.l10n);
       _titleError = null;
     });
     if (url == null) return;
@@ -122,7 +123,7 @@ class _SaveLinkSheetState extends State<SaveLinkSheet> {
         });
         final router = GoRouter.of(context);
         Navigator.of(context).pop();
-        showStashlySnack(context, 'Saved to Stashly');
+        showStashlySnack(context, context.l10n.savedToStashly);
         router.push(Routes.link(value.id));
       case Err(:final failure) when failure.kind == FailureKind.duplicateLink:
         final router = GoRouter.of(context);
@@ -133,12 +134,16 @@ class _SaveLinkSheetState extends State<SaveLinkSheet> {
         _idempotencyKey = newIdempotencyKey();
         setState(() {
           _urlError = failure.kind == FailureKind.invalidUrl
-              ? failure.userMessage
+              ? failure.describe(context.l10n)
               : failure.fieldError('url');
           _titleError = failure.fieldError('title');
         });
         if (_urlError == null && _titleError == null) {
-          showStashlySnack(context, failure.userMessage, error: true);
+          showStashlySnack(
+            context,
+            failure.describe(context.l10n),
+            error: true,
+          );
         }
     }
   }
@@ -147,20 +152,20 @@ class _SaveLinkSheetState extends State<SaveLinkSheet> {
   Widget build(BuildContext context) {
     final canSave = _url.text.trim().isNotEmpty;
     return SheetFrame(
-      eyebrow: 'ADD TO STASHLY',
-      title: 'Save a link',
+      eyebrow: context.l10n.addToStashlyEyebrow,
+      title: context.l10n.navSaveLink,
       footer: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           PrimaryButton(
-            label: 'Save to Stashly',
+            label: context.l10n.saveToStashly,
             loading: _busy,
             onPressed: canSave ? _save : null,
           ),
           TextActionButton(
-            label: 'Cancel',
+            label: context.l10n.actionCancel,
             minHeight: 48,
-            style: AppTextStyles.body,
+            style: context.text.body,
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
@@ -173,7 +178,7 @@ class _SaveLinkSheetState extends State<SaveLinkSheet> {
             controller: _url,
             hint: 'https://example.com/article',
             icon: AppIcons.linkInput,
-            fill: AppColors.card,
+            fill: context.colors.card,
             keyboardType: TextInputType.url,
             textInputAction: TextInputAction.next,
             maxLength: UrlUtils.maxLength,
@@ -182,28 +187,27 @@ class _SaveLinkSheetState extends State<SaveLinkSheet> {
           ),
           const SizedBox(height: 14),
           StashlyTextField(
-            label: 'Title',
+            label: context.l10n.titleLabel,
             optional: true,
             controller: _title,
-            hint: 'Add a memorable title',
-            fill: AppColors.card,
+            hint: context.l10n.titleHint,
+            fill: context.colors.card,
             maxLength: widget.titleMaxLength,
             textCapitalization: TextCapitalization.sentences,
             errorText: _titleError,
           ),
           const SizedBox(height: 14),
           PickerField(
-            label: 'Collection',
+            label: context.l10n.collectionLabel,
             optional: true,
-            fill: AppColors.card,
-            value: collectionsLabel(_collections),
+            fill: context.colors.card,
+            value: collectionsLabel(context.l10n, _collections),
             onTap: _pickCollections,
           ),
           const SizedBox(height: 14),
-          const InfoBanner(
+          InfoBanner(
             icon: AppIcons.sparkles17,
-            message:
-                'We’ll fetch a preview when available. You can always save without one.',
+            message: context.l10n.previewNotice,
           ),
           const SizedBox(height: 4),
         ],

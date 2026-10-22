@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/result/result.dart';
 import 'package:stashly/core/widgets/overlays.dart';
 import 'package:stashly/core/widgets/saved_card.dart';
@@ -10,18 +11,16 @@ import 'package:stashly/core/widgets/state_views.dart';
 Future<bool> confirmDeleteSavedItem(BuildContext context, String title) =>
     confirmDestructive(
       context,
-      title: 'Delete this saved item?',
-      message:
-          '“$title” will be removed from your library. The original content '
-          'won’t be affected.',
-      confirmLabel: 'Delete',
-      cancelLabel: 'Keep item',
+      title: context.l10n.deleteItemTitle,
+      message: context.l10n.deleteItemMessage(title),
+      confirmLabel: context.l10n.actionDelete,
+      cancelLabel: context.l10n.keepItem,
     );
 
 /// Copies a saved item's original [url] and confirms with a snackbar.
 Future<void> copySavedItemUrl(BuildContext context, String url) async {
   await Clipboard.setData(ClipboardData(text: url));
-  if (context.mounted) showStashlySnack(context, 'Link copied');
+  if (context.mounted) showStashlySnack(context, context.l10n.linkCopied);
 }
 
 /// The ⋯ menu of a saved-item card, shared by every list that shows cards.
@@ -48,9 +47,13 @@ Future<void> handleSavedCardAction(
       if (!context.mounted) return;
       switch (result) {
         case Ok():
-          showStashlySnack(context, 'Item deleted');
+          showStashlySnack(context, context.l10n.itemDeleted);
         case Err(:final failure):
-          showStashlySnack(context, failure.userMessage, error: true);
+          showStashlySnack(
+            context,
+            failure.describe(context.l10n),
+            error: true,
+          );
       }
   }
 }

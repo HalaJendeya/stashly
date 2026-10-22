@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/routing/navigation.dart';
 import 'package:stashly/core/result/result.dart';
 import 'package:stashly/core/theme/app_colors.dart';
@@ -51,7 +52,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _save() async {
     final name = _name.text.trim();
     if (name.isEmpty || name.length > 100) {
-      setState(() => _error = 'Use 1–100 characters.');
+      setState(() => _error = context.l10n.nameLength);
       return;
     }
     setState(() {
@@ -64,12 +65,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     switch (result) {
       case Ok(:final value):
         widget.onUpdated(value);
-        showStashlySnack(context, 'Profile updated');
+        showStashlySnack(context, context.l10n.profileUpdated);
         context.popOrHome();
       case Err(:final failure):
         setState(
           () => _error =
-              failure.fieldError('display_name') ?? failure.userMessage,
+              failure.fieldError('display_name') ??
+              failure.describe(context.l10n),
         );
     }
   }
@@ -82,7 +84,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 6, 20, 30),
             children: [
-              const BackTitleHeader(eyebrow: 'ACCOUNT', title: 'Edit profile'),
+              BackTitleHeader(
+                eyebrow: context.l10n.accountEyebrow,
+                title: context.l10n.editProfile,
+              ),
               const SizedBox(height: 20),
               Center(
                 child: InitialsAvatar(
@@ -94,7 +99,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 20),
               StashlyTextField(
-                label: 'Display name',
+                label: context.l10n.displayNameLabel,
                 controller: _name,
                 icon: AppIcons.user,
                 maxLength: 100,
@@ -103,18 +108,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 15),
               StashlyTextField(
-                label: 'Email address',
+                label: context.l10n.emailAddress,
                 controller: _email,
                 icon: AppIcons.mail,
                 readOnly: true,
               ),
               const SizedBox(height: 26),
-              const InfoBanner(
-                message: 'Your email is your sign-in and can’t be changed yet.',
-              ),
+              InfoBanner(message: context.l10n.emailLocked),
               const SizedBox(height: 18),
               PrimaryButton(
-                label: 'Save changes',
+                label: context.l10n.actionSaveChanges,
                 icon: AppIcons.save,
                 loading: _busy,
                 onPressed: _name.text.trim() == widget.user?.displayName
@@ -160,15 +163,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       _errors
         ..clear()
         ..['current_password'] = _current.text.isEmpty
-            ? 'Enter your current password.'
+            ? context.l10n.currentPasswordRequired
             : null
         ..['password'] = _new.text.length < 8
-            ? 'Use at least 8 characters.'
+            ? context.l10n.passwordTooShort
             : _new.text == _current.text
-            ? 'Choose a password you haven’t used here.'
+            ? context.l10n.choosePasswordNew
             : null
         ..['password_confirmation'] = _confirm.text != _new.text
-            ? 'Passwords don’t match.'
+            ? context.l10n.passwordsDontMatch
             : null;
     });
     if (_errors.values.any((e) => e != null)) return;
@@ -182,10 +185,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     setState(() => _busy = false);
     switch (result) {
       case Ok():
-        showStashlySnack(
-          context,
-          'Password updated. Other devices were signed out.',
-        );
+        showStashlySnack(context, context.l10n.passwordUpdated);
         context.popOrHome();
       case Err(:final failure):
         setState(() {
@@ -193,7 +193,11 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           _errors['password'] = failure.fieldError('password');
         });
         if (_errors.values.every((e) => e == null)) {
-          showStashlySnack(context, failure.userMessage, error: true);
+          showStashlySnack(
+            context,
+            failure.describe(context.l10n),
+            error: true,
+          );
         }
     }
   }
@@ -207,16 +211,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 6, 20, 28),
             children: [
-              const AuthHeader(
-                title: 'Change password',
-                subtitle:
-                    'Confirm your current password, then choose a new one.',
+              AuthHeader(
+                title: context.l10n.changePassword,
+                subtitle: context.l10n.changePasswordSubtitle,
               ),
               const SizedBox(height: 24),
               StashlyTextField(
-                label: 'Current password',
+                label: context.l10n.currentPassword,
                 controller: _current,
-                hint: 'Enter current password',
+                hint: context.l10n.currentPasswordHint,
                 icon: AppIcons.lock,
                 password: true,
                 autofillHints: const [AutofillHints.password],
@@ -224,9 +227,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               ),
               const SizedBox(height: 16),
               StashlyTextField(
-                label: 'New password',
+                label: context.l10n.newPassword,
                 controller: _new,
-                hint: 'At least 8 characters',
+                hint: context.l10n.newPasswordHint,
                 icon: AppIcons.lock,
                 password: true,
                 maxLength: 128,
@@ -235,9 +238,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               ),
               const SizedBox(height: 16),
               StashlyTextField(
-                label: 'Confirm new password',
+                label: context.l10n.confirmNewPassword,
                 controller: _confirm,
-                hint: 'Enter it again',
+                hint: context.l10n.confirmNewPasswordHint,
                 icon: AppIcons.lock,
                 password: true,
                 maxLength: 128,
@@ -246,16 +249,16 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               ),
               const SizedBox(height: 16),
               PrimaryButton(
-                label: 'Update password',
+                label: context.l10n.updatePassword,
                 icon: AppIcons.keyDark,
                 loading: _busy,
                 onPressed: _submit,
               ),
               const SizedBox(height: 18),
-              const InfoBanner(
+              InfoBanner(
                 icon: AppIcons.shield,
-                message: 'For your security, other devices will be signed out.',
-                iconColor: AppColors.gold,
+                message: context.l10n.otherDevicesNotice,
+                iconColor: context.colors.gold,
               ),
             ],
           ),

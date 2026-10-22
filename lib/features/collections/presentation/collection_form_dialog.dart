@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/result/paging.dart';
 import 'package:stashly/core/result/result.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
@@ -65,7 +66,7 @@ class _CollectionFormState extends State<_CollectionForm> {
   Future<void> _submit() async {
     final name = _name.text.trim();
     if (name.isEmpty) {
-      setState(() => _nameError = 'Give your collection a name.');
+      setState(() => _nameError = context.l10n.collectionNameRequired);
       return;
     }
     setState(() {
@@ -97,7 +98,7 @@ class _CollectionFormState extends State<_CollectionForm> {
           _nameError = failure.fieldError('name');
           _descriptionError = failure.fieldError('description');
           if (_nameError == null && _descriptionError == null) {
-            _nameError = failure.userMessage;
+            _nameError = failure.describe(context.l10n);
           }
         });
     }
@@ -121,13 +122,17 @@ class _CollectionFormState extends State<_CollectionForm> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        editing ? 'COLLECTION' : 'NEW COLLECTION',
-                        style: AppTextStyles.eyebrow,
+                        editing
+                            ? context.l10n.collectionEyebrow
+                            : context.l10n.newCollectionEyebrow,
+                        style: context.text.eyebrow,
                       ),
                       const SizedBox(height: 7),
                       Text(
-                        editing ? 'Edit collection' : 'Create collection',
-                        style: AppTextStyles.sectionTitle,
+                        editing
+                            ? context.l10n.editCollection
+                            : context.l10n.createCollection,
+                        style: context.text.sectionTitle,
                       ),
                     ],
                   ),
@@ -135,16 +140,16 @@ class _CollectionFormState extends State<_CollectionForm> {
                 IconTapButton(
                   icon: AppIcons.close19,
                   iconSize: 19,
-                  semanticLabel: 'Close',
+                  semanticLabel: context.l10n.actionClose,
                   onPressed: () => Navigator.of(context).pop(),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             StashlyTextField(
-              label: 'Collection name',
+              label: context.l10n.collectionName,
               controller: _name,
-              hint: 'e.g. Weekend projects',
+              hint: context.l10n.collectionNameHint,
               maxLength: widget.nameMaxLength,
               autofocus: !editing,
               textCapitalization: TextCapitalization.sentences,
@@ -152,10 +157,10 @@ class _CollectionFormState extends State<_CollectionForm> {
             ),
             const SizedBox(height: 16),
             StashlyTextField(
-              label: 'Description',
+              label: context.l10n.descriptionLabel,
               optional: true,
               controller: _description,
-              hint: 'What belongs here?',
+              hint: context.l10n.descriptionHint,
               multiline: true,
               maxLength: widget.descriptionMaxLength,
               textCapitalization: TextCapitalization.sentences,
@@ -164,11 +169,13 @@ class _CollectionFormState extends State<_CollectionForm> {
             const SizedBox(height: 16),
             DialogActions(
               cancel: SecondaryButton(
-                label: 'Cancel',
+                label: context.l10n.actionCancel,
                 onPressed: () => Navigator.of(context).pop(),
               ),
               confirm: PrimaryButton(
-                label: editing ? 'Save' : 'Create',
+                label: editing
+                    ? context.l10n.actionSave
+                    : context.l10n.actionCreate,
                 loading: _busy,
                 onPressed: _submit,
               ),

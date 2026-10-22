@@ -1,15 +1,11 @@
 /// Server-assigned content category (`content_type`).
+/// Labels are localized in the UI ( message).
 enum ContentType {
-  video('Videos'),
-  article('Articles'),
-  product('Products'),
-  social('Social'),
-  other('Other');
-
-  const ContentType(this.label);
-
-  /// Label as shown on chips and badges.
-  final String label;
+  video,
+  article,
+  product,
+  social,
+  other;
 
   String get apiValue => name;
 

@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 import 'package:stashly/core/theme/app_colors.dart';
@@ -42,18 +43,30 @@ class AppViewport extends StatelessWidget {
       user: media.textScaler,
       screenFactor: screenTextFactor(media.size.shortestSide),
     );
-    return ColoredBox(
-      color: AppColors.background,
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: SizedBox(
-          width: width,
-          child: MediaQuery(
-            data: media.copyWith(
-              size: Size(width, media.size.height),
-              textScaler: textScaler.clamp(maxScaleFactor: maxTextScale),
+    final colors = context.colors;
+    final iconBrightness = colors.isDark ? Brightness.light : Brightness.dark;
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      // Status and navigation bars match the active theme.
+      value: SystemUiOverlayStyle(
+        statusBarColor: const Color(0x00000000),
+        statusBarIconBrightness: iconBrightness,
+        statusBarBrightness: colors.brightness,
+        systemNavigationBarColor: colors.background,
+        systemNavigationBarIconBrightness: iconBrightness,
+      ),
+      child: ColoredBox(
+        color: colors.background,
+        child: Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            width: width,
+            child: MediaQuery(
+              data: media.copyWith(
+                size: Size(width, media.size.height),
+                textScaler: textScaler.clamp(maxScaleFactor: maxTextScale),
+              ),
+              child: child,
             ),
-            child: child,
           ),
         ),
       ),

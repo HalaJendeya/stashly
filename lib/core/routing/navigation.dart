@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/routing/routes.dart';
 import 'package:stashly/core/widgets/overlays.dart';
 
@@ -44,10 +45,10 @@ class UnsavedChangesGuard extends StatelessWidget {
   static Future<bool> confirmDiscard(BuildContext context) =>
       confirmDestructive(
         context,
-        title: 'Discard your changes?',
-        message: 'You have edits that haven’t been saved yet.',
-        confirmLabel: 'Discard',
-        cancelLabel: 'Keep editing',
+        title: context.l10n.discardTitle,
+        message: context.l10n.discardMessage,
+        confirmLabel: context.l10n.actionDiscard,
+        cancelLabel: context.l10n.actionKeepEditing,
       );
 
   @override

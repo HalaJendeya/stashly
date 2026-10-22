@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/layout/app_viewport.dart';
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/presentation/paged_controller.dart';
@@ -96,12 +97,11 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Expanded(
+                      Expanded(
                         child: TitleBlock(
-                          eyebrow: 'ORGANIZED YOUR WAY',
-                          title: 'Collections',
-                          subtitle:
-                              'Personal groups that can overlap as much as your interests do.',
+                          eyebrow: context.l10n.collectionsEyebrow,
+                          title: context.l10n.navCollections,
+                          subtitle: context.l10n.collectionsSubtitle,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -134,10 +134,9 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
       return SliverToBoxAdapter(
         child: MessageCard(
           icon: AppIcons.folder26,
-          title: 'Start organizing',
-          message:
-              'Create a collection to group related links. A link can live in several.',
-          actionLabel: 'New collection',
+          title: context.l10n.startOrganizing,
+          message: context.l10n.startOrganizingBody,
+          actionLabel: context.l10n.newCollection,
           onAction: _create,
         ),
       );
@@ -176,9 +175,9 @@ class _CreateButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: 'Create collection',
+      label: context.l10n.createCollection,
       child: Material(
-        color: AppColors.gold,
+        color: context.colors.goldFill,
         borderRadius: BorderRadius.circular(13),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -190,16 +189,16 @@ class _CreateButton extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const AppIcon(
+                  AppIcon(
                     AppIcons.plus18,
                     size: 18,
-                    color: AppColors.onGold,
+                    color: context.colors.onGold,
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Create',
-                    style: AppTextStyles.micro.copyWith(
-                      color: AppColors.onGold,
+                    context.l10n.actionCreate,
+                    style: context.text.micro.copyWith(
+                      color: context.colors.onGold,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

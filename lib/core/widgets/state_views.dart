@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/result/app_failure.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
@@ -50,17 +51,17 @@ class MessageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: DashedBorderPainter(radius: 22, color: AppColors.border),
+      painter: DashedBorderPainter(radius: 22, color: context.colors.border),
       child: Container(
         constraints: const BoxConstraints(minHeight: 200),
         padding: const EdgeInsets.all(28),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(22),
           gradient: glow
-              ? const RadialGradient(
+              ? RadialGradient(
                   center: Alignment(0.7, -0.7),
                   radius: 1.1,
-                  colors: [Color(0x17D4AF37), AppColors.card],
+                  colors: [Color(0x17D4AF37), context.colors.card],
                   stops: [0, 0.35],
                 )
               : null,
@@ -69,12 +70,12 @@ class MessageCard extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AppIcon(icon, size: 28, color: AppColors.textMuted),
+            AppIcon(icon, size: 28, color: context.colors.textMuted),
             const SizedBox(height: 14),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: AppTextStyles.cardTitle.copyWith(
+              style: context.text.cardTitle.copyWith(
                 fontWeight: FontWeight.w400,
                 letterSpacing: 0,
               ),
@@ -83,7 +84,9 @@ class MessageCard extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: AppTextStyles.body.copyWith(color: AppColors.textMuted),
+              style: context.text.body.copyWith(
+                color: context.colors.textMuted,
+              ),
             ),
             if (actionLabel != null) ...[
               const SizedBox(height: 16),
@@ -91,7 +94,7 @@ class MessageCard extends StatelessWidget {
                 label: actionLabel!,
                 onPressed: onAction,
                 height: 42,
-                textStyle: AppTextStyles.caption,
+                textStyle: context.text.caption,
               ),
             ],
           ],
@@ -113,9 +116,9 @@ class FailureView extends StatelessWidget {
     final offline = failure.kind == FailureKind.offline;
     return MessageCard(
       icon: offline ? AppIcons.info : AppIcons.shield,
-      title: offline ? 'You’re offline' : 'Couldn’t load this',
-      message: failure.userMessage,
-      actionLabel: 'Try again',
+      title: offline ? context.l10n.offlineTitle : context.l10n.loadFailedTitle,
+      message: failure.describe(context.l10n),
+      actionLabel: context.l10n.actionTryAgain,
       onAction: onRetry,
     );
   }
@@ -170,8 +173,8 @@ void showStashlySnack(
       SnackBar(
         content: Text(
           message,
-          style: AppTextStyles.caption.copyWith(
-            color: error ? AppColors.danger : AppColors.textPrimary,
+          style: context.text.caption.copyWith(
+            color: error ? context.colors.danger : context.colors.textPrimary,
           ),
         ),
         duration: const Duration(seconds: 3),

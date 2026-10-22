@@ -66,12 +66,15 @@ class AppHarness {
   );
 
   /// Boots the app on a [size] logical-pixel screen with the system font
-  /// size set to [textScale].
+  /// size set to [textScale]. [language] (`en`/`ar`) and [themeMode]
+  /// (`dark`/`light`/`system`) are stored as the user's choices.
   Future<void> pumpApp(
     WidgetTester tester, {
     bool onboardingSeen = true,
     Size size = const Size(419, 912),
     double textScale = 1,
+    String? language,
+    String? themeMode,
   }) async {
     tester.view.physicalSize = size * 3;
     tester.view.devicePixelRatio = 3;
@@ -79,6 +82,8 @@ class AppHarness {
     addTearDown(tester.view.reset);
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     if (onboardingSeen) await prefs.write('onboarding_seen', true);
+    if (language != null) await prefs.write('language', language);
+    if (themeMode != null) await prefs.write('theme_mode', themeMode);
     deps = AppDependencies.create(
       httpClient: fakeHttpClient(backend),
       tokenStore: tokens,

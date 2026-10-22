@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
 
@@ -25,15 +26,15 @@ class BrandMark extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: AppColors.brandMarkBackground,
+          color: context.colors.brandMarkBackground,
           borderRadius: BorderRadius.circular(radius),
           border: large
               ? Border.all(color: const Color(0x2ED4AF37), width: 1.36)
               : null,
           boxShadow: large
-              ? const [
+              ? [
                   BoxShadow(
-                    color: Color(0x73000000),
+                    color: context.colors.shadow,
                     blurRadius: 46,
                     offset: Offset(0, 16),
                   ),
@@ -77,7 +78,7 @@ class StashlyBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DecoratedBox(
-      decoration: const BoxDecoration(color: AppColors.background),
+      decoration: BoxDecoration(color: context.colors.background),
       child: Stack(
         children: [
           const Positioned(
@@ -114,8 +115,8 @@ class _Glow extends StatelessWidget {
           shape: BoxShape.circle,
           gradient: RadialGradient(
             colors: [
-              AppColors.gold.withValues(alpha: opacity),
-              AppColors.gold.withValues(alpha: 0),
+              context.colors.gold.withValues(alpha: opacity),
+              context.colors.gold.withValues(alpha: 0),
             ],
           ),
         ),
@@ -160,22 +161,22 @@ class InitialsAvatar extends StatelessWidget {
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: gradient ? null : AppColors.gold,
+        color: gradient ? null : context.colors.goldFill,
         gradient: gradient
-            ? const LinearGradient(
+            ? LinearGradient(
                 begin: Alignment(-0.6, -1),
                 end: Alignment(0.6, 1),
-                colors: [AppColors.goldLight, AppColors.goldDeep],
+                colors: [context.colors.goldLight, context.colors.goldDeep],
               )
             : null,
         borderRadius: BorderRadius.circular(radius),
         border: gradient
-            ? Border.all(color: AppColors.borderStrong, width: 1.36)
+            ? Border.all(color: context.colors.borderStrong, width: 1.36)
             : null,
       ),
       child: Text(
         initialsOf(name, single: singleLetter),
-        style: AppTextStyles.button.copyWith(
+        style: context.text.button.copyWith(
           fontSize: fontSize,
           fontWeight: FontWeight.w800,
         ),
@@ -184,7 +185,7 @@ class InitialsAvatar extends StatelessWidget {
     if (onTap == null) return tile;
     return Semantics(
       button: true,
-      label: 'Profile',
+      label: context.l10n.navProfile,
       child: GestureDetector(onTap: onTap, child: tile),
     );
   }

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
 import 'package:stashly/core/widgets/app_icon.dart';
@@ -91,9 +92,9 @@ class _BottomNav extends StatelessWidget {
       height: 78,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x6B000000),
+            color: context.colors.shadow,
             blurRadius: 48,
             offset: Offset(0, 16),
           ),
@@ -106,21 +107,21 @@ class _BottomNav extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
             decoration: BoxDecoration(
-              color: AppColors.navBar,
+              color: context.colors.navBar,
               borderRadius: BorderRadius.circular(25),
-              border: Border.all(color: AppColors.border, width: 1.36),
+              border: Border.all(color: context.colors.border, width: 1.36),
             ),
             child: Row(
               children: [
                 _NavItem(
                   icon: AppIcons.navHome,
-                  label: 'Home',
+                  label: context.l10n.navHome,
                   selected: currentIndex == 0,
                   onTap: () => onSelect(0),
                 ),
                 _NavItem(
                   icon: AppIcons.navCollections,
-                  label: 'Collections',
+                  label: context.l10n.navCollections,
                   selected: currentIndex == 1,
                   onTap: () => onSelect(1),
                 ),
@@ -129,7 +130,7 @@ class _BottomNav extends StatelessWidget {
                   child: Center(
                     child: Semantics(
                       button: true,
-                      label: 'Save a link',
+                      label: context.l10n.navSaveLink,
                       child: Container(
                         width: 52,
                         height: 52,
@@ -144,16 +145,16 @@ class _BottomNav extends StatelessWidget {
                           ],
                         ),
                         child: Material(
-                          color: AppColors.gold,
+                          color: context.colors.goldFill,
                           borderRadius: BorderRadius.circular(18),
                           clipBehavior: Clip.antiAlias,
                           child: InkWell(
                             onTap: onAdd,
-                            child: const Center(
+                            child: Center(
                               child: AppIcon(
                                 AppIcons.navPlus,
                                 size: 27,
-                                color: AppColors.onGold,
+                                color: context.colors.onGold,
                               ),
                             ),
                           ),
@@ -164,13 +165,13 @@ class _BottomNav extends StatelessWidget {
                 ),
                 _NavItem(
                   icon: AppIcons.navSearch,
-                  label: 'Search',
+                  label: context.l10n.navSearch,
                   selected: currentIndex == 2,
                   onTap: () => onSelect(2),
                 ),
                 _NavItem(
                   icon: AppIcons.navProfile,
-                  label: 'Profile',
+                  label: context.l10n.navProfile,
                   selected: currentIndex == 3,
                   onTap: () => onSelect(3),
                 ),
@@ -198,7 +199,9 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.goldActive : AppColors.textMuted;
+    final color = selected
+        ? context.colors.goldActive
+        : context.colors.textMuted;
     return Expanded(
       child: Semantics(
         button: true,
@@ -220,7 +223,7 @@ class _NavItem extends StatelessWidget {
                     child: Text(
                       label,
                       maxLines: 1,
-                      style: AppTextStyles.navLabel.copyWith(color: color),
+                      style: context.text.navLabel.copyWith(color: color),
                     ),
                   ),
                 ),

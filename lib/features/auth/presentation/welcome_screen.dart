@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/routing/routes.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
@@ -40,15 +41,15 @@ class WelcomeScreen extends StatelessWidget {
                   children: [
                     Text(
                       'Stashly',
-                      style: AppTextStyles.heading.copyWith(
+                      style: context.text.heading.copyWith(
                         fontSize: 29,
                         letterSpacing: -1.12,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Everything Worth Keeping',
-                      style: AppTextStyles.bodySmall.copyWith(
+                      context.l10n.tagline,
+                      style: context.text.bodySmall.copyWith(
                         letterSpacing: 0.44,
                         height: 1.5,
                       ),
@@ -62,16 +63,18 @@ class WelcomeScreen extends StatelessWidget {
           const Spacer(),
           if (sessionExpired) ...[
             Text(
-              'Your session ended. Please sign in again.',
-              style: AppTextStyles.caption.copyWith(color: AppColors.danger),
+              context.l10n.sessionEnded,
+              style: context.text.caption.copyWith(
+                color: context.colors.danger,
+              ),
             ),
             const SizedBox(height: 16),
           ],
-          Text('YOUR DIGITAL-CONTENT WALLET', style: AppTextStyles.eyebrow),
+          Text(context.l10n.welcomeEyebrow, style: context.text.eyebrow),
           const SizedBox(height: 7),
           Text(
-            'Save anything worth keeping.',
-            style: AppTextStyles.heading.copyWith(
+            context.l10n.welcomeTitle,
+            style: context.text.heading.copyWith(
               fontSize: 31,
               letterSpacing: -1.35,
               height: 1.2,
@@ -79,24 +82,23 @@ class WelcomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 13),
           Text(
-            'Collect useful links from anywhere, organize them your way, and '
-            'find them when they matter.',
-            style: AppTextStyles.body.copyWith(height: 1.7),
+            context.l10n.welcomeBody,
+            style: context.text.body.copyWith(height: 1.7),
           ),
           const SizedBox(height: 21),
-          for (final point in const [
-            'Save links in seconds',
-            'Organize when you’re ready',
-            'Search your whole stash',
+          for (final point in [
+            context.l10n.welcomePointSave,
+            context.l10n.welcomePointOrganize,
+            context.l10n.welcomePointSearch,
           ]) ...[
             Row(
               children: [
-                const AppIcon(AppIcons.check, size: 16, color: AppColors.gold),
+                AppIcon(AppIcons.check, size: 16, color: context.colors.gold),
                 const SizedBox(width: 9),
                 Expanded(
                   child: Text(
                     point,
-                    style: AppTextStyles.bodySmall.copyWith(height: 1.5),
+                    style: context.text.bodySmall.copyWith(height: 1.5),
                   ),
                 ),
               ],
@@ -105,21 +107,21 @@ class WelcomeScreen extends StatelessWidget {
           ],
           const SizedBox(height: 20),
           PrimaryButton(
-            label: 'Create Account',
+            label: context.l10n.actionCreateAccount,
             authStyle: true,
             onPressed: () => context.push(Routes.register),
           ),
           const SizedBox(height: 10),
           SecondaryButton(
-            label: 'Sign In',
+            label: context.l10n.actionSignIn,
             onPressed: () => context.push(Routes.signIn),
           ),
           GoogleSignInSection(session: session),
           const SizedBox(height: 17),
           Text(
-            'Stashly keeps the link and its details — never a copy of the content.',
+            context.l10n.welcomeFootnote,
             textAlign: TextAlign.center,
-            style: AppTextStyles.micro,
+            style: context.text.micro,
           ),
         ],
       ),

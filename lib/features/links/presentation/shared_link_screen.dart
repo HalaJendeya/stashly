@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/l10n/l10n.dart';
 import 'package:stashly/core/routing/navigation.dart';
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/network/idempotency.dart';
@@ -68,11 +69,8 @@ class _SharedLinkScreenState extends State<SharedLinkScreen> {
   @override
   void initState() {
     super.initState();
-    if (_url == null) {
-      _urlError = 'This share doesn’t contain a web link Stashly can save.';
-    } else {
-      _loadPreview();
-    }
+    // Without a link there is nothing to preview; build() explains why.
+    if (_url != null) _loadPreview();
   }
 
   @override
@@ -109,7 +107,7 @@ class _SharedLinkScreenState extends State<SharedLinkScreen> {
       case Err(:final failure) when failure.kind == FailureKind.invalidUrl:
         setState(() {
           _phase = _PreviewPhase.none;
-          _urlError = 'This link can’t be saved.';
+          _urlError = context.l10n.linkCantBeSaved;
         });
       case Err(:final failure):
         setState(() {
@@ -136,7 +134,7 @@ class _SharedLinkScreenState extends State<SharedLinkScreen> {
     setState(() {
       _errors.clear();
       if (tags.length > 20) {
-        _errors['tags'] = 'An item can have at most 20 tags.';
+        _errors['tags'] = context.l10n.tooManyTags(20);
       }
     });
     if (_errors['tags'] != null) return;
@@ -161,7 +159,7 @@ class _SharedLinkScreenState extends State<SharedLinkScreen> {
           DataTopic.collections,
           DataTopic.account,
         });
-        showStashlySnack(context, 'Saved to Stashly');
+        showStashlySnack(context, context.l10n.savedToStashly);
         context.pushReplacement(Routes.link(value.id));
       case Err(:final failure) when failure.kind == FailureKind.duplicateLink:
         context.pushReplacement(Routes.duplicate, extra: failure.payload);
@@ -172,11 +170,15 @@ class _SharedLinkScreenState extends State<SharedLinkScreen> {
             _errors[field] = failure.fieldError(field);
           }
           if (failure.kind == FailureKind.invalidUrl) {
-            _urlError = failure.userMessage;
+            _urlError = failure.describe(context.l10n);
           }
         });
         if (_errors.values.every((e) => e == null) && _urlError == null) {
-          showStashlySnack(context, failure.userMessage, error: true);
+          showStashlySnack(
+            context,
+            failure.describe(context.l10n),
+            error: true,
+          );
         }
     }
   }
@@ -202,12 +204,12 @@ class _SharedLinkScreenState extends State<SharedLinkScreen> {
             child: Column(
               children: [
                 CaptionTopBar(
-                  caption: 'Shared to Stashly',
+                  caption: context.l10n.sharedToStashly,
                   onLeading: _close,
                   trailing: IconTapButton(
                     icon: AppIcons.close19,
                     iconSize: 19,
-                    semanticLabel: 'Close',
+                    semanticLabel: context.l10n.actionClose,
                     onPressed: _close,
                   ),
                 ),
@@ -221,10 +223,10 @@ class _SharedLinkScreenState extends State<SharedLinkScreen> {
                         height: 190,
                         clipBehavior: Clip.antiAlias,
                         decoration: BoxDecoration(
-                          color: AppColors.card,
+                          color: context.colors.card,
                           borderRadius: BorderRadius.circular(22),
                           border: Border.all(
-                            color: AppColors.border,
+                            color: context.colors.border,
                             width: 1.36,
                           ),
                         ),
@@ -240,15 +242,20 @@ class _SharedLinkScreenState extends State<SharedLinkScreen> {
                               ),
                       ),
                       const SizedBox(height: 10),
-                      _StatusBanner(phase: _phase, error: _urlError),
+                      _StatusBanner(
+                        phase: _phase,
+                        error: _url == null
+                            ? context.l10n.shareNoLink
+                            : _urlError,
+                      ),
                       const SizedBox(height: 17),
                       Container(
                         padding: const EdgeInsets.all(13),
                         decoration: BoxDecoration(
-                          color: AppColors.card,
+                          color: context.colors.card,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: AppColors.border,
+                            color: context.colors.border,
                             width: 1.36,
                           ),
                         ),
@@ -259,7 +266,9 @@ class _SharedLinkScreenState extends State<SharedLinkScreen> {
                               children: [
                                 if (preview != null) ...[
                                   GoldBadge(
-                                    preview.contentType.label,
+                                    context.l10n.contentType(
+                                      preview.contentType.apiValue,
+                                    ),
                                     fontSize: 11,
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 7,
@@ -273,8 +282,8 @@ class _SharedLinkScreenState extends State<SharedLinkScreen> {
                                     domain,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: AppTextStyles.micro.copyWith(
-                                      color: AppColors.textPrimary,
+                                    style: context.text.micro.copyWith(
+                                      color: context.colors.textPrimary,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
@@ -286,42 +295,42 @@ class _SharedLinkScreenState extends State<SharedLinkScreen> {
                               _url ?? widget.sharedText,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.tiny,
+                              style: context.text.tiny,
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 19),
                       StashlyTextField(
-                        label: 'Title',
+                        label: context.l10n.titleLabel,
                         controller: _title,
-                        hint: 'Add a memorable title',
+                        hint: context.l10n.titleHint,
                         maxLength: widget.titleMaxLength,
                         textCapitalization: TextCapitalization.sentences,
                         errorText: _errors['title'],
                       ),
                       const SizedBox(height: 14),
                       PickerField(
-                        label: 'Collection',
+                        label: context.l10n.collectionLabel,
                         optional: true,
-                        value: collectionsLabel(_collections),
+                        value: collectionsLabel(context.l10n, _collections),
                         onTap: _pickCollections,
                       ),
                       const SizedBox(height: 14),
                       StashlyTextField(
-                        label: 'Tags',
+                        label: context.l10n.tagsLabel,
                         optional: true,
                         controller: _tags,
-                        hint: 'travel, watch later',
+                        hint: context.l10n.sharedTagsHint,
                         icon: AppIcons.tagInput,
                         errorText: _errors['tags'],
                       ),
                       const SizedBox(height: 14),
                       StashlyTextField(
-                        label: 'Personal note',
+                        label: context.l10n.personalNote,
                         optional: true,
                         controller: _note,
-                        hint: 'Why is this worth keeping?',
+                        hint: context.l10n.noteHint,
                         multiline: true,
                         maxLength: widget.noteMaxLength,
                         textCapitalization: TextCapitalization.sentences,
@@ -332,23 +341,23 @@ class _SharedLinkScreenState extends State<SharedLinkScreen> {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const AppIcon(
+                            AppIcon(
                               AppIcons.shield16,
                               size: 16,
-                              color: AppColors.gold,
+                              color: context.colors.gold,
                             ),
                             const SizedBox(width: 9),
                             Expanded(
                               child: Text(
-                                'Only the URL and available metadata are stored—not the original video or image.',
-                                style: AppTextStyles.tiny,
+                                context.l10n.storageNotice,
+                                style: context.text.tiny,
                               ),
                             ),
                           ],
                         ),
                       ),
                       PrimaryButton(
-                        label: 'Save now',
+                        label: context.l10n.saveNow,
                         icon: AppIcons.save,
                         loading: _saving,
                         onPressed: _url == null || _urlError != null
@@ -356,9 +365,9 @@ class _SharedLinkScreenState extends State<SharedLinkScreen> {
                             : _save,
                       ),
                       TextActionButton(
-                        label: 'Cancel',
+                        label: context.l10n.actionCancel,
                         minHeight: 48,
-                        style: AppTextStyles.body,
+                        style: context.text.body,
                         onPressed: _close,
                       ),
                     ],
@@ -384,41 +393,41 @@ class _StatusBanner extends StatelessWidget {
     if (error != null) {
       return InfoBanner(
         icon: AppIcons.info,
-        iconColor: AppColors.danger,
-        background: AppColors.dangerTint,
-        title: 'Can’t save this',
+        iconColor: context.colors.danger,
+        background: context.colors.dangerTint,
+        title: context.l10n.cantSaveThis,
         message: error!,
       );
     }
     final (title, message, icon) = switch (phase) {
       _PreviewPhase.checking => (
-        'Looking for a preview…',
-        'You can save right away; details can arrive later.',
+        context.l10n.lookingForPreview,
+        context.l10n.lookingForPreviewBody,
         AppIcons.loader,
       ),
       _PreviewPhase.ready => (
-        'Preview ready',
-        'Title and thumbnail found.',
+        context.l10n.previewReady,
+        context.l10n.previewReadyBody,
         AppIcons.checkCircle,
       ),
       _PreviewPhase.partial => (
-        'Partial preview',
-        'Some details were found. We’ll keep looking after you save.',
+        context.l10n.previewPartial,
+        context.l10n.previewPartialBody,
         AppIcons.checkCircle,
       ),
       _PreviewPhase.none => (
-        'No preview yet',
-        'Save now — we’ll try to fetch the title and image in the background.',
+        context.l10n.previewNone,
+        context.l10n.previewNoneBody,
         AppIcons.info,
       ),
       _PreviewPhase.blocked => (
-        'Preview unavailable',
-        'This page can’t be previewed, but you can still save the link.',
+        context.l10n.previewUnavailable,
+        context.l10n.previewUnavailableBody,
         AppIcons.info,
       ),
       _PreviewPhase.offline => (
-        'You’re offline',
-        'Connect to the internet to save this link.',
+        context.l10n.offlineTitle,
+        context.l10n.offlineSaveBody,
         AppIcons.info,
       ),
     };

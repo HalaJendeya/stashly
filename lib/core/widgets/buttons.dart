@@ -37,12 +37,14 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final enabled = onPressed != null && !loading;
     final foreground = !enabled && !loading
-        ? AppColors.onDisabled
-        : (authStyle ? AppColors.onGoldAuth : AppColors.onGold);
+        ? context.colors.onDisabled
+        : (authStyle ? context.colors.onGoldAuth : context.colors.onGold);
     return _ButtonFrame(
       height: height,
       horizontalPadding: horizontalPadding,
-      color: enabled || loading ? AppColors.gold : AppColors.disabled,
+      color: enabled || loading
+          ? context.colors.goldFill
+          : context.colors.disabled,
       onTap: enabled ? onPressed : null,
       child: loading
           ? SizedBox.square(
@@ -63,7 +65,7 @@ class PrimaryButton extends StatelessWidget {
                   child: Text(
                     label,
                     overflow: TextOverflow.ellipsis,
-                    style: (labelStyle ?? AppTextStyles.button).copyWith(
+                    style: (labelStyle ?? context.text.button).copyWith(
                       color: foreground,
                     ),
                   ),
@@ -86,8 +88,8 @@ class SecondaryButton extends StatelessWidget {
     required this.onPressed,
     this.icon,
     this.leading,
-    this.color = AppColors.textSecondary,
-    this.background = AppColors.surface,
+    this.color,
+    this.background,
     this.bordered = true,
     this.height = 48,
     this.loading = false,
@@ -101,8 +103,12 @@ class SecondaryButton extends StatelessWidget {
   /// Shown instead of [icon] when the mark must keep its own colours (e.g.
   /// the Google logo).
   final Widget? leading;
-  final Color color;
-  final Color background;
+
+  /// Label and icon colour; defaults to the secondary text colour.
+  final Color? color;
+
+  /// Defaults to the surface colour.
+  final Color? background;
   final bool bordered;
   final double height;
   final bool loading;
@@ -110,12 +116,13 @@ class SecondaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = (textStyle ?? AppTextStyles.buttonSecondary).copyWith(
+    final color = this.color ?? context.colors.textSecondary;
+    final style = (textStyle ?? context.text.buttonSecondary).copyWith(
       color: color,
     );
     return _ButtonFrame(
       height: height,
-      color: background,
+      color: background ?? context.colors.surface,
       bordered: bordered,
       onTap: loading ? null : onPressed,
       child: loading
@@ -161,7 +168,7 @@ class TextActionButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final TextStyle? style;
   final double minHeight;
-  final EdgeInsets padding;
+  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) {
@@ -176,7 +183,7 @@ class TextActionButton extends StatelessWidget {
             padding: padding,
             child: Center(
               widthFactor: 1,
-              child: Text(label, style: style ?? AppTextStyles.linkButton),
+              child: Text(label, style: style ?? context.text.linkButton),
             ),
           ),
         ),
@@ -193,7 +200,7 @@ class IconTapButton extends StatelessWidget {
     required this.onPressed,
     required this.semanticLabel,
     this.iconSize = 21,
-    this.color = AppColors.textPrimary,
+    this.color,
     this.size = 48,
     this.background,
     this.bordered = false,
@@ -221,7 +228,7 @@ class IconTapButton extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(radius),
           side: bordered
-              ? const BorderSide(color: AppColors.border, width: 1.36)
+              ? BorderSide(color: context.colors.border, width: 1.36)
               : BorderSide.none,
         ),
         clipBehavior: Clip.antiAlias,
@@ -230,7 +237,11 @@ class IconTapButton extends StatelessWidget {
           child: SizedBox.square(
             dimension: size,
             child: Center(
-              child: AppIcon(icon, size: iconSize, color: color),
+              child: AppIcon(
+                icon,
+                size: iconSize,
+                color: color ?? context.colors.textPrimary,
+              ),
             ),
           ),
         ),
@@ -266,7 +277,7 @@ class _ButtonFrame extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: bordered
-              ? const BorderSide(color: AppColors.border, width: 1.36)
+              ? BorderSide(color: context.colors.border, width: 1.36)
               : BorderSide.none,
         ),
         clipBehavior: Clip.antiAlias,

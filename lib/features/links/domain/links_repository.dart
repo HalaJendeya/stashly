@@ -2,13 +2,10 @@ import 'package:stashly/core/result/paging.dart';
 import 'package:stashly/core/result/result.dart';
 import 'package:stashly/features/links/domain/link.dart';
 
+/// Labels are localized in the UI ( message).
 enum LinkSort {
-  newest('Newest'),
-  oldest('Oldest');
-
-  const LinkSort(this.label);
-
-  final String label;
+  newest,
+  oldest;
 
   LinkSort get toggled => this == newest ? oldest : newest;
 }

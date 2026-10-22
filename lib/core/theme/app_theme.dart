@@ -3,54 +3,54 @@ import 'package:flutter/material.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
 
-/// The single dark theme for Stashly; widgets read tokens from here or
-/// from [AppColors]/[AppTextStyles], never from ad-hoc literals.
+/// Stashly's dark (primary) and light themes, built from one palette each.
+/// Widgets read tokens through `context.colors` / `context.text`, never from
+/// ad-hoc literals.
 abstract final class AppTheme {
-  static ThemeData dark() {
-    const scheme = ColorScheme(
-      brightness: Brightness.dark,
-      primary: AppColors.gold,
-      onPrimary: AppColors.onGold,
-      secondary: AppColors.goldActive,
-      onSecondary: AppColors.onGold,
-      error: AppColors.danger,
-      onError: AppColors.onGold,
-      surface: AppColors.background,
-      onSurface: AppColors.textPrimary,
-      surfaceContainerHighest: AppColors.surface,
-      outline: AppColors.border,
+  static ThemeData dark() => _build(AppColors.dark);
+
+  static ThemeData light() => _build(AppColors.light);
+
+  static ThemeData _build(AppColors c) {
+    final text = AppTextStyles.of(c);
+    final scheme = ColorScheme(
+      brightness: c.brightness,
+      primary: c.goldFill,
+      onPrimary: c.onGold,
+      secondary: c.gold,
+      onSecondary: c.onGold,
+      error: c.danger,
+      onError: c.isDark ? c.onGold : Colors.white,
+      surface: c.background,
+      onSurface: c.textPrimary,
+      surfaceContainerHighest: c.surface,
+      outline: c.border,
     );
 
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
+      brightness: c.brightness,
       colorScheme: scheme,
       fontFamily: AppTextStyles.fontFamily,
-      scaffoldBackgroundColor: AppColors.background,
+      scaffoldBackgroundColor: c.background,
       splashFactory: InkSparkle.splashFactory,
-      textSelectionTheme: const TextSelectionThemeData(
-        cursorColor: AppColors.gold,
-        selectionColor: AppColors.goldTint,
-        selectionHandleColor: AppColors.gold,
+      extensions: [c, text],
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: c.gold,
+        selectionColor: c.goldTint,
+        selectionHandleColor: c.gold,
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
-        backgroundColor: AppColors.menu,
-        contentTextStyle: AppTextStyles.caption.copyWith(
-          color: AppColors.textPrimary,
-        ),
+        backgroundColor: c.menu,
+        contentTextStyle: text.caption.copyWith(color: c.textPrimary),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: c.border),
         ),
       ),
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
-        color: AppColors.gold,
-      ),
-      dividerTheme: const DividerThemeData(
-        color: AppColors.divider,
-        thickness: 1,
-      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: c.gold),
+      dividerTheme: DividerThemeData(color: c.divider, thickness: 1),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
           TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
