@@ -41,7 +41,7 @@ class WelcomeScreen extends StatelessWidget {
                     Text(
                       'Stashly',
                       style: AppTextStyles.heading.copyWith(
-                        fontSize: 28,
+                        fontSize: 29,
                         letterSpacing: -1.12,
                       ),
                     ),
@@ -69,33 +69,19 @@ class WelcomeScreen extends StatelessWidget {
           ],
           Text('YOUR DIGITAL-CONTENT WALLET', style: AppTextStyles.eyebrow),
           const SizedBox(height: 7),
-          // Align loosens the Column's stretch so the 330 px measure applies.
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 330),
-              child: Text(
-                'Save anything worth keeping.',
-                style: AppTextStyles.heading.copyWith(
-                  fontSize: 30,
-                  letterSpacing: -1.35,
-                  height: 1.2,
-                ),
-              ),
+          Text(
+            'Save anything worth keeping.',
+            style: AppTextStyles.heading.copyWith(
+              fontSize: 31,
+              letterSpacing: -1.35,
+              height: 1.2,
             ),
           ),
           const SizedBox(height: 13),
-          // Align loosens the Column's stretch so the 330 px measure applies.
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 330),
-              child: Text(
-                'Collect useful links from anywhere, organize them your way, and '
-                'find them when they matter.',
-                style: AppTextStyles.body.copyWith(height: 1.7),
-              ),
-            ),
+          Text(
+            'Collect useful links from anywhere, organize them your way, and '
+            'find them when they matter.',
+            style: AppTextStyles.body.copyWith(height: 1.7),
           ),
           const SizedBox(height: 21),
           for (final point in const [
@@ -107,9 +93,11 @@ class WelcomeScreen extends StatelessWidget {
               children: [
                 const AppIcon(AppIcons.check, size: 16, color: AppColors.gold),
                 const SizedBox(width: 9),
-                Text(
-                  point,
-                  style: AppTextStyles.bodySmall.copyWith(height: 1.5),
+                Expanded(
+                  child: Text(
+                    point,
+                    style: AppTextStyles.bodySmall.copyWith(height: 1.5),
+                  ),
                 ),
               ],
             ),

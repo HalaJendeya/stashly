@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/layout/app_viewport.dart';
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/presentation/paged_controller.dart';
 import 'package:stashly/core/result/paging.dart';
@@ -198,7 +199,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
           ],
         ),
         SizedBox(
-          height: 70,
+          height: context.textScaled(70),
           child: ListView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.only(top: 15, bottom: 17),
@@ -259,11 +260,12 @@ class _LibraryScreenState extends State<LibraryScreen> {
       return SliverMainAxisGroup(
         slivers: [
           SliverGrid.builder(
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
               maxCrossAxisExtent: 220,
               mainAxisSpacing: 10,
               crossAxisSpacing: 10,
-              mainAxisExtent: 212,
+              // 122 px thumbnail plus a text area that grows with the text scale.
+              mainAxisExtent: 122 + context.textScaled(90),
             ),
             itemCount: _list.items.length,
             itemBuilder: (context, index) {

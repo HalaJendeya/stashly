@@ -162,23 +162,16 @@ class _CollectionFormState extends State<_CollectionForm> {
               errorText: _descriptionError,
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: SecondaryButton(
-                    label: 'Cancel',
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: PrimaryButton(
-                    label: editing ? 'Save' : 'Create',
-                    loading: _busy,
-                    onPressed: _submit,
-                  ),
-                ),
-              ],
+            DialogActions(
+              cancel: SecondaryButton(
+                label: 'Cancel',
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              confirm: PrimaryButton(
+                label: editing ? 'Save' : 'Create',
+                loading: _busy,
+                onPressed: _submit,
+              ),
             ),
           ],
         ),

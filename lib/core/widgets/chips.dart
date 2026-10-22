@@ -34,7 +34,7 @@ class PillChip extends StatelessWidget {
     final compact = size == PillSize.compact;
     final foreground = selected ? AppColors.onGold : AppColors.textSecondary;
     final textStyle = compact
-        ? AppTextStyles.chip.copyWith(fontSize: 8, color: foreground)
+        ? AppTextStyles.chip.copyWith(fontSize: 11.5, color: foreground)
         : AppTextStyles.chip.copyWith(color: foreground);
     return Semantics(
       button: true,
@@ -61,7 +61,14 @@ class PillChip extends StatelessWidget {
                     AppIcon(icon!, size: 14, color: foreground),
                     const SizedBox(width: 6),
                   ],
-                  Text(label, style: textStyle),
+                  Flexible(
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: textStyle,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -101,7 +108,7 @@ class GoldBadge extends StatelessWidget {
   const GoldBadge(
     this.label, {
     super.key,
-    this.fontSize = 8,
+    this.fontSize = 11.5,
     this.muted = false,
     this.padding = const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
   });

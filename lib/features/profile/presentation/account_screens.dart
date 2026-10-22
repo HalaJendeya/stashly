@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/routing/navigation.dart';
 import 'package:stashly/core/result/result.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/widgets/app_icon.dart';
@@ -65,7 +65,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       case Ok(:final value):
         widget.onUpdated(value);
         showStashlySnack(context, 'Profile updated');
-        context.pop();
+        context.popOrHome();
       case Err(:final failure):
         setState(
           () => _error =
@@ -89,7 +89,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   name: _name.text,
                   size: 72,
                   radius: 22,
-                  fontSize: 18,
+                  fontSize: 19,
                 ),
               ),
               const SizedBox(height: 20),
@@ -186,7 +186,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           context,
           'Password updated. Other devices were signed out.',
         );
-        context.pop();
+        context.popOrHome();
       case Err(:final failure):
         setState(() {
           _errors['current_password'] = failure.fieldError('current_password');

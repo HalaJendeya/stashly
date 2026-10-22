@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/layout/app_viewport.dart';
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/presentation/paged_controller.dart';
 import 'package:stashly/core/routing/routes.dart';
@@ -144,11 +145,12 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
     return SliverMainAxisGroup(
       slivers: [
         SliverGrid.builder(
-          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
             maxCrossAxisExtent: 220,
             mainAxisSpacing: 11,
             crossAxisSpacing: 11,
-            mainAxisExtent: 178,
+            // 105 px cover plus a text area that grows with the text scale.
+            mainAxisExtent: 105 + context.textScaled(73),
           ),
           itemCount: _list.items.length,
           itemBuilder: (context, index) {

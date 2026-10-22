@@ -72,8 +72,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SizedBox(
-                  height: 54,
+                ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 54),
                   child: Row(
                     children: [
                       if (_index == 0)
@@ -150,17 +150,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ],
                       ),
                     ),
-                    const Spacer(),
-                    SizedBox(
-                      width: last ? null : 144,
-                      child: PrimaryButton(
-                        label: last ? 'Get Started' : 'Next',
-                        authStyle: true,
-                        trailingIcon: AppIcons.arrowRight,
-                        horizontalPadding: 20,
-                        onPressed: last
-                            ? widget.onFinished
-                            : () => _go(_index + 1),
+                    const SizedBox(width: 16),
+                    // Right-aligned; at least the design width, and never
+                    // wider than the space left by the step dots.
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(minWidth: last ? 0 : 144),
+                          // Sized to its label, as in the design.
+                          child: IntrinsicWidth(
+                            child: PrimaryButton(
+                              label: last ? 'Get Started' : 'Next',
+                              authStyle: true,
+                              trailingIcon: AppIcons.arrowRight,
+                              horizontalPadding: 20,
+                              onPressed: last
+                                  ? widget.onFinished
+                                  : () => _go(_index + 1),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -188,43 +198,47 @@ class _VisualFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // The illustration is artwork drawn at a fixed design size and scaled
+    // as a whole, so its mock-UI text ignores the font-size setting.
     return ExcludeSemantics(
-      child: AspectRatio(
-        aspectRatio: 379.4 / 330,
-        child: FittedBox(
-          child: Container(
-            width: 379.4,
-            height: 330,
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: AppColors.border, width: 1.36),
-              gradient: const RadialGradient(
-                center: Alignment(0, -0.3),
-                radius: 0.75,
-                colors: [Color(0x1FD4AF37), AppColors.card],
-                stops: [0, 0.45],
+      child: MediaQuery.withNoTextScaling(
+        child: AspectRatio(
+          aspectRatio: 379.4 / 330,
+          child: FittedBox(
+            child: Container(
+              width: 379.4,
+              height: 330,
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                border: Border.all(color: AppColors.border, width: 1.36),
+                gradient: const RadialGradient(
+                  center: Alignment(0, -0.3),
+                  radius: 0.75,
+                  colors: [Color(0x1FD4AF37), AppColors.card],
+                  stops: [0, 0.45],
+                ),
               ),
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  left: 20,
-                  top: 20,
-                  child: Container(
-                    width: 336.7,
-                    height: 287.3,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(155.5),
-                      border: Border.all(
-                        color: const Color(0x0AFFFFFF),
-                        width: 1.36,
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: 20,
+                    top: 20,
+                    child: Container(
+                      width: 336.7,
+                      height: 287.3,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(155.5),
+                        border: Border.all(
+                          color: const Color(0x0AFFFFFF),
+                          width: 1.36,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                child,
-              ],
+                  child,
+                ],
+              ),
             ),
           ),
         ),
@@ -273,7 +287,10 @@ class _FloatingTile extends StatelessWidget {
 
 Widget _tileLabel(String text) => Text(
   text,
-  style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w700),
+  style: AppTextStyles.caption.copyWith(
+    fontSize: 10,
+    fontWeight: FontWeight.w700,
+  ),
 );
 
 class _SaveVisual extends StatelessWidget {
@@ -343,7 +360,7 @@ class _SaveVisual extends StatelessWidget {
                       Text(
                         'design-milk.com',
                         maxLines: 1,
-                        style: AppTextStyles.tiny,
+                        style: AppTextStyles.tiny.copyWith(fontSize: 8),
                       ),
                       const SizedBox(height: 5),
                       Text(
@@ -445,7 +462,11 @@ class _MiniCollectionCard extends StatelessWidget {
             style: AppTextStyles.rowTitle.copyWith(fontSize: 13, height: 1.5),
           ),
           const SizedBox(height: 5),
-          Text(count, maxLines: 1, style: AppTextStyles.tiny),
+          Text(
+            count,
+            maxLines: 1,
+            style: AppTextStyles.tiny.copyWith(fontSize: 8),
+          ),
           if (tags.isNotEmpty) ...[
             const SizedBox(height: 13),
             Wrap(
@@ -542,6 +563,7 @@ class _OrganizeVisual extends StatelessWidget {
                 Text(
                   'Curated',
                   style: AppTextStyles.micro.copyWith(
+                    fontSize: 9,
                     color: AppColors.onGoldAuth,
                     fontWeight: FontWeight.w700,
                   ),
@@ -584,6 +606,7 @@ class _FindVisual extends StatelessWidget {
                   'design inspiration',
                   maxLines: 1,
                   style: AppTextStyles.bodySmall.copyWith(
+                    fontSize: 11,
                     color: AppColors.textPrimary,
                     height: 1.5,
                   ),
@@ -625,7 +648,10 @@ class _FindVisual extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          Text('12 ideas found', style: AppTextStyles.micro),
+          Text(
+            '12 ideas found',
+            style: AppTextStyles.micro.copyWith(fontSize: 9),
+          ),
         ],
       ),
     );
@@ -668,7 +694,7 @@ class _ResultRow extends StatelessWidget {
                   domain,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.tiny,
+                  style: AppTextStyles.tiny.copyWith(fontSize: 8),
                 ),
                 const SizedBox(height: 3),
                 Text(

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/routing/navigation.dart';
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/result/app_failure.dart';
 import 'package:stashly/core/result/paging.dart';
@@ -154,7 +154,7 @@ class _EditLinkScreenState extends State<EditLinkScreen> {
     if (failures.isEmpty) {
       widget.changes.notify({DataTopic.links, DataTopic.collections});
       showStashlySnack(context, 'Changes saved');
-      context.pop();
+      context.popOrHome();
       return;
     }
     final failure = failures.first;
@@ -172,76 +172,92 @@ class _EditLinkScreenState extends State<EditLinkScreen> {
     }
   }
 
+  /// True when the form differs from the item as loaded.
+  bool _hasEdits() {
+    final link = _link;
+    if (link == null || _saving) return false;
+    String ids(List<CollectionRef> refs) =>
+        (refs.map((c) => c.id).toList()..sort()).join(',');
+    return _title.text.trim() != (link.title ?? link.displayTitle).trim() ||
+        _note.text.trim() != (link.note ?? '').trim() ||
+        _tags.text.trim() != link.tags.join(', ') ||
+        ids(_collections) != ids(link.collections);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: StashlyBackground(
-        child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 6, 20, 30),
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            children: [
-              const BackTitleHeader(
-                eyebrow: 'SAVED ITEM',
-                title: 'Edit details',
-              ),
-              const SizedBox(height: 15),
-              if (_loadFailure != null)
-                FailureView(failure: _loadFailure!, onRetry: _load)
-              else if (_link == null)
-                const LoadingView()
-              else ...[
-                StashlyTextField(
-                  label: 'Title',
-                  controller: _title,
-                  hint: _link!.metadata.title ?? 'Add a memorable title',
-                  maxLength: widget.titleMaxLength,
-                  textCapitalization: TextCapitalization.sentences,
-                  errorText: _errors['title'],
+    return UnsavedChangesGuard(
+      hasChanges: _hasEdits,
+      child: Scaffold(
+        body: StashlyBackground(
+          child: SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 6, 20, 30),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              children: [
+                BackTitleHeader(
+                  eyebrow: 'SAVED ITEM',
+                  title: 'Edit details',
+                  onBack: () => UnsavedChangesGuard.leave(context, _hasEdits),
                 ),
                 const SizedBox(height: 15),
-                StashlyTextField(
-                  label: 'Original URL',
-                  controller: _url,
-                  icon: AppIcons.linkInput,
-                  readOnly: true,
-                ),
-                const SizedBox(height: 15),
-                StashlyTextField(
-                  label: 'Personal note',
-                  optional: true,
-                  controller: _note,
-                  focusNode: _noteFocus,
-                  hint: 'Why is this worth keeping?',
-                  multiline: true,
-                  maxLength: widget.noteMaxLength,
-                  textCapitalization: TextCapitalization.sentences,
-                  errorText: _errors['note'],
-                ),
-                const SizedBox(height: 15),
-                StashlyTextField(
-                  label: 'Tags',
-                  optional: true,
-                  controller: _tags,
-                  hint: 'travel, italy, film',
-                  icon: AppIcons.tagInput,
-                  errorText: _errors['tags'],
-                ),
-                const SizedBox(height: 15),
-                PickerField(
-                  label: 'Collection',
-                  value: collectionsLabel(_collections),
-                  onTap: _pickCollections,
-                ),
-                const SizedBox(height: 26),
-                PrimaryButton(
-                  label: 'Save changes',
-                  icon: AppIcons.save,
-                  loading: _saving,
-                  onPressed: _save,
-                ),
+                if (_loadFailure != null)
+                  FailureView(failure: _loadFailure!, onRetry: _load)
+                else if (_link == null)
+                  const LoadingView()
+                else ...[
+                  StashlyTextField(
+                    label: 'Title',
+                    controller: _title,
+                    hint: _link!.metadata.title ?? 'Add a memorable title',
+                    maxLength: widget.titleMaxLength,
+                    textCapitalization: TextCapitalization.sentences,
+                    errorText: _errors['title'],
+                  ),
+                  const SizedBox(height: 15),
+                  StashlyTextField(
+                    label: 'Original URL',
+                    controller: _url,
+                    icon: AppIcons.linkInput,
+                    readOnly: true,
+                  ),
+                  const SizedBox(height: 15),
+                  StashlyTextField(
+                    label: 'Personal note',
+                    optional: true,
+                    controller: _note,
+                    focusNode: _noteFocus,
+                    hint: 'Why is this worth keeping?',
+                    multiline: true,
+                    maxLength: widget.noteMaxLength,
+                    textCapitalization: TextCapitalization.sentences,
+                    errorText: _errors['note'],
+                  ),
+                  const SizedBox(height: 15),
+                  StashlyTextField(
+                    label: 'Tags',
+                    optional: true,
+                    controller: _tags,
+                    hint: 'travel, italy, film',
+                    icon: AppIcons.tagInput,
+                    errorText: _errors['tags'],
+                  ),
+                  const SizedBox(height: 15),
+                  PickerField(
+                    label: 'Collection',
+                    value: collectionsLabel(_collections),
+                    onTap: _pickCollections,
+                  ),
+                  const SizedBox(height: 26),
+                  PrimaryButton(
+                    label: 'Save changes',
+                    icon: AppIcons.save,
+                    loading: _saving,
+                    onPressed: _save,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

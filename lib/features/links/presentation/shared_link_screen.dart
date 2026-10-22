@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/routing/navigation.dart';
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/network/idempotency.dart';
 import 'package:stashly/core/result/app_failure.dart';
@@ -180,13 +181,11 @@ class _SharedLinkScreenState extends State<SharedLinkScreen> {
     }
   }
 
-  void _close() {
-    if (context.canPop()) {
-      context.pop();
-    } else {
-      context.go(Routes.home);
-    }
-  }
+  /// Typed details that leaving would throw away.
+  bool _hasEdits() =>
+      !_saving && [_title, _tags, _note].any((c) => c.text.trim().isNotEmpty);
+
+  void _close() => UnsavedChangesGuard.leave(context, _hasEdits);
 
   @override
   Widget build(BuildContext context) {
@@ -195,175 +194,178 @@ class _SharedLinkScreenState extends State<SharedLinkScreen> {
     final domain =
         preview?.sourceDomain ??
         (_url == null ? '' : UrlUtils.displayHost(_url));
-    return Scaffold(
-      body: StashlyBackground(
-        child: SafeArea(
-          child: Column(
-            children: [
-              CaptionTopBar(
-                caption: 'Shared to Stashly',
-                onLeading: _close,
-                trailing: IconTapButton(
-                  icon: AppIcons.close19,
-                  iconSize: 19,
-                  semanticLabel: 'Close',
-                  onPressed: _close,
+    return UnsavedChangesGuard(
+      hasChanges: _hasEdits,
+      child: Scaffold(
+        body: StashlyBackground(
+          child: SafeArea(
+            child: Column(
+              children: [
+                CaptionTopBar(
+                  caption: 'Shared to Stashly',
+                  onLeading: _close,
+                  trailing: IconTapButton(
+                    icon: AppIcons.close19,
+                    iconSize: 19,
+                    semanticLabel: 'Close',
+                    onPressed: _close,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.fromLTRB(20, 14, 20, 26),
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                  children: [
-                    Container(
-                      height: 190,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
-                        color: AppColors.card,
-                        borderRadius: BorderRadius.circular(22),
-                        border: Border.all(
-                          color: AppColors.border,
-                          width: 1.36,
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(20, 14, 20, 26),
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    children: [
+                      Container(
+                        height: 190,
+                        clipBehavior: Clip.antiAlias,
+                        decoration: BoxDecoration(
+                          color: AppColors.card,
+                          borderRadius: BorderRadius.circular(22),
+                          border: Border.all(
+                            color: AppColors.border,
+                            width: 1.36,
+                          ),
                         ),
-                      ),
-                      child: _phase == _PreviewPhase.checking
-                          ? const LoadingView()
-                          : PreviewImage(
-                              imageUrl: metadata?.previewImageUrl,
-                              domain: domain,
-                              placeholderIcon: placeholderIconForContentType(
-                                (preview?.contentType ?? ContentType.other)
-                                    .apiValue,
+                        child: _phase == _PreviewPhase.checking
+                            ? const LoadingView()
+                            : PreviewImage(
+                                imageUrl: metadata?.previewImageUrl,
+                                domain: domain,
+                                placeholderIcon: placeholderIconForContentType(
+                                  (preview?.contentType ?? ContentType.other)
+                                      .apiValue,
+                                ),
                               ),
-                            ),
-                    ),
-                    const SizedBox(height: 10),
-                    _StatusBanner(phase: _phase, error: _urlError),
-                    const SizedBox(height: 17),
-                    Container(
-                      padding: const EdgeInsets.all(13),
-                      decoration: BoxDecoration(
-                        color: AppColors.card,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: AppColors.border,
-                          width: 1.36,
-                        ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              if (preview != null) ...[
-                                GoldBadge(
-                                  preview.contentType.label,
-                                  fontSize: 7,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 7,
-                                    vertical: 4,
+                      const SizedBox(height: 10),
+                      _StatusBanner(phase: _phase, error: _urlError),
+                      const SizedBox(height: 17),
+                      Container(
+                        padding: const EdgeInsets.all(13),
+                        decoration: BoxDecoration(
+                          color: AppColors.card,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: AppColors.border,
+                            width: 1.36,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                if (preview != null) ...[
+                                  GoldBadge(
+                                    preview.contentType.label,
+                                    fontSize: 11,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 7,
+                                      vertical: 4,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                ],
+                                Expanded(
+                                  child: Text(
+                                    domain,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyles.micro.copyWith(
+                                      color: AppColors.textPrimary,
+                                      fontWeight: FontWeight.w700,
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
                               ],
-                              Expanded(
-                                child: Text(
-                                  domain,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: AppTextStyles.micro.copyWith(
-                                    color: AppColors.textPrimary,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 9),
-                          Text(
-                            _url ?? widget.sharedText,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.tiny,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 19),
-                    StashlyTextField(
-                      label: 'Title',
-                      controller: _title,
-                      hint: 'Add a memorable title',
-                      maxLength: widget.titleMaxLength,
-                      textCapitalization: TextCapitalization.sentences,
-                      errorText: _errors['title'],
-                    ),
-                    const SizedBox(height: 14),
-                    PickerField(
-                      label: 'Collection',
-                      optional: true,
-                      value: collectionsLabel(_collections),
-                      onTap: _pickCollections,
-                    ),
-                    const SizedBox(height: 14),
-                    StashlyTextField(
-                      label: 'Tags',
-                      optional: true,
-                      controller: _tags,
-                      hint: 'travel, watch later',
-                      icon: AppIcons.tagInput,
-                      errorText: _errors['tags'],
-                    ),
-                    const SizedBox(height: 14),
-                    StashlyTextField(
-                      label: 'Personal note',
-                      optional: true,
-                      controller: _note,
-                      hint: 'Why is this worth keeping?',
-                      multiline: true,
-                      maxLength: widget.noteMaxLength,
-                      textCapitalization: TextCapitalization.sentences,
-                      errorText: _errors['note'],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 17),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const AppIcon(
-                            AppIcons.shield16,
-                            size: 16,
-                            color: AppColors.gold,
-                          ),
-                          const SizedBox(width: 9),
-                          Expanded(
-                            child: Text(
-                              'Only the URL and available metadata are stored—not the original video or image.',
+                            ),
+                            const SizedBox(height: 9),
+                            Text(
+                              _url ?? widget.sharedText,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.tiny,
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    PrimaryButton(
-                      label: 'Save now',
-                      icon: AppIcons.save,
-                      loading: _saving,
-                      onPressed: _url == null || _urlError != null
-                          ? null
-                          : _save,
-                    ),
-                    TextActionButton(
-                      label: 'Cancel',
-                      minHeight: 48,
-                      style: AppTextStyles.body,
-                      onPressed: _close,
-                    ),
-                  ],
+                      const SizedBox(height: 19),
+                      StashlyTextField(
+                        label: 'Title',
+                        controller: _title,
+                        hint: 'Add a memorable title',
+                        maxLength: widget.titleMaxLength,
+                        textCapitalization: TextCapitalization.sentences,
+                        errorText: _errors['title'],
+                      ),
+                      const SizedBox(height: 14),
+                      PickerField(
+                        label: 'Collection',
+                        optional: true,
+                        value: collectionsLabel(_collections),
+                        onTap: _pickCollections,
+                      ),
+                      const SizedBox(height: 14),
+                      StashlyTextField(
+                        label: 'Tags',
+                        optional: true,
+                        controller: _tags,
+                        hint: 'travel, watch later',
+                        icon: AppIcons.tagInput,
+                        errorText: _errors['tags'],
+                      ),
+                      const SizedBox(height: 14),
+                      StashlyTextField(
+                        label: 'Personal note',
+                        optional: true,
+                        controller: _note,
+                        hint: 'Why is this worth keeping?',
+                        multiline: true,
+                        maxLength: widget.noteMaxLength,
+                        textCapitalization: TextCapitalization.sentences,
+                        errorText: _errors['note'],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 17),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const AppIcon(
+                              AppIcons.shield16,
+                              size: 16,
+                              color: AppColors.gold,
+                            ),
+                            const SizedBox(width: 9),
+                            Expanded(
+                              child: Text(
+                                'Only the URL and available metadata are stored—not the original video or image.',
+                                style: AppTextStyles.tiny,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      PrimaryButton(
+                        label: 'Save now',
+                        icon: AppIcons.save,
+                        loading: _saving,
+                        onPressed: _url == null || _urlError != null
+                            ? null
+                            : _save,
+                      ),
+                      TextActionButton(
+                        label: 'Cancel',
+                        minHeight: 48,
+                        style: AppTextStyles.body,
+                        onPressed: _close,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

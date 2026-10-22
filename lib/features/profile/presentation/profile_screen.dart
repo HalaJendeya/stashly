@@ -265,7 +265,7 @@ class _AccountCard extends StatelessWidget {
                   user?.displayName ?? '—',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.rowTitle.copyWith(fontSize: 13),
+                  style: AppTextStyles.rowTitle.copyWith(fontSize: 15),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -280,7 +280,7 @@ class _AccountCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     'Member since ${DateLabels.monthYear(user.createdAt)}',
-                    style: AppTextStyles.tiny.copyWith(fontSize: 7),
+                    style: AppTextStyles.tiny.copyWith(fontSize: 11),
                   ),
                 ],
               ],

@@ -129,7 +129,7 @@ class _StashlyTextFieldState extends State<StashlyTextField> {
               onChanged: widget.onChanged,
               onSubmitted: widget.onSubmitted,
               style: widget.multiline
-                  ? AppTextStyles.input.copyWith(fontSize: 12, height: 1.6)
+                  ? AppTextStyles.input.copyWith(fontSize: 14, height: 1.6)
                   : AppTextStyles.input.copyWith(
                       color: widget.readOnly || !widget.enabled
                           ? AppColors.textSecondary
@@ -144,7 +144,7 @@ class _StashlyTextFieldState extends State<StashlyTextField> {
                 hintText: widget.hint,
                 hintStyle: AppTextStyles.input.copyWith(
                   color: AppColors.placeholder,
-                  fontSize: widget.multiline ? 12 : 13,
+                  fontSize: widget.multiline ? 14 : 15,
                 ),
               ),
             ),

@@ -269,12 +269,12 @@ String? _redirect(SessionController session, String location) {
       if (session.updateRequired) {
         return location == Routes.updateRequired ? null : Routes.updateRequired;
       }
+      // Always land on Home; a parked share is pushed on top of it (see
+      // StashlyApp) so leaving the share screen goes back to Home.
       if (location == Routes.splash ||
           location == Routes.updateRequired ||
           Routes.authPaths.contains(location)) {
-        return session.pendingSharedText != null
-            ? Routes.shareIntake
-            : Routes.home;
+        return Routes.home;
       }
       return null;
   }

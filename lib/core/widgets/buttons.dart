@@ -213,6 +213,7 @@ class IconTapButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
+      container: true,
       button: true,
       label: semanticLabel,
       child: Material(

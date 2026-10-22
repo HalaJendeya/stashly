@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/routing/navigation.dart';
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/presentation/paged_controller.dart';
 import 'package:stashly/core/result/app_failure.dart';
@@ -138,7 +139,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
       DataTopic.account,
     });
     showStashlySnack(context, 'Collection deleted');
-    context.pop();
+    context.popOrHome();
   }
 
   /// "Add existing items": select library links; the diff becomes one

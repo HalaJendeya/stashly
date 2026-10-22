@@ -229,9 +229,11 @@ class _MultiSelectSheetState extends State<MultiSelectSheet> {
             children: [
               const AppIcon(AppIcons.plus17, size: 17, color: AppColors.gold),
               const SizedBox(width: 8),
-              Text(
-                widget.createLabel,
-                style: AppTextStyles.micro.copyWith(color: AppColors.gold),
+              Flexible(
+                child: Text(
+                  widget.createLabel,
+                  style: AppTextStyles.micro.copyWith(color: AppColors.gold),
+                ),
               ),
             ],
           ),
@@ -261,8 +263,12 @@ class _MultiSelectSheetState extends State<MultiSelectSheet> {
             onSubmitted: (_) => _create(),
           ),
           const SizedBox(height: 7),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+          // Wraps under large text instead of overflowing.
+          Wrap(
+            alignment: WrapAlignment.end,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 7,
+            runSpacing: 7,
             children: [
               TextActionButton(
                 label: 'Cancel',
@@ -276,16 +282,12 @@ class _MultiSelectSheetState extends State<MultiSelectSheet> {
                   _createError = null;
                 }),
               ),
-              const SizedBox(width: 7),
-              SizedBox(
+              SecondaryButton(
+                label: 'Create',
                 height: 37,
-                child: SecondaryButton(
-                  label: 'Create',
-                  height: 37,
-                  loading: _creating,
-                  textStyle: AppTextStyles.tiny,
-                  onPressed: _create,
-                ),
+                loading: _creating,
+                textStyle: AppTextStyles.tiny,
+                onPressed: _create,
               ),
             ],
           ),

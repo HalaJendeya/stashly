@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/layout/app_viewport.dart';
 import 'package:stashly/core/format/date_labels.dart';
 import 'package:stashly/core/result/result.dart';
 import 'package:stashly/core/routing/routes.dart';
@@ -145,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 14),
         SizedBox(
-          height: 67,
+          height: context.textScaled(67),
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: summary.quickAccess.length,
@@ -153,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
             itemBuilder: (context, index) {
               final collection = summary.quickAccess[index];
               return SizedBox(
-                width: 132,
+                width: context.textScaled(132),
                 child: _QuickAccessTile(
                   collection: collection,
                   index: index,
@@ -172,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onAction: () => context.push(Routes.library),
       ),
       SizedBox(
-        height: 69,
+        height: context.textScaled(69),
         child: ListView(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.only(top: 16, bottom: 15),
@@ -327,8 +328,8 @@ class _SearchEntry extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onSearch,
-        child: SizedBox(
-          height: 48,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48),
           child: Row(
             children: [
               const SizedBox(width: 14),
@@ -383,14 +384,20 @@ class _SaveLinkButton extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
-          child: SizedBox(
-            height: 58,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 58),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const AppIcon(AppIcons.plus, size: 20, color: AppColors.onGold),
                 const SizedBox(width: 7),
-                Text('Save Link', style: AppTextStyles.button),
+                Flexible(
+                  child: Text(
+                    'Save Link',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.button,
+                  ),
+                ),
               ],
             ),
           ),
@@ -420,8 +427,8 @@ class _FavoritesTile extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
-          child: SizedBox(
-            height: 58,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 58),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Row(
@@ -432,18 +439,27 @@ class _FavoritesTile extends StatelessWidget {
                     color: AppColors.gold,
                   ),
                   const SizedBox(width: 9),
-                  ExcludeSemantics(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Favorites', style: AppTextStyles.rowTitle),
-                        const SizedBox(height: 2),
-                        Text(
-                          count == null ? '—' : '$count saved',
-                          style: AppTextStyles.tiny,
-                        ),
-                      ],
+                  Expanded(
+                    child: ExcludeSemantics(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Favorites',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.rowTitle,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            count == null ? '—' : '$count saved',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.tiny,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -515,12 +531,14 @@ class _QuickAccessTile extends StatelessWidget {
                           collection.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.rowTitle.copyWith(fontSize: 9),
+                          style: AppTextStyles.rowTitle.copyWith(fontSize: 12),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           collection.countLabel,
-                          style: AppTextStyles.tiny.copyWith(fontSize: 7),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.tiny.copyWith(fontSize: 11),
                         ),
                       ],
                     ),

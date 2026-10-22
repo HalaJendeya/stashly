@@ -217,7 +217,7 @@ class SavedGridCard extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyles.cardTitle.copyWith(
-                          fontSize: 11,
+                          fontSize: 13.5,
                           height: 1.45,
                           letterSpacing: -0.22,
                         ),
@@ -454,7 +454,14 @@ class _MetaLine extends StatelessWidget {
           ),
           const SizedBox(width: 8),
         ],
-        Text(data.dateLabel, style: AppTextStyles.cardMeta),
+        Flexible(
+          child: Text(
+            data.dateLabel,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.cardMeta,
+          ),
+        ),
       ],
     );
   }

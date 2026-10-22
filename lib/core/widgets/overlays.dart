@@ -138,7 +138,13 @@ Future<T?> showStashlyDialog<T>(
               22,
               MediaQuery.viewInsetsOf(context).bottom,
             ),
-            child: Material(color: Colors.transparent, child: builder(context)),
+            // Scrolls when large text makes the dialog taller than the screen.
+            child: SingleChildScrollView(
+              child: Material(
+                color: Colors.transparent,
+                child: builder(context),
+              ),
+            ),
           ),
         ),
       ),
@@ -146,6 +152,36 @@ Future<T?> showStashlyDialog<T>(
     transitionBuilder: (context, animation, secondaryAnimation, child) =>
         FadeTransition(opacity: animation, child: child),
   );
+}
+
+/// A dialog's cancel and confirm buttons: side by side as designed, stacked
+/// (confirm on top) when large text would not fit them on one row.
+class DialogActions extends StatelessWidget {
+  const DialogActions({super.key, required this.cancel, required this.confirm});
+
+  final Widget cancel;
+  final Widget confirm;
+
+  /// Above this text scale two half-width button labels stop fitting.
+  static const double stackAboveTextScale = 1.35;
+
+  @override
+  Widget build(BuildContext context) {
+    final scale = MediaQuery.textScalerOf(context).scale(16) / 16;
+    if (scale > stackAboveTextScale) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [confirm, const SizedBox(height: 9), cancel],
+      );
+    }
+    return Row(
+      children: [
+        Expanded(child: cancel),
+        const SizedBox(width: 9),
+        Expanded(child: confirm),
+      ],
+    );
+  }
 }
 
 /// The dialog card itself.
@@ -212,25 +248,18 @@ Future<bool> confirmDestructive(
           const SizedBox(height: 9),
           Text(message, style: AppTextStyles.caption.copyWith(height: 1.65)),
           const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: SecondaryButton(
-                  label: cancelLabel,
-                  onPressed: () => Navigator.of(context).pop(false),
-                ),
-              ),
-              const SizedBox(width: 9),
-              Expanded(
-                child: SecondaryButton(
-                  label: confirmLabel,
-                  color: AppColors.danger,
-                  background: AppColors.dangerTint,
-                  bordered: false,
-                  onPressed: () => Navigator.of(context).pop(true),
-                ),
-              ),
-            ],
+          DialogActions(
+            cancel: SecondaryButton(
+              label: cancelLabel,
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            confirm: SecondaryButton(
+              label: confirmLabel,
+              color: AppColors.danger,
+              background: AppColors.dangerTint,
+              bordered: false,
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
           ),
         ],
       ),

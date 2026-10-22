@@ -131,7 +131,7 @@ class InitialsAvatar extends StatelessWidget {
     required this.name,
     this.size = 48,
     this.radius = 16,
-    this.fontSize = 12,
+    this.fontSize = 14,
     this.gradient = true,
     this.singleLetter = false,
     this.onTap,

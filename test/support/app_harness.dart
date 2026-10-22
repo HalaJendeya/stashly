@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:stashly/app/app.dart';
@@ -64,13 +65,19 @@ class AppHarness {
     ),
   );
 
+  /// Boots the app on a [size] logical-pixel screen with the system font
+  /// size set to [textScale].
   Future<void> pumpApp(
     WidgetTester tester, {
     bool onboardingSeen = true,
+    Size size = const Size(419, 912),
+    double textScale = 1,
   }) async {
-    tester.view.physicalSize = const Size(419 * 3, 912 * 3);
+    tester.view.physicalSize = size * 3;
     tester.view.devicePixelRatio = 3;
+    tester.platformDispatcher.textScaleFactorTestValue = textScale;
     addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     if (onboardingSeen) await prefs.write('onboarding_seen', true);
     deps = AppDependencies.create(
       httpClient: fakeHttpClient(backend),
@@ -103,7 +110,29 @@ Future<void> _reveal(WidgetTester tester, Finder finder) async {
   await tester.pump();
 }
 
+/// Taps a bottom-navigation tab. Its label is the last matching text, since
+/// the bar is built after the page (whose headings may share the name).
+Future<void> tapTab(WidgetTester tester, String label) async {
+  await tester.tap(find.text(label).last);
+  await settle(tester);
+}
+
+/// Scrolls the page down until [finder] is built (lazy lists only build
+/// what is on screen).
+Future<void> _scrollTo(WidgetTester tester, Finder finder) async {
+  if (finder.evaluate().isNotEmpty) return;
+  final vertical = find.byWidgetPredicate(
+    (w) => w is Scrollable && w.axisDirection == AxisDirection.down,
+  );
+  await tester.scrollUntilVisible(
+    finder,
+    200,
+    scrollable: vertical.hitTestable().first,
+  );
+}
+
 Future<void> tapText(WidgetTester tester, String text, {int index = 0}) async {
+  await _scrollTo(tester, find.text(text));
   final finder = find.text(text).at(index);
   await _reveal(tester, finder);
   await tester.tap(finder);
@@ -151,4 +180,14 @@ class FakeGoogle implements GoogleIdentity {
 
   @override
   Future<void> signOut() async => signOuts++;
+}
+
+/// Sends Android's system back (the gesture or the back key).
+Future<void> systemBack(WidgetTester tester) async {
+  await tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+    'flutter/navigation',
+    const JSONMethodCodec().encodeMethodCall(const MethodCall('popRoute')),
+    (_) {},
+  );
+  await settle(tester);
 }

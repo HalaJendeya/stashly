@@ -91,29 +91,22 @@ class _GoogleSignInSectionState extends State<GoogleSignInSection> {
               TextActionButton(
                 label: 'Read the Terms',
                 minHeight: 38,
-                style: AppTextStyles.linkButton.copyWith(fontSize: 11),
+                style: AppTextStyles.linkButton.copyWith(fontSize: 13.5),
                 onPressed: () => launchUrl(
                   Uri.parse(termsUrl),
                   mode: LaunchMode.externalApplication,
                 ),
               ),
             const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: SecondaryButton(
-                    label: 'Cancel',
-                    onPressed: () => Navigator.of(context).pop(false),
-                  ),
-                ),
-                const SizedBox(width: 9),
-                Expanded(
-                  child: PrimaryButton(
-                    label: 'Accept',
-                    onPressed: () => Navigator.of(context).pop(true),
-                  ),
-                ),
-              ],
+            DialogActions(
+              cancel: SecondaryButton(
+                label: 'Cancel',
+                onPressed: () => Navigator.of(context).pop(false),
+              ),
+              confirm: PrimaryButton(
+                label: 'Accept',
+                onPressed: () => Navigator.of(context).pop(true),
+              ),
             ),
           ],
         ),

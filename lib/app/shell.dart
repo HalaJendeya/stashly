@@ -29,15 +29,45 @@ class AppShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.paddingOf(context).bottom;
-    return Scaffold(
-      extendBody: true,
-      body: StashlyBackground(child: navigationShell),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.fromLTRB(10, 0, 10, 10 + bottomInset),
-        child: _BottomNav(
-          currentIndex: navigationShell.currentIndex,
-          onSelect: _goTo,
-          onAdd: onAdd,
+    final onHome = navigationShell.currentIndex == 0;
+    return PopScope<Object?>(
+      // System back on another tab returns to Home; on Home it leaves the app.
+      canPop: onHome,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) navigationShell.goBranch(0);
+      },
+      child: Scaffold(
+        extendBody: true,
+        body: StashlyBackground(
+          // Each tab has its own navigator, which tells Android "nothing to
+          // go back to" when it has a single page. With predictive back
+          // (Android 14+, default on 16) Android would then close the app
+          // instead of letting the PopScope above return to Home, so off Home
+          // the shell reports that it handles back — as Navigator does for
+          // its own children.
+          child: NotificationListener<NavigationNotification>(
+            onNotification: (notification) {
+              if (notification.canHandlePop || onHome) return false;
+              const NavigationNotification(
+                canHandlePop: true,
+              ).dispatch(context);
+              return true;
+            },
+            child: navigationShell,
+          ),
+        ),
+        bottomNavigationBar: Padding(
+          padding: EdgeInsets.fromLTRB(10, 0, 10, 10 + bottomInset),
+          // Like Material's NavigationBar, tab labels stop growing at 1.3x
+          // so the bar keeps its height; labels stay in the accessibility tree.
+          child: MediaQuery.withClampedTextScaling(
+            maxScaleFactor: 1.3,
+            child: _BottomNav(
+              currentIndex: navigationShell.currentIndex,
+              onSelect: _goTo,
+              onAdd: onAdd,
+            ),
+          ),
         ),
       ),
     );
@@ -185,11 +215,13 @@ class _NavItem extends StatelessWidget {
                 AppIcon(icon, size: 21, color: color),
                 const SizedBox(height: 4),
                 ExcludeSemantics(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.navLabel.copyWith(color: color),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      style: AppTextStyles.navLabel.copyWith(color: color),
+                    ),
                   ),
                 ),
               ],

@@ -107,7 +107,7 @@ class _SignInScreenState extends State<SignInScreen> {
               child: TextActionButton(
                 label: 'Forgot password?',
                 minHeight: 34,
-                style: AppTextStyles.linkButton.copyWith(fontSize: 10),
+                style: AppTextStyles.linkButton.copyWith(fontSize: 13),
                 onPressed: () => context.push(Routes.forgotPassword),
               ),
             ),
@@ -154,15 +154,17 @@ class AuthFooterPrompt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    // Wraps onto two lines when large text or a narrow screen needs it.
+    return Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 4,
       children: [
         Text(prompt, style: AppTextStyles.cardMeta),
-        const SizedBox(width: 4),
         TextActionButton(
           label: action,
           minHeight: 38,
-          style: AppTextStyles.linkButton.copyWith(fontSize: 10),
+          style: AppTextStyles.linkButton.copyWith(fontSize: 13),
           onPressed: onTap,
         ),
       ],

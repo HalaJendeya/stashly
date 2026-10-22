@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:stashly/core/routing/navigation.dart';
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/routing/routes.dart';
 import 'package:stashly/core/theme/app_colors.dart';
@@ -127,7 +128,7 @@ class _DuplicateLinkScreenState extends State<DuplicateLinkScreen> {
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: AppTextStyles.rowTitle.copyWith(
-                                fontSize: 11,
+                                fontSize: 13.5,
                               ),
                             ),
                             const SizedBox(height: 5),
@@ -188,11 +189,5 @@ class _DuplicateLinkScreenState extends State<DuplicateLinkScreen> {
     );
   }
 
-  void _close(BuildContext context) {
-    if (context.canPop()) {
-      context.pop();
-    } else {
-      context.go(Routes.home);
-    }
-  }
+  void _close(BuildContext context) => context.popOrHome();
 }

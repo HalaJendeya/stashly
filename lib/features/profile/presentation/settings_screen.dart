@@ -204,7 +204,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       name: user?.displayName ?? '',
                       size: 42,
                       radius: 14,
-                      fontSize: 13,
+                      fontSize: 15,
                       gradient: false,
                       singleLetter: true,
                     ),
@@ -253,7 +253,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: AppIcons.moon,
                     title: 'Dark theme',
                     subtitle: 'Stashly’s current brand experience',
-                    badge: GoldBadge('Active', fontSize: 7),
+                    badge: GoldBadge('Active', fontSize: 11),
                   ),
                 ],
               ),
@@ -264,14 +264,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: AppIcons.languages,
                     title: 'English',
                     subtitle: 'Current interface language',
-                    badge: GoldBadge('Current', fontSize: 7),
+                    badge: GoldBadge('Current', fontSize: 11),
                   ),
                   _Row(
                     icon: AppIcons.languages,
                     title: 'Arabic',
                     subtitle:
                         'Arabic content works today; the Arabic interface is coming later',
-                    badge: GoldBadge('Future', fontSize: 7, muted: true),
+                    badge: GoldBadge('Future', fontSize: 11, muted: true),
                   ),
                 ],
               ),
@@ -321,7 +321,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: AppIcons.info,
                     title: 'App version',
                     subtitle: 'Version ${widget.appVersion}',
-                    badge: const GoldBadge('Build', fontSize: 7),
+                    badge: const GoldBadge('Build', fontSize: 11),
                   ),
                 ],
               ),
@@ -454,7 +454,7 @@ class _Row extends StatelessWidget {
                           Text(
                             subtitle,
                             style: AppTextStyles.tiny.copyWith(
-                              fontSize: 7,
+                              fontSize: 11,
                               height: 1.4,
                             ),
                           ),
@@ -601,26 +601,19 @@ class _DeleteAccountDialogState extends State<_DeleteAccountDialog> {
                 onSubmitted: (_) => _delete(),
               ),
             const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: SecondaryButton(
-                    label: 'Keep account',
-                    onPressed: () => Navigator.of(context).pop(false),
-                  ),
-                ),
-                const SizedBox(width: 9),
-                Expanded(
-                  child: SecondaryButton(
-                    label: 'Delete',
-                    color: AppColors.danger,
-                    background: AppColors.dangerTint,
-                    bordered: false,
-                    loading: _busy,
-                    onPressed: _delete,
-                  ),
-                ),
-              ],
+            DialogActions(
+              cancel: SecondaryButton(
+                label: 'Keep account',
+                onPressed: () => Navigator.of(context).pop(false),
+              ),
+              confirm: SecondaryButton(
+                label: 'Delete',
+                color: AppColors.danger,
+                background: AppColors.dangerTint,
+                bordered: false,
+                loading: _busy,
+                onPressed: _delete,
+              ),
             ),
           ],
         ),

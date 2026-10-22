@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:stashly/core/routing/navigation.dart';
 import 'package:stashly/core/events/data_changes.dart';
 import 'package:stashly/core/format/date_labels.dart';
 import 'package:stashly/core/routing/routes.dart';
@@ -115,7 +116,7 @@ class _LinkDetailsScreenState extends State<LinkDetailsScreen> {
     if (!mounted) return;
     if (!reportFailure(context, result)) {
       showStashlySnack(context, 'Item deleted');
-      context.pop();
+      context.popOrHome();
     }
   }
 
@@ -424,8 +425,8 @@ class _ActionTile extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           child: InkWell(
             onTap: onTap,
-            child: SizedBox(
-              height: 64,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 64),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

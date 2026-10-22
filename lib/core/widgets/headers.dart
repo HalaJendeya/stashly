@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:stashly/core/routing/navigation.dart';
 import 'package:stashly/core/theme/app_colors.dart';
 import 'package:stashly/core/theme/app_text_styles.dart';
 import 'package:stashly/core/widgets/app_icon.dart';
@@ -140,7 +141,7 @@ class BackTitleHeader extends StatelessWidget {
           IconTapButton(
             icon: AppIcons.arrowLeft,
             semanticLabel: 'Back',
-            onPressed: onBack ?? () => Navigator.of(context).maybePop(),
+            onPressed: onBack ?? context.popOrHome,
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -183,7 +184,7 @@ class AuthHeader extends StatelessWidget {
               IconTapButton(
                 icon: AppIcons.arrowLeft,
                 semanticLabel: 'Back',
-                onPressed: onBack ?? () => Navigator.of(context).maybePop(),
+                onPressed: onBack ?? context.popOrHome,
               )
             else
               const SizedBox(height: 48),
@@ -232,7 +233,7 @@ class CaptionTopBar extends StatelessWidget {
             icon: leadingIcon,
             iconSize: 20,
             semanticLabel: leadingLabel,
-            onPressed: onLeading ?? () => Navigator.of(context).maybePop(),
+            onPressed: onLeading ?? context.popOrHome,
           ),
           Expanded(
             child: Text(

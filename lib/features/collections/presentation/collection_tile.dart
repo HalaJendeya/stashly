@@ -49,7 +49,7 @@ class CollectionCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: AppTextStyles.rowTitle.copyWith(
-                              fontSize: 11,
+                              fontSize: 13.5,
                             ),
                           ),
                           const SizedBox(height: 4),

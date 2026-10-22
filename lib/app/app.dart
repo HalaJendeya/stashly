@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:stashly/app/dependencies.dart';
 import 'package:stashly/app/router.dart';
+import 'package:stashly/core/layout/app_viewport.dart';
 import 'package:stashly/core/routing/routes.dart';
 import 'package:stashly/core/theme/app_theme.dart';
 import 'package:stashly/features/auth/presentation/session_controller.dart';
@@ -35,7 +36,24 @@ class _StashlyAppState extends State<StashlyApp> {
     final initial = await widget.deps.sharedText.takeInitialShare();
     if (initial != null) session.pendingSharedText = initial;
     _shares = widget.deps.sharedText.shares.listen(_onShare);
+    session.addListener(_resumeParkedShare);
     await session.bootstrap();
+  }
+
+  /// Opens a share that arrived before the session was ready, once the user
+  /// is signed in and the router has moved to Home.
+  void _resumeParkedShare() {
+    final session = widget.deps.session;
+    final text = session.pendingSharedText;
+    if (text == null ||
+        session.status != SessionStatus.signedIn ||
+        session.updateRequired) {
+      return;
+    }
+    session.pendingSharedText = null;
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _router.push(Routes.shareIntake, extra: text),
+    );
   }
 
   /// Warm start: open the share flow now, or after sign-in.
@@ -51,6 +69,7 @@ class _StashlyAppState extends State<StashlyApp> {
   @override
   void dispose() {
     _shares?.cancel();
+    widget.deps.session.removeListener(_resumeParkedShare);
     _router.dispose();
     super.dispose();
   }
@@ -64,6 +83,7 @@ class _StashlyAppState extends State<StashlyApp> {
       darkTheme: AppTheme.dark(),
       themeMode: ThemeMode.dark,
       routerConfig: _router,
+      builder: (context, child) => AppViewport(child: child!),
     );
   }
 }

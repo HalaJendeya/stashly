@@ -211,7 +211,9 @@ class CheckInboxScreen extends StatelessWidget {
           PrimaryButton(
             label: 'Return to Sign In',
             authStyle: true,
-            onPressed: () => context.go(Routes.signIn),
+            // Back to the Sign In page underneath, keeping Welcome below it.
+            onPressed: () =>
+                context.canPop() ? context.pop() : context.go(Routes.signIn),
           ),
         ],
       ),
