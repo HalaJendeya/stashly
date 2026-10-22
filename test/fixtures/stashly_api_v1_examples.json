@@ -1,0 +1,1974 @@
+{
+ "info": {
+  "name": "Stashly API v1",
+  "source": "Postman collection \"Stashly API v1\" (56083386-583247ab-d08d-44a8-b276-0048b0b18353), examples only"
+ },
+ "item": [
+  {
+   "name": "01 - System & Config",
+   "item": [
+    {
+     "name": "Health check",
+     "request": {
+      "method": "GET",
+      "url": "{{base_url}}/health",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "noauth",
+      "body": null
+     },
+     "response": [
+      {
+       "name": "200 OK - healthy",
+       "code": 200,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"status\": \"ok\",\n    \"time\": \"2026-10-20T09:30:12Z\",\n    \"checks\": {\n      \"database\": \"ok\",\n      \"cache\": \"ok\",\n      \"queue\": \"ok\"\n    }\n  }\n}"
+      },
+      {
+       "name": "503 Service Unavailable - a dependency failed",
+       "code": 503,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"SERVICE_UNAVAILABLE\",\n    \"message\": \"Service temporarily unavailable.\",\n    \"details\": {\n      \"status\": \"fail\",\n      \"time\": \"2026-10-20T09:30:12Z\",\n      \"checks\": {\n        \"database\": \"fail\",\n        \"cache\": \"ok\",\n        \"queue\": \"ok\"\n      }\n    },\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Get app configuration",
+     "request": {
+      "method": "GET",
+      "url": "{{base_url}}/config",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "noauth",
+      "body": null
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"api_version\": \"1.0\",\n    \"min_supported_app_version\": \"1.0.0\",\n    \"latest_app_version\": \"1.0.0\",\n    \"terms\": {\n      \"version\": \"2026-10-01\",\n      \"url\": \"https://stashly.example/terms\"\n    },\n    \"privacy\": {\n      \"url\": \"https://stashly.example/privacy\"\n    },\n    \"auth\": {\n      \"google_enabled\": true\n    },\n    \"limits\": {\n      \"url_max_length\": 2048,\n      \"title_max_length\": 300,\n      \"note_max_length\": 2000,\n      \"collection_name_max_length\": 60,\n      \"collection_description_max_length\": 300,\n      \"tag_max_length\": 40,\n      \"tags_per_link_max\": 20,\n      \"collections_per_user_max\": 100,\n      \"page_size_max\": 50\n    }\n  }\n}"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "02 - Authentication & Session",
+   "item": [
+    {
+     "name": "Register",
+     "request": {
+      "method": "POST",
+      "url": "{{base_url}}/auth/register",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "noauth",
+      "body": "{\n  \"display_name\": \"Postman User\",\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{initial_password}}\",\n  \"password_confirmation\": \"{{initial_password}}\",\n  \"terms_accepted\": true,\n  \"terms_version\": \"1\",\n  \"device_name\": \"Postman\"\n}"
+     },
+     "response": [
+      {
+       "name": "201 Created",
+       "code": 201,
+       "originalBody": "{\n  \"display_name\": \"Postman User\",\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{initial_password}}\",\n  \"password_confirmation\": \"{{initial_password}}\",\n  \"terms_accepted\": true,\n  \"terms_version\": \"1\",\n  \"device_name\": \"Postman\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"user\": {\n      \"id\": \"01jc3k9m4x7v2b8n5q6r0s1t2w\",\n      \"display_name\": \"Lina\",\n      \"email\": \"lina@example.test\",\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"password_set\": true\n    },\n    \"token\": {\n      \"access_token\": \"01jc3kc1d2e3f4g5h6j7k8m9n0|EXAMPLEexampleEXAMPLEexample0123456789abcd\",\n      \"token_type\": \"Bearer\",\n      \"expires_at\": \"2026-12-19T09:30:12Z\"\n    }\n  }\n}"
+      },
+      {
+       "name": "422 Unprocessable Entity - validation failed",
+       "code": 422,
+       "originalBody": "{\n  \"display_name\": \"Postman User\",\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{initial_password}}\",\n  \"password_confirmation\": \"{{initial_password}}\",\n  \"terms_accepted\": true,\n  \"terms_version\": \"1\",\n  \"device_name\": \"Postman\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_FAILED\",\n    \"message\": \"The given data was invalid.\",\n    \"details\": {\n      \"email\": [\n        \"The email has already been taken.\"\n      ],\n      \"password\": [\n        \"The password field confirmation does not match.\"\n      ]\n    },\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Login",
+     "request": {
+      "method": "POST",
+      "url": "{{base_url}}/auth/login",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "noauth",
+      "body": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\",\n  \"device_name\": \"Postman\"\n}"
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\",\n  \"device_name\": \"Postman\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"user\": {\n      \"id\": \"01jc3k9m4x7v2b8n5q6r0s1t2w\",\n      \"display_name\": \"Lina\",\n      \"email\": \"lina@example.test\",\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"password_set\": true\n    },\n    \"token\": {\n      \"access_token\": \"01jc3kc1d2e3f4g5h6j7k8m9n0|EXAMPLEexampleEXAMPLEexample0123456789abcd\",\n      \"token_type\": \"Bearer\",\n      \"expires_at\": \"2026-12-19T09:30:12Z\"\n    }\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - wrong e-mail or password",
+       "code": 401,
+       "originalBody": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\",\n  \"device_name\": \"Postman\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"INVALID_CREDENTIALS\",\n    \"message\": \"The email or password is incorrect.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Sign in with Google",
+     "request": {
+      "method": "POST",
+      "url": "{{base_url}}/auth/google",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "noauth",
+      "body": "{\n  \"id_token\": \"{{google_id_token}}\",\n  \"device_name\": \"Postman\",\n  \"terms_accepted\": true,\n  \"terms_version\": \"draft-1\"\n}"
+     },
+     "response": [
+      {
+       "name": "201 Created - new account",
+       "code": 201,
+       "originalBody": "{\n  \"id_token\": \"{{google_id_token}}\",\n  \"device_name\": \"Postman\",\n  \"terms_accepted\": true,\n  \"terms_version\": \"draft-1\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"user\": {\n      \"id\": \"01jc3k9m4x7v2b8n5q6r0s1t2w\",\n      \"display_name\": \"Lina Example\",\n      \"email\": \"lina@example.test\",\n      \"created_at\": \"2026-10-21T09:30:12Z\",\n      \"password_set\": false\n    },\n    \"token\": {\n      \"access_token\": \"01jc3kc1d2e3f4g5h6j7k8m9n0|EXAMPLEexampleEXAMPLEexample0123456789abcd\",\n      \"token_type\": \"Bearer\",\n      \"expires_at\": \"2026-12-20T09:30:12Z\"\n    }\n  }\n}"
+      },
+      {
+       "name": "200 OK - existing or newly linked account",
+       "code": 200,
+       "originalBody": "{\n  \"id_token\": \"{{google_id_token}}\",\n  \"device_name\": \"Postman\",\n  \"terms_accepted\": true,\n  \"terms_version\": \"draft-1\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"user\": {\n      \"id\": \"01jc3k9m4x7v2b8n5q6r0s1t2w\",\n      \"display_name\": \"Lina Example\",\n      \"email\": \"lina@example.test\",\n      \"created_at\": \"2026-10-21T09:30:12Z\",\n      \"password_set\": false\n    },\n    \"token\": {\n      \"access_token\": \"01jc3kc1d2e3f4g5h6j7k8m9n0|EXAMPLEexampleEXAMPLEexample0123456789abcd\",\n      \"token_type\": \"Bearer\",\n      \"expires_at\": \"2026-12-20T09:30:12Z\"\n    }\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - invalid, expired or wrong-audience token",
+       "code": 401,
+       "originalBody": "{\n  \"id_token\": \"{{google_id_token}}\",\n  \"device_name\": \"Postman\",\n  \"terms_accepted\": true,\n  \"terms_version\": \"draft-1\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"INVALID_GOOGLE_TOKEN\",\n    \"message\": \"The Google sign-in token is invalid or has expired.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - Google e-mail not verified",
+       "code": 401,
+       "originalBody": "{\n  \"id_token\": \"{{google_id_token}}\",\n  \"device_name\": \"Postman\",\n  \"terms_accepted\": true,\n  \"terms_version\": \"draft-1\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"INVALID_GOOGLE_TOKEN\",\n    \"message\": \"The email address of this Google account is not verified.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "422 Unprocessable Entity - new account without accepted terms",
+       "code": 422,
+       "originalBody": "{\n  \"id_token\": \"{{google_id_token}}\",\n  \"device_name\": \"Postman\",\n  \"terms_accepted\": true,\n  \"terms_version\": \"draft-1\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_FAILED\",\n    \"message\": \"The given data was invalid.\",\n    \"details\": {\n      \"terms_accepted\": [\n        \"You must accept the terms to create an account.\"\n      ]\n    },\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "429 Too Many Requests - 10 per minute per IP",
+       "code": 429,
+       "originalBody": "{\n  \"id_token\": \"{{google_id_token}}\",\n  \"device_name\": \"Postman\",\n  \"terms_accepted\": true,\n  \"terms_version\": \"draft-1\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        },
+        {
+         "key": "Retry-After",
+         "value": "37"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Too many requests.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "503 Service Unavailable - Google sign-in not configured",
+       "code": 503,
+       "originalBody": "{\n  \"id_token\": \"{{google_id_token}}\",\n  \"device_name\": \"Postman\",\n  \"terms_accepted\": true,\n  \"terms_version\": \"draft-1\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"SERVICE_UNAVAILABLE\",\n    \"message\": \"Google sign-in is not configured.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Get current user",
+     "request": {
+      "method": "GET",
+      "url": "{{base_url}}/me",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": null
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"user\": {\n      \"id\": \"01jc3k9m4x7v2b8n5q6r0s1t2w\",\n      \"display_name\": \"Lina\",\n      \"email\": \"lina@example.test\",\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"password_set\": true\n    }\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Update profile",
+     "request": {
+      "method": "PATCH",
+      "url": "{{base_url}}/me",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": "{\n  \"display_name\": \"Postman User (updated)\"\n}"
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": "{\n  \"display_name\": \"Postman User (updated)\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"user\": {\n      \"id\": \"01jc3k9m4x7v2b8n5q6r0s1t2w\",\n      \"display_name\": \"Postman User (updated)\",\n      \"email\": \"lina@example.test\",\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"password_set\": true\n    }\n  }\n}"
+      },
+      {
+       "name": "422 Unprocessable Entity - validation failed",
+       "code": 422,
+       "originalBody": "{\n  \"display_name\": \"Postman User (updated)\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_FAILED\",\n    \"message\": \"The given data was invalid.\",\n    \"details\": {\n      \"email\": [\n        \"The email field is prohibited.\"\n      ]\n    },\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": "{\n  \"display_name\": \"Postman User (updated)\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Get my stats",
+     "request": {
+      "method": "GET",
+      "url": "{{base_url}}/me/stats",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": null
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"links_count\": 12,\n    \"collections_count\": 3,\n    \"favorites_count\": 2\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Refresh token",
+     "request": {
+      "method": "POST",
+      "url": "{{base_url}}/auth/refresh",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": null
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"token\": {\n      \"access_token\": \"01jc3kc1d2e3f4g5h6j7k8m9n0|EXAMPLEexampleEXAMPLEexample0123456789abcd\",\n      \"token_type\": \"Bearer\",\n      \"expires_at\": \"2026-12-19T09:30:12Z\"\n    }\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Change password",
+     "request": {
+      "method": "PUT",
+      "url": "{{base_url}}/me/password",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": "{\n  \"current_password\": \"{{user_password}}\",\n  \"password\": \"{{new_password}}\",\n  \"password_confirmation\": \"{{new_password}}\"\n}"
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": "{\n  \"current_password\": \"{{user_password}}\",\n  \"password\": \"{{new_password}}\",\n  \"password_confirmation\": \"{{new_password}}\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"message\": \"Your password has been changed.\"\n  }\n}"
+      },
+      {
+       "name": "422 Unprocessable Entity - validation failed",
+       "code": 422,
+       "originalBody": "{\n  \"current_password\": \"{{user_password}}\",\n  \"password\": \"{{new_password}}\",\n  \"password_confirmation\": \"{{new_password}}\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_FAILED\",\n    \"message\": \"The given data was invalid.\",\n    \"details\": {\n      \"current_password\": [\n        \"The password is incorrect.\"\n      ]\n    },\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": "{\n  \"current_password\": \"{{user_password}}\",\n  \"password\": \"{{new_password}}\",\n  \"password_confirmation\": \"{{new_password}}\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Forgot password",
+     "request": {
+      "method": "POST",
+      "url": "{{base_url}}/auth/forgot-password",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "noauth",
+      "body": "{\n  \"email\": \"{{user_email}}\"\n}"
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": "{\n  \"email\": \"{{user_email}}\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"message\": \"If an account exists for this email, a password reset link has been sent.\"\n  }\n}"
+      },
+      {
+       "name": "429 Too Many Requests - 3 per hour per e-mail",
+       "code": 429,
+       "originalBody": "{\n  \"email\": \"{{user_email}}\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        },
+        {
+         "key": "Retry-After",
+         "value": "3412"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Too many requests.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Reset password",
+     "request": {
+      "method": "POST",
+      "url": "{{base_url}}/auth/reset-password",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "noauth",
+      "body": "{\n  \"email\": \"{{user_email}}\",\n  \"token\": \"{{reset_token}}\",\n  \"password\": \"{{new_password}}\",\n  \"password_confirmation\": \"{{new_password}}\"\n}"
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": "{\n  \"email\": \"{{user_email}}\",\n  \"token\": \"{{reset_token}}\",\n  \"password\": \"{{new_password}}\",\n  \"password_confirmation\": \"{{new_password}}\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"message\": \"Your password has been reset.\"\n  }\n}"
+      },
+      {
+       "name": "422 Unprocessable Entity - invalid, used or expired token",
+       "code": 422,
+       "originalBody": "{\n  \"email\": \"{{user_email}}\",\n  \"token\": \"{{reset_token}}\",\n  \"password\": \"{{new_password}}\",\n  \"password_confirmation\": \"{{new_password}}\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"TOKEN_INVALID_OR_EXPIRED\",\n    \"message\": \"This password reset link is invalid or has expired.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Logout",
+     "request": {
+      "method": "POST",
+      "url": "{{base_url}}/auth/logout",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": "{\n  \"all_devices\": false\n}"
+     },
+     "response": [
+      {
+       "name": "204 No Content",
+       "code": 204,
+       "originalBody": "{\n  \"all_devices\": false\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": ""
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": "{\n  \"all_devices\": false\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Delete account",
+     "request": {
+      "method": "DELETE",
+      "url": "{{base_url}}/me",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": "{\n  \"password\": \"{{user_password}}\"\n}"
+     },
+     "response": [
+      {
+       "name": "204 No Content",
+       "code": 204,
+       "originalBody": "{\n  \"password\": \"{{user_password}}\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": ""
+      },
+      {
+       "name": "204 No Content - Google-only account (id_token)",
+       "code": 204,
+       "originalBody": "{\n  \"id_token\": \"<fresh Google ID token>\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": ""
+      },
+      {
+       "name": "422 Unprocessable Entity - wrong password",
+       "code": 422,
+       "originalBody": "{\n  \"password\": \"{{user_password}}\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_FAILED\",\n    \"message\": \"The given data was invalid.\",\n    \"details\": {\n      \"password\": [\n        \"The password is incorrect.\"\n      ]\n    },\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": "{\n  \"password\": \"{{user_password}}\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - Google-only account, invalid or foreign id_token",
+       "code": 401,
+       "originalBody": "{\n  \"id_token\": \"<fresh Google ID token>\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"INVALID_GOOGLE_TOKEN\",\n    \"message\": \"The Google sign-in token is invalid or has expired.\",\n    \"details\": {},\n    \"request_id\": \"req_01jc3kexample\"\n  }\n}"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "03 - Home & Dashboard",
+   "item": [
+    {
+     "name": "Get home",
+     "request": {
+      "method": "GET",
+      "url": "{{base_url}}/home?recent_limit=10",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": null
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"user\": {\n      \"display_name\": \"Lina\"\n    },\n    \"links_count\": 12,\n    \"favorites_count\": 2,\n    \"quick_access\": [\n      {\n        \"id\": \"01jc3ka0q1w2e3r4t5y6x7z8a9\",\n        \"name\": \"Reading list\",\n        \"description\": \"Read later\",\n        \"links_count\": 1,\n        \"cover_images\": [\n          \"https://cdn.example.com/cover.jpg\"\n        ],\n        \"created_at\": \"2026-10-20T09:30:12Z\",\n        \"updated_at\": \"2026-10-20T09:30:12Z\"\n      }\n    ],\n    \"recent_links\": [\n      {\n        \"id\": \"01jc3k9r5e8f1a2d4g6h7j9k0m\",\n        \"original_url\": \"https://example.com/post\",\n        \"normalized_url\": \"https://example.com/post\",\n        \"source_domain\": \"example.com\",\n        \"title\": \"My title\",\n        \"display_title\": \"My title\",\n        \"note\": null,\n        \"is_favorite\": false,\n        \"content_type\": \"other\",\n        \"metadata\": {\n          \"status\": \"ready\",\n          \"title\": \"Example Domain\",\n          \"description\": \"An example page.\",\n          \"site_name\": \"Example\",\n          \"favicon_url\": \"https://example.com/favicon.ico\",\n          \"preview_image_url\": \"https://cdn.example.com/cover.jpg\",\n          \"fetched_at\": \"2026-10-20T09:30:12Z\",\n          \"error_code\": null\n        },\n        \"collections\": [],\n        \"collections_count\": 0,\n        \"tags\": [],\n        \"created_at\": \"2026-10-20T09:30:12Z\",\n        \"updated_at\": \"2026-10-20T09:30:12Z\"\n      }\n    ]\n  }\n}"
+      },
+      {
+       "name": "422 Unprocessable Entity - validation failed",
+       "code": 422,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_FAILED\",\n    \"message\": \"The given data was invalid.\",\n    \"details\": {\n      \"recent_limit\": [\n        \"The recent limit field must not be greater than 20.\"\n      ]\n    },\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "04 - Links Management",
+   "item": [
+    {
+     "name": "List links",
+     "request": {
+      "method": "GET",
+      "url": "{{base_url}}/links?limit=20&sort=newest",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": null
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": [\n    {\n      \"id\": \"01jc3k9r5e8f1a2d4g6h7j9k0m\",\n      \"original_url\": \"https://example.com/post\",\n      \"normalized_url\": \"https://example.com/post\",\n      \"source_domain\": \"example.com\",\n      \"title\": \"My title\",\n      \"display_title\": \"My title\",\n      \"note\": null,\n      \"is_favorite\": false,\n      \"content_type\": \"other\",\n      \"metadata\": {\n        \"status\": \"ready\",\n        \"title\": \"Example Domain\",\n        \"description\": \"An example page.\",\n        \"site_name\": \"Example\",\n        \"favicon_url\": \"https://example.com/favicon.ico\",\n        \"preview_image_url\": \"https://cdn.example.com/cover.jpg\",\n        \"fetched_at\": \"2026-10-20T09:30:12Z\",\n        \"error_code\": null\n      },\n      \"collections\": [],\n      \"collections_count\": 0,\n      \"tags\": [],\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"updated_at\": \"2026-10-20T09:30:12Z\"\n    }\n  ],\n  \"meta\": {\n    \"per_page\": 20,\n    \"has_more\": false,\n    \"next_cursor\": null,\n    \"total\": 1\n  }\n}"
+      },
+      {
+       "name": "422 Unprocessable Entity - invalid cursor",
+       "code": 422,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"INVALID_CURSOR\",\n    \"message\": \"The cursor is invalid or does not match these filters.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Create link",
+     "request": {
+      "method": "POST",
+      "url": "{{base_url}}/links",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       },
+       {
+        "key": "Idempotency-Key",
+        "value": "{{$guid}}"
+       }
+      ],
+      "auth": "inherit",
+      "body": "{\n  \"url\": \"https://example.com/postman-{{$timestamp}}\",\n  \"title\": \"Postman test link\",\n  \"note\": \"Created by the Postman collection\",\n  \"collection_ids\": [],\n  \"tags\": [],\n  \"is_favorite\": false\n}"
+     },
+     "response": [
+      {
+       "name": "201 Created",
+       "code": 201,
+       "originalBody": "{\n  \"url\": \"https://example.com/postman-{{$timestamp}}\",\n  \"title\": \"Postman test link\",\n  \"note\": \"Created by the Postman collection\",\n  \"collection_ids\": [],\n  \"tags\": [],\n  \"is_favorite\": false\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"link\": {\n      \"id\": \"01jc3k9r5e8f1a2d4g6h7j9k0m\",\n      \"original_url\": \"https://example.com/post\",\n      \"normalized_url\": \"https://example.com/post\",\n      \"source_domain\": \"example.com\",\n      \"title\": \"My title\",\n      \"display_title\": \"My title\",\n      \"note\": null,\n      \"is_favorite\": false,\n      \"content_type\": \"other\",\n      \"metadata\": {\n        \"status\": \"pending\",\n        \"title\": null,\n        \"description\": null,\n        \"site_name\": null,\n        \"favicon_url\": null,\n        \"preview_image_url\": null,\n        \"fetched_at\": null,\n        \"error_code\": null\n      },\n      \"collections\": [],\n      \"collections_count\": 0,\n      \"tags\": [],\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"updated_at\": \"2026-10-20T09:30:12Z\"\n    }\n  }\n}"
+      },
+      {
+       "name": "409 Conflict - already saved",
+       "code": 409,
+       "originalBody": "{\n  \"url\": \"https://example.com/postman-{{$timestamp}}\",\n  \"title\": \"Postman test link\",\n  \"note\": \"Created by the Postman collection\",\n  \"collection_ids\": [],\n  \"tags\": [],\n  \"is_favorite\": false\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"DUPLICATE_LINK\",\n    \"message\": \"This link is already saved.\",\n    \"details\": {\n      \"existing_link\": {\n        \"id\": \"01jc3k9r5e8f1a2d4g6h7j9k0m\",\n        \"original_url\": \"https://example.com/post\",\n        \"normalized_url\": \"https://example.com/post\",\n        \"source_domain\": \"example.com\",\n        \"title\": \"My title\",\n        \"display_title\": \"My title\",\n        \"note\": null,\n        \"is_favorite\": false,\n        \"content_type\": \"other\",\n        \"metadata\": {\n          \"status\": \"ready\",\n          \"title\": \"Example Domain\",\n          \"description\": \"An example page.\",\n          \"site_name\": \"Example\",\n          \"favicon_url\": \"https://example.com/favicon.ico\",\n          \"preview_image_url\": \"https://cdn.example.com/cover.jpg\",\n          \"fetched_at\": \"2026-10-20T09:30:12Z\",\n          \"error_code\": null\n        },\n        \"collections\": [],\n        \"collections_count\": 0,\n        \"tags\": [],\n        \"created_at\": \"2026-10-20T09:30:12Z\",\n        \"updated_at\": \"2026-10-20T09:30:12Z\"\n      }\n    },\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "422 Unprocessable Entity - invalid URL",
+       "code": 422,
+       "originalBody": "{\n  \"url\": \"https://example.com/postman-{{$timestamp}}\",\n  \"title\": \"Postman test link\",\n  \"note\": \"Created by the Postman collection\",\n  \"collection_ids\": [],\n  \"tags\": [],\n  \"is_favorite\": false\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"INVALID_URL\",\n    \"message\": \"This URL cannot be saved.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": "{\n  \"url\": \"https://example.com/postman-{{$timestamp}}\",\n  \"title\": \"Postman test link\",\n  \"note\": \"Created by the Postman collection\",\n  \"collection_ids\": [],\n  \"tags\": [],\n  \"is_favorite\": false\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Get link",
+     "request": {
+      "method": "GET",
+      "url": "{{base_url}}/links/{{link_id}}",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": null
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"link\": {\n      \"id\": \"01jc3k9r5e8f1a2d4g6h7j9k0m\",\n      \"original_url\": \"https://example.com/post\",\n      \"normalized_url\": \"https://example.com/post\",\n      \"source_domain\": \"example.com\",\n      \"title\": \"My title\",\n      \"display_title\": \"My title\",\n      \"note\": null,\n      \"is_favorite\": false,\n      \"content_type\": \"other\",\n      \"metadata\": {\n        \"status\": \"ready\",\n        \"title\": \"Example Domain\",\n        \"description\": \"An example page.\",\n        \"site_name\": \"Example\",\n        \"favicon_url\": \"https://example.com/favicon.ico\",\n        \"preview_image_url\": \"https://cdn.example.com/cover.jpg\",\n        \"fetched_at\": \"2026-10-20T09:30:12Z\",\n        \"error_code\": null\n      },\n      \"collections\": [],\n      \"collections_count\": 0,\n      \"tags\": [],\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"updated_at\": \"2026-10-20T09:30:12Z\"\n    }\n  }\n}"
+      },
+      {
+       "name": "404 Not Found - unknown id or not yours",
+       "code": 404,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Update link",
+     "request": {
+      "method": "PATCH",
+      "url": "{{base_url}}/links/{{link_id}}",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": "{\n  \"title\": \"Postman test link (edited)\",\n  \"note\": \"Edited by the Postman collection\",\n  \"is_favorite\": true\n}"
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": "{\n  \"title\": \"Postman test link (edited)\",\n  \"note\": \"Edited by the Postman collection\",\n  \"is_favorite\": true\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"link\": {\n      \"id\": \"01jc3k9r5e8f1a2d4g6h7j9k0m\",\n      \"original_url\": \"https://example.com/post\",\n      \"normalized_url\": \"https://example.com/post\",\n      \"source_domain\": \"example.com\",\n      \"title\": \"Postman test link (edited)\",\n      \"display_title\": \"Postman test link (edited)\",\n      \"note\": \"Edited by the Postman collection\",\n      \"is_favorite\": true,\n      \"content_type\": \"other\",\n      \"metadata\": {\n        \"status\": \"pending\",\n        \"title\": null,\n        \"description\": null,\n        \"site_name\": null,\n        \"favicon_url\": null,\n        \"preview_image_url\": null,\n        \"fetched_at\": null,\n        \"error_code\": null\n      },\n      \"collections\": [],\n      \"collections_count\": 0,\n      \"tags\": [],\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"updated_at\": \"2026-10-20T09:30:12Z\"\n    }\n  }\n}"
+      },
+      {
+       "name": "422 Unprocessable Entity - read-only field",
+       "code": 422,
+       "originalBody": "{\n  \"title\": \"Postman test link (edited)\",\n  \"note\": \"Edited by the Postman collection\",\n  \"is_favorite\": true\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_FAILED\",\n    \"message\": \"The given data was invalid.\",\n    \"details\": {\n      \"normalized_url\": [\n        \"This field is read-only.\"\n      ]\n    },\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "404 Not Found",
+       "code": 404,
+       "originalBody": "{\n  \"title\": \"Postman test link (edited)\",\n  \"note\": \"Edited by the Postman collection\",\n  \"is_favorite\": true\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": "{\n  \"title\": \"Postman test link (edited)\",\n  \"note\": \"Edited by the Postman collection\",\n  \"is_favorite\": true\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Set link collections",
+     "request": {
+      "method": "PUT",
+      "url": "{{base_url}}/links/{{link_id}}/collections",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": "{\n  \"collection_ids\": []\n}"
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": "{\n  \"collection_ids\": []\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"link\": {\n      \"id\": \"01jc3k9r5e8f1a2d4g6h7j9k0m\",\n      \"original_url\": \"https://example.com/post\",\n      \"normalized_url\": \"https://example.com/post\",\n      \"source_domain\": \"example.com\",\n      \"title\": \"My title\",\n      \"display_title\": \"My title\",\n      \"note\": null,\n      \"is_favorite\": false,\n      \"content_type\": \"other\",\n      \"metadata\": {\n        \"status\": \"pending\",\n        \"title\": null,\n        \"description\": null,\n        \"site_name\": null,\n        \"favicon_url\": null,\n        \"preview_image_url\": null,\n        \"fetched_at\": null,\n        \"error_code\": null\n      },\n      \"collections\": [\n        {\n          \"id\": \"01jc3ka0q1w2e3r4t5y6x7z8a9\",\n          \"name\": \"Reading list\"\n        }\n      ],\n      \"collections_count\": 1,\n      \"tags\": [],\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"updated_at\": \"2026-10-20T09:30:12Z\"\n    }\n  }\n}"
+      },
+      {
+       "name": "422 Unprocessable Entity - validation failed",
+       "code": 422,
+       "originalBody": "{\n  \"collection_ids\": []\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_FAILED\",\n    \"message\": \"The given data was invalid.\",\n    \"details\": {\n      \"collection_ids.0\": [\n        \"The selected collection is invalid.\"\n      ]\n    },\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": "{\n  \"collection_ids\": []\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Set link tags",
+     "request": {
+      "method": "PUT",
+      "url": "{{base_url}}/links/{{link_id}}/tags",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": "{\n  \"tags\": [\n    \"#Postman\",\n    \"api\"\n  ]\n}"
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": "{\n  \"tags\": [\n    \"#Postman\",\n    \"api\"\n  ]\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"link\": {\n      \"id\": \"01jc3k9r5e8f1a2d4g6h7j9k0m\",\n      \"original_url\": \"https://example.com/post\",\n      \"normalized_url\": \"https://example.com/post\",\n      \"source_domain\": \"example.com\",\n      \"title\": \"My title\",\n      \"display_title\": \"My title\",\n      \"note\": null,\n      \"is_favorite\": false,\n      \"content_type\": \"other\",\n      \"metadata\": {\n        \"status\": \"pending\",\n        \"title\": null,\n        \"description\": null,\n        \"site_name\": null,\n        \"favicon_url\": null,\n        \"preview_image_url\": null,\n        \"fetched_at\": null,\n        \"error_code\": null\n      },\n      \"collections\": [],\n      \"collections_count\": 0,\n      \"tags\": [\n        \"api\",\n        \"postman\"\n      ],\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"updated_at\": \"2026-10-20T09:30:12Z\"\n    }\n  }\n}"
+      },
+      {
+       "name": "422 Unprocessable Entity - more than 20 tags",
+       "code": 422,
+       "originalBody": "{\n  \"tags\": [\n    \"#Postman\",\n    \"api\"\n  ]\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"LIMIT_EXCEEDED\",\n    \"message\": \"A link can have at most 20 tags.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": "{\n  \"tags\": [\n    \"#Postman\",\n    \"api\"\n  ]\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Delete link",
+     "request": {
+      "method": "DELETE",
+      "url": "{{base_url}}/links/{{link_id}}",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": null
+     },
+     "response": [
+      {
+       "name": "204 No Content",
+       "code": 204,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": ""
+      },
+      {
+       "name": "404 Not Found",
+       "code": 404,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "05 - Link Preview & Metadata",
+   "item": [
+    {
+     "name": "Preview link",
+     "request": {
+      "method": "POST",
+      "url": "{{base_url}}/links/preview",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": "{\n  \"url\": \"https://example.com\"\n}"
+     },
+     "response": [
+      {
+       "name": "200 OK - not saved yet",
+       "code": 200,
+       "originalBody": "{\n  \"url\": \"https://example.com\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"url\": \"https://example.com\",\n    \"normalized_url\": \"https://example.com\",\n    \"source_domain\": \"example.com\",\n    \"content_type\": \"other\",\n    \"duplicate\": false,\n    \"existing_link\": null,\n    \"metadata\": {\n      \"status\": \"ready\",\n      \"title\": \"Example Domain\",\n      \"description\": \"An example page.\",\n      \"site_name\": \"Example\",\n      \"favicon_url\": \"https://example.com/favicon.ico\",\n      \"preview_image_url\": \"https://cdn.example.com/cover.jpg\",\n      \"fetched_at\": \"2026-10-20T09:30:12Z\",\n      \"error_code\": null\n    }\n  }\n}"
+      },
+      {
+       "name": "422 Unprocessable Entity - invalid URL",
+       "code": 422,
+       "originalBody": "{\n  \"url\": \"https://example.com\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"INVALID_URL\",\n    \"message\": \"This URL cannot be saved.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": "{\n  \"url\": \"https://example.com\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Refresh link metadata",
+     "request": {
+      "method": "POST",
+      "url": "{{base_url}}/links/{{link_id}}/metadata/refresh",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": null
+     },
+     "response": [
+      {
+       "name": "202 Accepted",
+       "code": 202,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"link\": {\n      \"id\": \"01jc3k9r5e8f1a2d4g6h7j9k0m\",\n      \"original_url\": \"https://example.com/post\",\n      \"normalized_url\": \"https://example.com/post\",\n      \"source_domain\": \"example.com\",\n      \"title\": \"My title\",\n      \"display_title\": \"My title\",\n      \"note\": null,\n      \"is_favorite\": false,\n      \"content_type\": \"other\",\n      \"metadata\": {\n        \"status\": \"pending\",\n        \"title\": null,\n        \"description\": null,\n        \"site_name\": null,\n        \"favicon_url\": null,\n        \"preview_image_url\": null,\n        \"fetched_at\": null,\n        \"error_code\": null\n      },\n      \"collections\": [],\n      \"collections_count\": 0,\n      \"tags\": [],\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"updated_at\": \"2026-10-20T09:30:12Z\"\n    }\n  }\n}"
+      },
+      {
+       "name": "429 Too Many Requests - once per minute per link",
+       "code": 429,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        },
+        {
+         "key": "Retry-After",
+         "value": "42"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Too many requests.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "404 Not Found",
+       "code": 404,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "06 - Tags & Organization",
+   "item": [
+    {
+     "name": "List tags",
+     "request": {
+      "method": "GET",
+      "url": "{{base_url}}/tags?sort=usage&limit=100",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": null
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": [\n    {\n      \"name\": \"postman\",\n      \"links_count\": 3\n    },\n    {\n      \"name\": \"api\",\n      \"links_count\": 1\n    }\n  ]\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "List collections",
+     "request": {
+      "method": "GET",
+      "url": "{{base_url}}/collections?sort=recent&limit=50",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": null
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": [\n    {\n      \"id\": \"01jc3ka0q1w2e3r4t5y6x7z8a9\",\n      \"name\": \"Reading list\",\n      \"description\": \"Read later\",\n      \"links_count\": 1,\n      \"cover_images\": [\n        \"https://cdn.example.com/cover.jpg\"\n      ],\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"updated_at\": \"2026-10-20T09:30:12Z\"\n    }\n  ],\n  \"meta\": {\n    \"per_page\": 50,\n    \"has_more\": false,\n    \"next_cursor\": null,\n    \"total\": 1\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Create collection",
+     "request": {
+      "method": "POST",
+      "url": "{{base_url}}/collections",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": "{\n  \"name\": \"Postman {{$timestamp}}\",\n  \"description\": \"Created by the Postman collection\"\n}"
+     },
+     "response": [
+      {
+       "name": "201 Created",
+       "code": 201,
+       "originalBody": "{\n  \"name\": \"Postman {{$timestamp}}\",\n  \"description\": \"Created by the Postman collection\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"collection\": {\n      \"id\": \"01jc3ka0q1w2e3r4t5y6x7z8a9\",\n      \"name\": \"Reading list\",\n      \"description\": \"Read later\",\n      \"links_count\": 0,\n      \"cover_images\": [],\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"updated_at\": \"2026-10-20T09:30:12Z\"\n    }\n  }\n}"
+      },
+      {
+       "name": "422 Unprocessable Entity - validation failed",
+       "code": 422,
+       "originalBody": "{\n  \"name\": \"Postman {{$timestamp}}\",\n  \"description\": \"Created by the Postman collection\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_FAILED\",\n    \"message\": \"The given data was invalid.\",\n    \"details\": {\n      \"name\": [\n        \"A collection with this name already exists.\"\n      ]\n    },\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "422 Unprocessable Entity - 100 collections reached",
+       "code": 422,
+       "originalBody": "{\n  \"name\": \"Postman {{$timestamp}}\",\n  \"description\": \"Created by the Postman collection\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"LIMIT_EXCEEDED\",\n    \"message\": \"You can have at most 100 collections.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": "{\n  \"name\": \"Postman {{$timestamp}}\",\n  \"description\": \"Created by the Postman collection\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Get collection",
+     "request": {
+      "method": "GET",
+      "url": "{{base_url}}/collections/{{collection_id}}",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": null
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"collection\": {\n      \"id\": \"01jc3ka0q1w2e3r4t5y6x7z8a9\",\n      \"name\": \"Reading list\",\n      \"description\": \"Read later\",\n      \"links_count\": 1,\n      \"cover_images\": [\n        \"https://cdn.example.com/cover.jpg\"\n      ],\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"updated_at\": \"2026-10-20T09:30:12Z\"\n    }\n  }\n}"
+      },
+      {
+       "name": "404 Not Found",
+       "code": 404,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Update collection",
+     "request": {
+      "method": "PATCH",
+      "url": "{{base_url}}/collections/{{collection_id}}",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": "{\n  \"description\": \"Updated by the Postman collection\"\n}"
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": "{\n  \"description\": \"Updated by the Postman collection\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"collection\": {\n      \"id\": \"01jc3ka0q1w2e3r4t5y6x7z8a9\",\n      \"name\": \"Reading list\",\n      \"description\": \"Updated by the Postman collection\",\n      \"links_count\": 1,\n      \"cover_images\": [\n        \"https://cdn.example.com/cover.jpg\"\n      ],\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"updated_at\": \"2026-10-20T09:30:12Z\"\n    }\n  }\n}"
+      },
+      {
+       "name": "422 Unprocessable Entity - validation failed",
+       "code": 422,
+       "originalBody": "{\n  \"description\": \"Updated by the Postman collection\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_FAILED\",\n    \"message\": \"The given data was invalid.\",\n    \"details\": {\n      \"name\": [\n        \"A collection with this name already exists.\"\n      ]\n    },\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "404 Not Found",
+       "code": 404,
+       "originalBody": "{\n  \"description\": \"Updated by the Postman collection\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": "{\n  \"description\": \"Updated by the Postman collection\"\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Attach / detach links",
+     "request": {
+      "method": "PATCH",
+      "url": "{{base_url}}/collections/{{collection_id}}/links",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": "{\n  \"attach\": [\n    \"{{link_id}}\"\n  ],\n  \"detach\": []\n}"
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": "{\n  \"attach\": [\n    \"{{link_id}}\"\n  ],\n  \"detach\": []\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"collection\": {\n      \"id\": \"01jc3ka0q1w2e3r4t5y6x7z8a9\",\n      \"name\": \"Reading list\",\n      \"description\": \"Read later\",\n      \"links_count\": 1,\n      \"cover_images\": [\n        \"https://cdn.example.com/cover.jpg\"\n      ],\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"updated_at\": \"2026-10-20T09:30:12Z\"\n    }\n  }\n}"
+      },
+      {
+       "name": "422 Unprocessable Entity - validation failed",
+       "code": 422,
+       "originalBody": "{\n  \"attach\": [\n    \"{{link_id}}\"\n  ],\n  \"detach\": []\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"VALIDATION_FAILED\",\n    \"message\": \"The given data was invalid.\",\n    \"details\": {\n      \"attach.0\": [\n        \"The selected link is invalid.\"\n      ]\n    },\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "404 Not Found",
+       "code": 404,
+       "originalBody": "{\n  \"attach\": [\n    \"{{link_id}}\"\n  ],\n  \"detach\": []\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": "{\n  \"attach\": [\n    \"{{link_id}}\"\n  ],\n  \"detach\": []\n}",
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Delete collection",
+     "request": {
+      "method": "DELETE",
+      "url": "{{base_url}}/collections/{{collection_id}}",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": null
+     },
+     "response": [
+      {
+       "name": "204 No Content",
+       "code": 204,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": ""
+      },
+      {
+       "name": "404 Not Found",
+       "code": 404,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"NOT_FOUND\",\n    \"message\": \"Resource not found.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "07 - Search & Filters",
+   "item": [
+    {
+     "name": "Get filter options",
+     "request": {
+      "method": "GET",
+      "url": "{{base_url}}/search/filters",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": null
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": {\n    \"content_types\": [\n      {\n        \"value\": \"video\",\n        \"count\": 2\n      },\n      {\n        \"value\": \"article\",\n        \"count\": 4\n      },\n      {\n        \"value\": \"product\",\n        \"count\": 0\n      },\n      {\n        \"value\": \"social\",\n        \"count\": 1\n      },\n      {\n        \"value\": \"other\",\n        \"count\": 5\n      }\n    ],\n    \"sources\": [\n      {\n        \"value\": \"example.com\",\n        \"count\": 5\n      },\n      {\n        \"value\": \"youtube.com\",\n        \"count\": 2\n      }\n    ],\n    \"collections\": [\n      {\n        \"id\": \"01jc3ka0q1w2e3r4t5y6x7z8a9\",\n        \"name\": \"Reading list\",\n        \"count\": 3\n      }\n    ],\n    \"tags\": [\n      {\n        \"name\": \"postman\",\n        \"count\": 3\n      }\n    ],\n    \"date_presets\": [\n      {\n        \"value\": 7,\n        \"count\": 4\n      },\n      {\n        \"value\": 30,\n        \"count\": 12\n      }\n    ]\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    },
+    {
+     "name": "Search links",
+     "request": {
+      "method": "GET",
+      "url": "{{base_url}}/links?q=postman&limit=20&sort=newest",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": null
+     },
+     "response": [
+      {
+       "name": "200 OK",
+       "code": 200,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"data\": [\n    {\n      \"id\": \"01jc3k9r5e8f1a2d4g6h7j9k0m\",\n      \"original_url\": \"https://example.com/post\",\n      \"normalized_url\": \"https://example.com/post\",\n      \"source_domain\": \"example.com\",\n      \"title\": \"Postman test link\",\n      \"display_title\": \"Postman test link\",\n      \"note\": null,\n      \"is_favorite\": false,\n      \"content_type\": \"other\",\n      \"metadata\": {\n        \"status\": \"ready\",\n        \"title\": \"Example Domain\",\n        \"description\": \"An example page.\",\n        \"site_name\": \"Example\",\n        \"favicon_url\": \"https://example.com/favicon.ico\",\n        \"preview_image_url\": \"https://cdn.example.com/cover.jpg\",\n        \"fetched_at\": \"2026-10-20T09:30:12Z\",\n        \"error_code\": null\n      },\n      \"collections\": [],\n      \"collections_count\": 0,\n      \"tags\": [],\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"updated_at\": \"2026-10-20T09:30:12Z\"\n    }\n  ],\n  \"meta\": {\n    \"per_page\": 20,\n    \"has_more\": false,\n    \"next_cursor\": null,\n    \"total\": 1\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "08 - Data Export",
+   "item": [
+    {
+     "name": "Export my data",
+     "request": {
+      "method": "GET",
+      "url": "{{base_url}}/me/export",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "auth": "inherit",
+      "body": null
+     },
+     "response": [
+      {
+       "name": "200 OK - file download",
+       "code": 200,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        },
+        {
+         "key": "Content-Disposition",
+         "value": "attachment; filename=stashly-export-20261020-093012.json"
+        }
+       ],
+       "body": "{\n  \"schema_version\": 1,\n  \"exported_at\": \"2026-10-20T09:30:12Z\",\n  \"user\": {\n    \"id\": \"01jc3k9m4x7v2b8n5q6r0s1t2w\",\n    \"display_name\": \"Lina\",\n    \"email\": \"lina@example.test\",\n    \"created_at\": \"2026-10-20T09:30:12Z\",\n    \"terms_version\": \"1\",\n    \"terms_accepted_at\": \"2026-10-20T09:30:12Z\"\n  },\n  \"collections\": [\n    {\n      \"id\": \"01jc3ka0q1w2e3r4t5y6x7z8a9\",\n      \"name\": \"Reading list\",\n      \"description\": \"Read later\",\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"updated_at\": \"2026-10-20T09:30:12Z\",\n      \"link_ids\": [\n        \"01jc3k9r5e8f1a2d4g6h7j9k0m\"\n      ]\n    }\n  ],\n  \"tags\": [\n    \"api\",\n    \"postman\"\n  ],\n  \"links\": [\n    {\n      \"id\": \"01jc3k9r5e8f1a2d4g6h7j9k0m\",\n      \"original_url\": \"https://example.com/post\",\n      \"normalized_url\": \"https://example.com/post\",\n      \"source_domain\": \"example.com\",\n      \"title\": \"My title\",\n      \"display_title\": \"My title\",\n      \"note\": null,\n      \"is_favorite\": false,\n      \"content_type\": \"other\",\n      \"metadata\": {\n        \"status\": \"ready\",\n        \"title\": \"Example Domain\",\n        \"description\": \"An example page.\",\n        \"site_name\": \"Example\",\n        \"favicon_url\": \"https://example.com/favicon.ico\",\n        \"preview_image_url\": \"https://cdn.example.com/cover.jpg\",\n        \"fetched_at\": \"2026-10-20T09:30:12Z\",\n        \"error_code\": null\n      },\n      \"collections\": [],\n      \"collections_count\": 0,\n      \"tags\": [\n        \"api\",\n        \"postman\"\n      ],\n      \"created_at\": \"2026-10-20T09:30:12Z\",\n      \"updated_at\": \"2026-10-20T09:30:12Z\"\n    }\n  ]\n}"
+      },
+      {
+       "name": "429 Too Many Requests - 1 per 10 minutes",
+       "code": 429,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        },
+        {
+         "key": "Retry-After",
+         "value": "587"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"RATE_LIMITED\",\n    \"message\": \"Too many requests.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      },
+      {
+       "name": "401 Unauthorized - missing or invalid token",
+       "code": 401,
+       "originalBody": null,
+       "header": [
+        {
+         "key": "Content-Type",
+         "value": "application/json"
+        }
+       ],
+       "body": "{\n  \"error\": {\n    \"code\": \"UNAUTHENTICATED\",\n    \"message\": \"Unauthenticated.\",\n    \"details\": {},\n    \"request_id\": \"01jc3kb2c3d4e5f6g7h8j9k0mn\"\n  }\n}"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

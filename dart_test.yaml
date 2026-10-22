@@ -1,0 +1,3 @@
+tags:
+  # Hits a deployed API; runs only when STASHLY_LIVE_API is set.
+  live:
