@@ -1,0 +1,101 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:stashly/app/dependencies.dart';
+import 'package:stashly/app/router.dart';
+import 'package:stashly/core/l10n/l10n.dart';
+import 'package:stashly/core/layout/app_viewport.dart';
+import 'package:stashly/core/routing/routes.dart';
+import 'package:stashly/core/theme/app_theme.dart';
+import 'package:stashly/features/auth/presentation/session_controller.dart';
+
+/// Root widget: theme, router, session bootstrap and share intake.
+class StashlyApp extends StatefulWidget {
+  const StashlyApp({super.key, required this.deps});
+
+  final AppDependencies deps;
+
+  @override
+  State<StashlyApp> createState() => _StashlyAppState();
+}
+
+class _StashlyAppState extends State<StashlyApp> {
+  late final GoRouter _router = createRouter(widget.deps);
+  StreamSubscription<String>? _shares;
+
+  @override
+  void initState() {
+    super.initState();
+    _start();
+  }
+
+  Future<void> _start() async {
+    final session = widget.deps.session;
+    // Cold start from the share sheet: park the text until the session is known.
+    final initial = await widget.deps.sharedText.takeInitialShare();
+    if (initial != null) session.pendingSharedText = initial;
+    _shares = widget.deps.sharedText.shares.listen(_onShare);
+    session.addListener(_resumeParkedShare);
+    // Theme and language load first so the splash already uses them.
+    await widget.deps.display.load();
+    await session.bootstrap();
+  }
+
+  /// Opens a share that arrived before the session was ready, once the user
+  /// is signed in and the router has moved to Home.
+  void _resumeParkedShare() {
+    final session = widget.deps.session;
+    final text = session.pendingSharedText;
+    if (text == null ||
+        session.status != SessionStatus.signedIn ||
+        session.updateRequired) {
+      return;
+    }
+    session.pendingSharedText = null;
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _router.push(Routes.shareIntake, extra: text),
+    );
+  }
+
+  /// Warm start: open the share flow now, or after sign-in.
+  void _onShare(String text) {
+    final session = widget.deps.session;
+    if (session.status == SessionStatus.signedIn && !session.updateRequired) {
+      _router.push(Routes.shareIntake, extra: text);
+    } else {
+      session.pendingSharedText = text;
+    }
+  }
+
+  @override
+  void dispose() {
+    _shares?.cancel();
+    widget.deps.session.removeListener(_resumeParkedShare);
+    _router.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final display = widget.deps.display;
+    return ListenableBuilder(
+      listenable: display,
+      builder: (context, _) => MaterialApp.router(
+        title: 'Stashly',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light(),
+        darkTheme: AppTheme.dark(),
+        themeMode: display.themeMode,
+        // English or Arabic (right-to-left), from the user's choice or the
+        // device; unsupported device languages fall back to English.
+        locale: display.locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        routerConfig: _router,
+        builder: (context, child) => AppViewport(child: child!),
+      ),
+    );
+  }
+}

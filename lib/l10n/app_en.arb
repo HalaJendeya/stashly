@@ -1,0 +1,620 @@
+{
+  "@@locale": "en",
+  "appName": "Stashly",
+  "tagline": "Everything Worth Keeping",
+  "actionCancel": "Cancel",
+  "actionClose": "Close",
+  "actionSave": "Save",
+  "actionCreate": "Create",
+  "actionDelete": "Delete",
+  "actionEdit": "Edit",
+  "actionTryAgain": "Try again",
+  "actionLoadMore": "Load more",
+  "actionContinue": "Continue",
+  "actionBack": "Back",
+  "actionDismiss": "Dismiss",
+  "actionAdd": "Add",
+  "actionClear": "Clear",
+  "actionShare": "Share",
+  "actionNext": "Next",
+  "actionPrevious": "Previous",
+  "actionSkip": "Skip",
+  "actionGetStarted": "Get Started",
+  "actionSaveChanges": "Save changes",
+  "actionDiscard": "Discard",
+  "actionKeepEditing": "Keep editing",
+  "actionSignIn": "Sign In",
+  "actionCreateAccount": "Create Account",
+  "actionSignOut": "Sign out",
+  "actionAccept": "Accept",
+  "labelOptional": "Optional",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "fieldValue": "{label}: {value}",
+  "@fieldValue": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "or": "or",
+  "navHome": "Home",
+  "navCollections": "Collections",
+  "navSaveLink": "Save a link",
+  "navSearch": "Search",
+  "navProfile": "Profile",
+  "allSavedItems": "All saved items",
+  "updateEyebrow": "UPDATE REQUIRED",
+  "updateTitle": "Please update Stashly",
+  "updateBody": "This version is no longer supported. Install the latest version from the Play Store to continue.",
+  "updateBodyVersion": "This version is no longer supported. Install version {version} from the Play Store to continue.",
+  "@updateBodyVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "greetingMorning": "Good morning, {name}",
+  "@greetingMorning": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "greetingAfternoon": "Good afternoon, {name}",
+  "@greetingAfternoon": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "greetingEvening": "Good evening, {name}",
+  "@greetingEvening": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "greetingMorningPlain": "Good morning",
+  "greetingAfternoonPlain": "Good afternoon",
+  "greetingEveningPlain": "Good evening",
+  "memberSince": "Member since {date}",
+  "@memberSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "failureValidation": "Please check the highlighted fields.",
+  "failureInvalidUrl": "Enter a valid http or https link.",
+  "failureInvalidCursor": "The list changed. Pull to refresh.",
+  "failureLimit": "You have reached the limit for this item.",
+  "failureResetToken": "This reset link is invalid or has expired.",
+  "failureCredentials": "The email or password is incorrect.",
+  "failureGoogleToken": "Google sign-in failed. Please try again.",
+  "failureGoogleUnavailable": "Google sign-in isn’t available on this device right now.",
+  "failureGoogleNotConfigured": "Google sign-in isn’t set up in this version of the app yet.",
+  "failureSession": "Your session has ended. Please sign in.",
+  "failureForbidden": "You don’t have access to this item.",
+  "failureNotFound": "This item no longer exists.",
+  "failureDuplicate": "This link is already in your Stashly.",
+  "failureRateLimited": "Too many requests. Please wait a moment.",
+  "failureRateLimitedSeconds": "Too many requests. Try again in {seconds}s.",
+  "@failureRateLimitedSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "failureServer": "Something went wrong on our side. Please try again.",
+  "failureUnavailable": "Stashly is temporarily unavailable. Please try again soon.",
+  "failureOffline": "You’re offline. Check your connection.",
+  "failureTimeout": "The request timed out. Please try again.",
+  "failureUnknown": "Something went wrong. Please try again.",
+  "discardTitle": "Discard your changes?",
+  "discardMessage": "You have edits that haven’t been saved yet.",
+  "urlEmpty": "Paste a link to save.",
+  "urlTooLong": "Links can be at most {max} characters.",
+  "@urlTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "urlScheme": "Only http and https links can be saved.",
+  "urlInvalid": "Enter a valid web link.",
+  "createCollection": "Create collection",
+  "collectionName": "Collection name",
+  "nothingHereYet": "Nothing here yet.",
+  "enterAName": "Enter a name.",
+  "clearSelection": "Clear selection",
+  "tagTooLong": "Tags can be at most {max} characters.",
+  "@tagTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "tooManyTags": "An item can have at most {max} tags.",
+  "@tooManyTags": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "itemTagsEyebrow": "ITEM TAGS",
+  "editTags": "Edit tags",
+  "addTags": "Add tags",
+  "saveTags": "Save tags",
+  "findOrCreateTag": "Find or create a tag",
+  "suggestions": "Suggestions",
+  "removeItem": "Remove {label}",
+  "@removeItem": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "previewPending": "Preview pending",
+  "removeFromFavorites": "Remove from favorites",
+  "addToFavorites": "Add to favorites",
+  "moreActions": "More actions",
+  "viewDetails": "View details",
+  "copyLink": "Copy link",
+  "cardLabel": "{title}, {domain}",
+  "@cardLabel": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "domain": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteItemTitle": "Delete this saved item?",
+  "deleteItemMessage": "“{title}” will be removed from your library. The original content won’t be affected.",
+  "@deleteItemMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "keepItem": "Keep item",
+  "linkCopied": "Link copied",
+  "itemDeleted": "Item deleted",
+  "offlineTitle": "You’re offline",
+  "loadFailedTitle": "Couldn’t load this",
+  "emailRequired": "Enter your email.",
+  "emailInvalid": "Enter a valid email address.",
+  "passwordTooShort": "Use at least 8 characters.",
+  "passwordTooLong": "Use at most 128 characters.",
+  "nameRequired": "Tell us what to call you.",
+  "nameTooLong": "Use at most 100 characters.",
+  "passwordRequired": "Enter your password.",
+  "passwordsDontMatch": "Passwords don’t match.",
+  "acceptTermsRequired": "Please accept the Terms to continue.",
+  "documentUnavailable": "This document isn’t available yet.",
+  "emailLabel": "Email",
+  "emailHint": "you@example.com",
+  "passwordLabel": "Password",
+  "passwordHint": "Enter your password",
+  "newPasswordHint": "At least 8 characters",
+  "sessionEnded": "Your session ended. Please sign in again.",
+  "welcomeEyebrow": "YOUR DIGITAL-CONTENT WALLET",
+  "welcomeTitle": "Save anything worth keeping.",
+  "welcomeBody": "Collect useful links from anywhere, organize them your way, and find them when they matter.",
+  "welcomePointSave": "Save links in seconds",
+  "welcomePointOrganize": "Organize when you’re ready",
+  "welcomePointSearch": "Search your whole stash",
+  "welcomeFootnote": "Stashly keeps the link and its details — never a copy of the content.",
+  "signInTitle": "Welcome back",
+  "signInSubtitle": "Sign in to return to everything you’ve kept.",
+  "forgotPassword": "Forgot password?",
+  "newToStashly": "New to Stashly?",
+  "createAccountLink": "Create account",
+  "registerTitle": "Create your account",
+  "registerSubtitle": "Start building a stash that’s easy to return to.",
+  "displayNameLabel": "Display name",
+  "displayNameHint": "How should we address you?",
+  "confirmPasswordLabel": "Confirm password",
+  "confirmPasswordHint": "Enter it once more",
+  "termsPrefix": "I agree to the Stashly ",
+  "termsLink": "Terms",
+  "termsAnd": " and ",
+  "privacyLink": "Privacy Policy",
+  "termsSuffix": ".",
+  "haveAccount": "Already have an account?",
+  "resetTitle": "Reset your password",
+  "resetSubtitle": "Enter the email associated with your account.",
+  "resetNotice": "We’ll email a secure reset link if an account exists. It expires in 60 minutes.",
+  "resetSentEyebrow": "RESET LINK SENT",
+  "checkInboxTitle": "Next, check your inbox",
+  "checkInboxBefore": "If an account exists for ",
+  "checkInboxAfter": ", a password reset link is on its way.",
+  "checkInboxStepOpen": "Open the secure link in the email.",
+  "checkInboxStepChoose": "Choose a new password, then return to sign in.",
+  "returnToSignIn": "Return to Sign In",
+  "yourEmailFallback": "your email",
+  "googleTermsTitle": "Create your Stashly account",
+  "googleTermsBody": "This Google account is new to Stashly. Accept the Terms to create your account.",
+  "readTerms": "Read the Terms",
+  "continueWithGoogle": "Continue with Google",
+  "onboardingSaveEyebrow": "SAVE IN A MOMENT",
+  "onboardingSaveTitle": "Save what matters",
+  "onboardingSaveBody": "Share useful links from the apps you already use. Stashly keeps the source, not a downloaded copy.",
+  "onboardingOrganizeEyebrow": "MAKE IT YOURS",
+  "onboardingOrganizeTitle": "Organize your world",
+  "onboardingOrganizeBody": "Collections and tags add structure when you want it—and stay out of the way when you don’t.",
+  "onboardingFindEyebrow": "READY WHEN YOU ARE",
+  "onboardingFindTitle": "Find it when you need it",
+  "onboardingFindBody": "Search across titles, sources, collections, and favorites to rediscover the right link fast.",
+  "onboardingStep": "Step {current} of {total}",
+  "@onboardingStep": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "artSavedTitle": "Spaces worth remembering",
+  "artLearning": "Learning",
+  "artInspiration": "Inspiration",
+  "artSaves": "{count} saves",
+  "@artSaves": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "artCurated": "Curated",
+  "artQuery": "design inspiration",
+  "artResultTitle": "Quiet modern spaces",
+  "artResultTitle2": "Brand systems to revisit",
+  "artIdeasFound": "{count} ideas found",
+  "@artIdeasFound": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "artTagInteriors": "#interiors",
+  "artTagIdeas": "#ideas",
+  "itemCount": "{count, plural, =0{0 items} =1{1 item} other{{count} items}}",
+  "@itemCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "collectionsEyebrow": "ORGANIZED YOUR WAY",
+  "collectionsSubtitle": "Personal groups that can overlap as much as your interests do.",
+  "startOrganizing": "Start organizing",
+  "startOrganizingBody": "Create a collection to group related links. A link can live in several.",
+  "newCollection": "New collection",
+  "deleteCollectionTitle": "Delete this collection?",
+  "deleteCollectionMessage": "“{name}” will be removed. The links inside stay in your library.",
+  "@deleteCollectionMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "keepIt": "Keep it",
+  "collectionDeleted": "Collection deleted",
+  "membershipEyebrow": "COLLECTION MEMBERSHIP",
+  "addExistingItems": "Add existing items",
+  "membershipHelper": "Select links for {name}. Removing one here keeps it in your library.",
+  "@membershipHelper": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "saveMembership": "Save membership",
+  "libraryEmpty": "Your library is empty.",
+  "collectionUpdated": "Collection updated",
+  "editCollection": "Edit collection",
+  "addExisting": "Add existing",
+  "searchInCollection": "Search within this collection",
+  "collectionEmpty": "This collection is empty",
+  "collectionNoMatches": "No matches in this collection",
+  "collectionEmptyHint": "Use “Add existing” to bring links in, or organize from any item.",
+  "tryBroaderWord": "Try a broader word.",
+  "sortLabel": "Sort: {label}",
+  "@sortLabel": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "collectionNameRequired": "Give your collection a name.",
+  "newCollectionEyebrow": "NEW COLLECTION",
+  "collectionEyebrow": "COLLECTION",
+  "collectionNameHint": "e.g. Weekend projects",
+  "descriptionLabel": "Description",
+  "descriptionHint": "What belongs here?",
+  "quickAccess": "QUICK ACCESS",
+  "browseAll": "Browse all",
+  "yourSpace": "YOUR SPACE",
+  "recentlySaved": "Recently saved",
+  "viewAll": "View all",
+  "filterAll": "All",
+  "moreFilters": "More filters",
+  "nothingSavedYet": "Nothing saved yet",
+  "noItemsOfType": "{type, select, video{No videos yet} article{No articles yet} product{No products yet} social{No social yet} other{No other yet}}",
+  "@noItemsOfType": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "homeEmptyBody": "Share a link from any app, or tap Save Link to add one.",
+  "homeEmptyTypeBody": "Items of this type will show up here.",
+  "homeSubtitle": "Everything worth keeping, right where you left it.",
+  "homeSearchHint": "Search titles, sources, collections…",
+  "searchFilters": "Search filters",
+  "saveLink": "Save Link",
+  "favorites": "Favorites",
+  "savedCount": "{count, plural, =0{0 saved} =1{1 saved} other{{count} saved}}",
+  "@savedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "favoritesTileLabel": "Favorites, {saved}",
+  "@favoritesTileLabel": {
+    "placeholders": {
+      "saved": {
+        "type": "String"
+      }
+    }
+  },
+  "contentType": "{type, select, video{Videos} article{Articles} product{Products} social{Social} other{Other}}",
+  "@contentType": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "linkSort": "{sort, select, newest{Newest} oldest{Oldest} other{{sort}}}",
+  "@linkSort": {
+    "placeholders": {
+      "sort": {
+        "type": "String"
+      }
+    }
+  },
+  "collectionsUpdated": "Collections updated",
+  "incomingLink": "Incoming link",
+  "alreadyEyebrow": "ALREADY IN STASHLY",
+  "alreadyTitle": "You’ve saved this link before",
+  "alreadyBody": "No duplicate was created. You can open the existing item or add more organization.",
+  "openSavedItem": "Open saved item",
+  "addToCollection": "Add to a collection",
+  "editPersonalNote": "Edit personal note",
+  "openMyLibrary": "Open my library",
+  "changesSaved": "Changes saved",
+  "savedItemEyebrow": "SAVED ITEM",
+  "editDetails": "Edit details",
+  "titleLabel": "Title",
+  "titleHint": "Add a memorable title",
+  "originalUrl": "Original URL",
+  "personalNote": "Personal note",
+  "noteHint": "Why is this worth keeping?",
+  "tagsLabel": "Tags",
+  "tagsHint": "travel, italy, film",
+  "sharedTagsHint": "travel, watch later",
+  "collectionLabel": "Collection",
+  "libraryEyebrow": "YOUR CONTENT LIBRARY",
+  "listLayout": "List layout",
+  "gridLayout": "Grid layout",
+  "noFilterMatches": "Nothing matches these filters",
+  "noFilterMatchesBody": "Try another type or turn off Favorites.",
+  "libraryEmptyBody": "Share a link to Stashly or tap + to save your first one.",
+  "openFailed": "Couldn’t open this link.",
+  "savedItemTitle": "Saved item",
+  "openOriginal": "Open Original",
+  "copyLinkButton": "Copy Link",
+  "savedLabel": "Saved",
+  "descriptionEyebrow": "DESCRIPTION",
+  "tagsEyebrow": "TAGS",
+  "noTagsYet": "No tags yet.",
+  "addToFavoritesButton": "Add to Favorites",
+  "removeFromFavoritesButton": "Remove from Favorites",
+  "organizeIntoCollections": "Organize into Collections",
+  "deleteSavedItem": "Delete saved item",
+  "fetchingDetails": "Fetching details…",
+  "noDescription": "No description available.",
+  "previewBlocked": "This page can’t be previewed.",
+  "previewFailed": "We couldn’t load a preview.",
+  "refreshPreview": "Refresh preview",
+  "organizeEyebrow": "ORGANIZE",
+  "addToCollections": "Add to collections",
+  "organizeHelper": "Choose any number of collections. Clear all to keep this item Unsorted.",
+  "selected": "Selected",
+  "noCollectionsYet": "No collections yet. Create your first one below.",
+  "unsorted": "Unsorted",
+  "savedToStashly": "Saved to Stashly",
+  "addToStashlyEyebrow": "ADD TO STASHLY",
+  "saveToStashly": "Save to Stashly",
+  "urlLabel": "URL",
+  "previewNotice": "We’ll fetch a preview when available. You can always save without one.",
+  "shareNoLink": "This share doesn’t contain a web link Stashly can save.",
+  "linkCantBeSaved": "This link can’t be saved.",
+  "sharedToStashly": "Shared to Stashly",
+  "storageNotice": "Only the URL and available metadata are stored—not the original video or image.",
+  "saveNow": "Save now",
+  "cantSaveThis": "Can’t save this",
+  "lookingForPreview": "Looking for a preview…",
+  "lookingForPreviewBody": "You can save right away; details can arrive later.",
+  "previewReady": "Preview ready",
+  "previewReadyBody": "Title and thumbnail found.",
+  "previewPartial": "Partial preview",
+  "previewPartialBody": "Some details were found. We’ll keep looking after you save.",
+  "previewNone": "No preview yet",
+  "previewNoneBody": "Save now — we’ll try to fetch the title and image in the background.",
+  "previewUnavailable": "Preview unavailable",
+  "previewUnavailableBody": "This page can’t be previewed, but you can still save the link.",
+  "offlineSaveBody": "Connect to the internet to save this link.",
+  "nameLength": "Use 1–100 characters.",
+  "profileUpdated": "Profile updated",
+  "editProfile": "Edit profile",
+  "accountEyebrow": "ACCOUNT",
+  "emailAddress": "Email address",
+  "emailLocked": "Your email is your sign-in and can’t be changed yet.",
+  "currentPasswordRequired": "Enter your current password.",
+  "choosePasswordNew": "Choose a password you haven’t used here.",
+  "passwordUpdated": "Password updated. Other devices were signed out.",
+  "changePassword": "Change password",
+  "changePasswordSubtitle": "Confirm your current password, then choose a new one.",
+  "currentPassword": "Current password",
+  "currentPasswordHint": "Enter current password",
+  "newPassword": "New password",
+  "confirmNewPassword": "Confirm new password",
+  "confirmNewPasswordHint": "Enter it again",
+  "updatePassword": "Update password",
+  "otherDevicesNotice": "For your security, other devices will be signed out.",
+  "profileEyebrow": "YOUR STASHLY",
+  "settings": "Settings",
+  "totalSaves": "Total saves",
+  "walletTitle": "Personal content wallet",
+  "walletBody": "Stashly stores your links and metadata—not downloaded originals.",
+  "settingsRowSubtitle": "Account, privacy, and about",
+  "statLabel": "{value} {label}",
+  "@statLabel": {
+    "placeholders": {
+      "value": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "exportSubject": "My Stashly data export",
+  "signOutTitle": "Sign out?",
+  "signOutBody": "You can sign out of this device only, or every device signed in to your account.",
+  "signOutThisDevice": "Sign out of this device",
+  "signOutEverywhere": "Sign out everywhere",
+  "aboutBody": "A personal wallet for links worth keeping. Stashly saves the link and its details—never a copy of the content.",
+  "changePasswordRowSubtitle": "Confirm your current password to set a new one",
+  "setPasswordViaForgot": "Use “Forgot password” to set a password",
+  "appearanceGroup": "APPEARANCE",
+  "themeDark": "Dark",
+  "themeDarkSubtitle": "Stashly’s signature look",
+  "themeLight": "Light",
+  "themeLightSubtitle": "Bright and easy to read in daylight",
+  "themeSystem": "Match device",
+  "themeSystemSubtitle": "Follow your phone’s dark mode setting",
+  "languageGroup": "LANGUAGE",
+  "languageDevice": "Device language",
+  "languageDeviceSubtitle": "Arabic or English, following your phone",
+  "languageEnglish": "English",
+  "languageEnglishSubtitle": "English",
+  "languageArabic": "العربية",
+  "languageArabicSubtitle": "Arabic",
+  "dataGroup": "DATA & PRIVACY",
+  "privacyPolicy": "Privacy policy",
+  "privacySubtitle": "How Stashly handles your data",
+  "termsOfUse": "Terms of use",
+  "termsSubtitle": "The agreement for using Stashly",
+  "exportData": "Export my data",
+  "exportPreparing": "Preparing your file…",
+  "exportSubtitle": "Download everything as a JSON file",
+  "deleteAccount": "Delete account",
+  "deleteAccountSubtitle": "Permanently removes your account and saved items",
+  "aboutGroup": "ABOUT",
+  "aboutStashly": "About Stashly",
+  "appVersion": "App version",
+  "versionValue": "Version {version}",
+  "@versionValue": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "buildBadge": "Build",
+  "passwordConfirmRequired": "Enter your password to confirm.",
+  "deleteAccountTitle": "Delete your account?",
+  "deleteAccountBody": "This permanently deletes your account, saved links, collections and tags. It can’t be undone. Export your data first if you want a copy.",
+  "confirmWithGoogleNotice": "You’ll confirm with your Google account.",
+  "yourPasswordHint": "Your password",
+  "keepAccount": "Keep account",
+  "refineEyebrow": "REFINE RESULTS",
+  "resetAll": "Reset All",
+  "applyFilters": "Apply filters",
+  "contentTypeLabel": "Content type",
+  "sourceLabel": "Platform or source",
+  "dateSaved": "Date saved",
+  "anyTime": "Any time",
+  "lastDays": "Last {days} days",
+  "@lastDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "favoritesOnly": "Favorites only",
+  "sortOrder": "Sort order",
+  "searchEyebrow": "FIND IT AGAIN",
+  "searchTitle": "Search your stash",
+  "searchSubtitle": "Search the words stored with your links—no AI or source app required.",
+  "searchHint": "Title, note, description, or source…",
+  "clearSearch": "Clear search",
+  "filters": "Filters",
+  "recentSearches": "Recent searches",
+  "suggestedSearches": "Suggested searches",
+  "noMatches": "No matches found",
+  "noMatchesBody": "Try a broader word or check your filters.",
+  "resultCount": "{count, plural, =0{0 results} =1{1 result} other{{count} results}}",
+  "@resultCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchFor": "Search for {query}",
+  "@searchFor": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "searchEmptyTitle": "You don’t need to remember where it came from",
+  "searchEmptyBody": "Try an English or Arabic title, a note, or a website domain."
+}
